@@ -44,7 +44,7 @@ function fibProgram(n: number): Frame {
 
   let globalContext = new Context();
   let fibFuncDef = new FuncDef(["n"], fibCode);
-  globalContext.setLocal("fib", new FuncValue(fibFuncDef));
+  globalContext.setLocal("fib", fibFuncDef);
   let initialFrame = new Frame(mainPrg, globalContext);
 
   return initialFrame
