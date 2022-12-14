@@ -2,16 +2,18 @@
 
 interface Value {
   greaterEquals(other: Value): boolean;
+  greaterThan(other: Value): boolean;
   add(other: Value): Value
+  subtract(other: Value): Value
   dividedBy(other: Value): Value
   numberValue(): number
-  codeValue(): Code
+  funcValue(): FuncDef
 }
 
 class FuncValue implements Value {
-  value: Code;
+  value: FuncDef;
 
-  constructor(value: Code) {
+  constructor(value: FuncDef) {
     this.value = value;
   }
 
@@ -19,7 +21,15 @@ class FuncValue implements Value {
     throw new Error("Operation not permitted")
   }
 
+  greaterThan(other: Value): boolean {
+    throw new Error("Operation not permitted")
+  }
+
   add(other: Value): Value {
+    throw new Error("Operation not permitted")
+  }
+
+  subtract(other: Value): Value {
     throw new Error("Operation not permitted")
   }
 
@@ -31,7 +41,7 @@ class FuncValue implements Value {
     throw new Error("Operation not permitted")
   }
 
-  codeValue(): Code {
+  funcValue(): FuncDef {
     return this.value
   }
 
@@ -52,9 +62,25 @@ class NumberValue implements Value {
     }
   }
 
+  greaterThan(other: Value): boolean {
+    if (other instanceof NumberValue) {
+      return this.value > other.value;
+    } else {
+      throw new Error("Operation not permitted")
+    }
+  }
+
   add(other: Value): Value {
     if (other instanceof NumberValue) {
       return new NumberValue(this.value + other.value);
+    } else {
+      throw new Error("Operation not permitted")
+    }
+  }
+
+  subtract(other: Value): Value {
+    if (other instanceof NumberValue) {
+      return new NumberValue(this.value - other.value);
     } else {
       throw new Error("Operation not permitted")
     }
@@ -72,7 +98,7 @@ class NumberValue implements Value {
     return this.value;
   }
 
-  codeValue(): Code {
+  funcValue(): FuncDef {
     throw new Error("Operation not permitted")
   }
 }

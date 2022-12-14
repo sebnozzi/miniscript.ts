@@ -7,9 +7,13 @@ class Frame {
   code: Code;
   context: Context;
 
-  constructor(code: Code) {
+  constructor(code: Code, context: Context | undefined = undefined) {
     this.ip = 0;
     this.code = code;
-    this.context = new Context();
+    if (context) {
+      this.context = context;
+    } else {
+      this.context = new Context();
+    }
   }
 }

@@ -1,7 +1,7 @@
 /// <reference path="../bytecodes.ts"/>
 /// <reference path="../values.ts"/>
 
-function sumProgram(): Code {
+function sumProgram(): Frame {
   let prg = new CodeBuilder()
 
   prg.push(BC.PUSH_INT, 0)
@@ -34,5 +34,6 @@ function sumProgram(): Code {
   prg.push(BC.EXIT)
 
   let program = prg.build()
-  return program
+  let frame = new Frame(program)
+  return frame
 }
