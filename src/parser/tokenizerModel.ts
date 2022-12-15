@@ -20,6 +20,10 @@ class Pos {
     this.col=1
     this.row=this.row + 1
   }
+
+  toString() {
+    return `(idx=${this.idx},row=${this.row},col=${this.col})`
+  }
 }
 
 
@@ -40,6 +44,10 @@ class SimpleToken implements Token {
     this.position = position;
     this.afterSpace = afterSpace;
   }
+
+  toString(): string {
+    return `SimpleToken(tokenType=${TokenType[this.tokenType]},position=${this.position.toString()},afterSpace=${this.afterSpace})`
+  }
 }
 
 class LiteralToken<T> implements Token {
@@ -54,6 +62,16 @@ class LiteralToken<T> implements Token {
     this.position = position;
     this.afterSpace = afterSpace;
   }
+
+  toString(): string {
+    let strValue: string;
+    if (this.tokenType == TokenType.STRING_LITERAL) {
+      strValue = `"${this.value}"`;
+    } else {
+      strValue = `${this.value}`;
+    }
+    return `LiteralToken(tokenType=${TokenType[this.tokenType]},value=${strValue},position=${this.position.toString()},afterSpace=${this.afterSpace})`
+  }
 }
 
 class StringLiteral extends LiteralToken<string> {
@@ -62,14 +80,14 @@ class StringLiteral extends LiteralToken<string> {
   }
 }
 
-class IntLiteral extends LiteralToken<string> {
-  constructor(value: string, position: Pos, afterSpace: boolean) {
+class IntLiteral extends LiteralToken<number> {
+  constructor(value: number, position: Pos, afterSpace: boolean) {
     super(TokenType.INT_LITERAL, value, position, afterSpace);
   }
 }
 
-class FloatLiteral extends LiteralToken<string> {
-  constructor(value: string, position: Pos, afterSpace: boolean) {
+class FloatLiteral extends LiteralToken<number> {
+  constructor(value: number, position: Pos, afterSpace: boolean) {
     super(TokenType.FLOAT_LITERAL, value, position, afterSpace);
   }
 }
@@ -86,6 +104,10 @@ class Identifier implements Token {
     this.position = position;
     this.afterSpace = afterSpace;
   }
+
+  toString(): string {
+    return `Identifier(value="${this.value}",position=${this.position.toString()},afterSpace=${this.afterSpace})`
+  }
 }
 
 class EofToken implements Token {
@@ -98,4 +120,10 @@ class EofToken implements Token {
     this.position = position;
     this.afterSpace = afterSpace;
   }
+
+  toString(): string {
+    return `EofToken(position=${this.position.toString()},afterSpace=${this.afterSpace})`
+  }
 }
+
+class ParseError extends Error {}
