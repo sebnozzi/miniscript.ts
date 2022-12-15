@@ -1,4 +1,4 @@
-/// <reference path="../vm/bytecodes.ts"/>
+/// <reference path="../bytecodes.ts"/>
 /// <reference path="../values.ts"/>
 
 function sumProgram(): Frame {
