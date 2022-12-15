@@ -1,5 +1,5 @@
-/// <reference path="./processor.ts"/>
-/// <reference path="./sample_programs/sumProgram.ts"/>
+/// <reference path="./vm/processor.ts"/>
+/// <reference path="./vm/sample_programs/sumProgram.ts"/>
 
 function run() {
   console.log("Starting")
