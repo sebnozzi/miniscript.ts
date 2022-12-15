@@ -4,15 +4,15 @@
 function sumProgram(): Frame {
   let prg = new CodeBuilder()
 
-  prg.push(BC.PUSH_INT, 0)
+  prg.push(BC.PUSH, 0)
   prg.push(BC.ASSIGN_LOCAL, 0) // assign to "i"
-  prg.push(BC.PUSH_INT, 0)
+  prg.push(BC.PUSH, 0)
   prg.push(BC.ASSIGN_LOCAL, 1) // assign to "r"
 
   // (8) start_loop:
   prg.define_address("start_loop")
   prg.push(BC.PUSH_VAR, 0) // resolve "i"
-  prg.push(BC.PUSH_INT, 3_000_000)
+  prg.push(BC.PUSH, 3_000_000)
   prg.push_unresolved(BC.JUMP_GE, "end_loop")
 
   // while body

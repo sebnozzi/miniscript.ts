@@ -13,7 +13,7 @@ function fibProgram(n: number): Frame {
   // Build the "fib function"
   let fibBld = new CodeBuilder()
   fibBld.push(BC.PUSH_VAR, "n")
-  fibBld.push(BC.PUSH_INT, 1)
+  fibBld.push(BC.PUSH, 1)
   fibBld.push_unresolved(BC.JUMP_GT, "else")
   // if part
   fibBld.push(BC.PUSH_VAR, "n")
@@ -35,8 +35,10 @@ function fibProgram(n: number): Frame {
 
   // Main program
   let mainBld = new CodeBuilder();
-  mainBld.push(BC.PUSH_INT, n)
+  mainBld.push(BC.PUSH, n)
   mainBld.push(BC.CALL, "fib")
+  mainBld.push(BC.PUSH, "Results: ")
+  mainBld.push(BC.CALL_PRIMITIVE, "print")
   mainBld.push(BC.PRINT_TOP)
   mainBld.push(BC.EXIT)
 

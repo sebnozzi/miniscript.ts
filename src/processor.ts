@@ -22,6 +22,8 @@ class Processor {
   finished: boolean;
   // Callback when processing done
   onFinished: Function;
+  // Map of primitives
+  primitives: {[id: string]: Function};
 
   constructor(initialFrame: Frame) {
     this.code = initialFrame.code;
@@ -33,10 +35,15 @@ class Processor {
     this.cycleCount = 0;
     this.finished = false;
     this.onFinished = function() {};
+    this.primitives = {};
   }
 
   run() {
     this.executeSomeCycles();
+  }
+
+  addPrimitive(name: string, impl: Function) {
+    this.primitives[name] = impl;
   }
 
   executeSomeCycles() {
@@ -91,7 +98,7 @@ class Processor {
           this.ip += 1;
           break;
         }
-        case BC.PUSH_INT: {
+        case BC.PUSH: {
           let value: number = this.code.arg1[this.ip]
           this.opStack.push(value)
           this.ip += 1
@@ -159,6 +166,17 @@ class Processor {
           this.cycleCount = maxCount;
           this.ip = this.code.opCodes.length;
           break;
+        }
+        case BC.CALL_PRIMITIVE: {
+          let name = this.code.arg1[this.ip];
+          let prim = this.primitives[name];
+          if (prim) {
+            prim(this.opStack, this.context);
+            this.ip += 1;
+            break;
+          } else {
+            throw new Error("Primitive not found: " + name);
+          }
         }
         case BC.PRINT_TOP: {
           let value = this.opStack.pop()

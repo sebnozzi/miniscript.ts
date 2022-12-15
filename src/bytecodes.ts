@@ -1,7 +1,12 @@
 
 const enum BC {
+  // Push primitive value to stack
+  PUSH,
+
+  // Resolve variable and push value to stack
   PUSH_VAR,
-  PUSH_INT,
+
+  // Assign value to local variable
   ASSIGN_LOCAL,
   
   // Adds two stack values, leaving result in the stack
@@ -20,6 +25,7 @@ const enum BC {
   RETURN,
   EXIT,
 
+  CALL_PRIMITIVE,
   CALL_NATIVE,
 
   PRINT_TOP,
