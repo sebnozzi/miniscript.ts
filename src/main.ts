@@ -1,7 +1,7 @@
 /// <reference path="./vm/processor.ts"/>
 /// <reference path="./vm/sample_programs/sumProgram.ts"/>
 
-function run() {
+function runTokenDemo() {
   const sampleCode = [
     "fib = function(n)",
     "  if n <= 1 then",
@@ -20,11 +20,11 @@ function run() {
   }
 }
 
-function runVmDemo() {
+function run() {
   console.log("Starting")
   let t0 = performance.now();
-  let frame = fibProgram(30);
-  let p = new Processor(frame);
+  let prgCode = fibProgram(30);
+  let p = new Processor(prgCode);
 
   p.addPrimitive("print", function(opStack: Stack<any>, context: Context){
     let arg = opStack.pop();

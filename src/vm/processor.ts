@@ -25,10 +25,10 @@ class Processor {
   // Map of primitives
   primitives: {[id: string]: Function};
 
-  constructor(initialFrame: Frame) {
-    this.code = initialFrame.code;
-    this.ip = initialFrame.ip;
-    this.globalContext = initialFrame.context;
+  constructor(programCode: Code) {
+    this.code = programCode;
+    this.ip = 0;
+    this.globalContext = new Context();
     this.context = this.globalContext;
     this.savedFrames = new Stack<Frame>();
     this.opStack = new Stack();
