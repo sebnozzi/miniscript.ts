@@ -8,10 +8,14 @@ def recur_fibo(n):
         return recur_fibo(n - 1) + recur_fibo(n - 2)
 
 */
-function fibProgram(n: number): Frame {
+function fibProgram(n: number): Code {
 
-  // Build the "fib function"
-  let fibBld = new CodeBuilder()
+   // Main program
+  let mainBld = new CodeBuilder();
+
+  // `fib = function(n) ...`
+  // Builer for the "fib function"
+  const fibBld = new CodeBuilder()
   fibBld.push(BC.PUSH_VAR, "n")
   fibBld.push(BC.PUSH, 1)
   fibBld.push_unresolved(BC.JUMP_GT, "else")
@@ -31,12 +35,18 @@ function fibProgram(n: number): Frame {
   // Leave value there, it is the return value.
   fibBld.push(BC.ADD_VALUES)
   fibBld.push(BC.RETURN)
-  let fibCode = fibBld.build()
+  // Build function
+  const fibCode = fibBld.build()
+  let fibFuncDef = new FuncDef(["n"], fibCode);
+  // Assign function to variable "fib"
+  mainBld.push(BC.PUSH, fibFuncDef)
+  mainBld.push(BC.ASSIGN_LOCAL, "fib")
+  // `end function`
 
-  // Main program
-  let mainBld = new CodeBuilder();
+  // Call "fib"
   mainBld.push(BC.PUSH, n)
   mainBld.push(BC.CALL, "fib")
+
   mainBld.push(BC.PUSH, "Results: ")
   mainBld.push(BC.CALL_PRIMITIVE, "print")
   mainBld.push(BC.PRINT_TOP)
@@ -44,10 +54,5 @@ function fibProgram(n: number): Frame {
 
   let mainPrg = mainBld.build();
 
-  let globalContext = new Context();
-  let fibFuncDef = new FuncDef(["n"], fibCode);
-  globalContext.setLocal("fib", fibFuncDef);
-  let initialFrame = new Frame(mainPrg, globalContext);
-
-  return initialFrame
+  return mainPrg
 }
