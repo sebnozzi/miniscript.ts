@@ -17,7 +17,7 @@ function runParserDemo() {
   const statements = p.parse();
   console.log(statements);
   for(let statement of statements) {
-    console.log(statement.toString());
+    console.log(statement.toJson());
   }
 }
 
