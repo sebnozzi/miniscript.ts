@@ -13,9 +13,6 @@ class NumberLiteral {
 
 class Tokenizer {
 
-
-
-
   private readonly input: string;
   private pos: Pos = new Pos(0, 1, 1)
   private _currentChar: string = '\u0000'
