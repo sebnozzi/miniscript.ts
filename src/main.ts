@@ -1,17 +1,27 @@
 /// <reference path="./vm/processor.ts"/>
 /// <reference path="./vm/sample_programs/sumProgram.ts"/>
 
+const sampleCode = [
+  "fib = function(n)",
+  "  if n <= 1 then",
+  "    return n",
+  "  else",
+  "    return fib(n-1) + fib(n-2)",
+  "  end if",
+  "end function",
+  "print fib(30)"
+].join("\n");
+
+function runParserDemo() {
+  const p = new Parser(sampleCode);
+  const statements = p.parse();
+  console.log(statements);
+  for(let statement of statements) {
+    console.log(statement.toString());
+  }
+}
+
 function runTokenDemo() {
-  const sampleCode = [
-    "fib = function(n)",
-    "  if n <= 1 then",
-    "    return n",
-    "  else",
-    "    return fib(n-1) + fib(n-2)",
-    "  end if",
-    "end function",
-    "print fib(30)"
-  ].join("\n");
   const t = new Tokenizer(sampleCode);
   const tokens = t.tokenize();
   console.log(tokens);

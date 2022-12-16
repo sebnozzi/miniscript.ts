@@ -44,12 +44,7 @@ class ContinueStatement implements Statement {}
 
 interface Expression {}
 
-type OptExpression = Expression | null
-
-type ExpressionPair = {
-  key: Expression
-  value: Expression
-}
+type OptExpression = Expression | undefined
 
 class BinaryExpr implements Expression {
   constructor(public left: Expression, public operator: Token, public right: Expression) {}
@@ -84,7 +79,7 @@ class ListExpr implements Expression {
 }
 
 class MapExpr implements Expression {
-  constructor(public elements: ExpressionPair[]) {}
+  constructor(public elements: Map<Expression, Expression>) {}
 }
 
 class ListAccessExpr implements Expression {
