@@ -125,5 +125,3 @@ class EofToken implements Token {
     return `EofToken(position=${this.position.toString()},afterSpace=${this.afterSpace})`
   }
 }
-
-class ParseError extends Error {}
