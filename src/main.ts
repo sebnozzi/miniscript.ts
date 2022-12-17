@@ -86,6 +86,11 @@ function runCode(prgCode: Code) {
   p.run();
 }
 
+function runInlinedFib() {
+  let prgCode = inlinedFibProgram(30);
+  runCode(prgCode);
+}
+
 function debugCode(prgCode: Code) {
   console.log("Starting");
   const e = globalThis.editor;

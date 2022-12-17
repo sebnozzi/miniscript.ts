@@ -58,6 +58,11 @@ class Processor {
     this.cycleCount = 0;
     while(this.cycleCount < maxCount) {
       switch (this.code.opCodes[this.ip]) {
+        case BC.CALL_TRANSPILED: {
+          let transpiledBlock: Function = this.code.arg1[this.ip];
+          transpiledBlock(this, this.context, this.opStack);
+          break;
+        }
         case BC.CALL: {
           let funcName: string = this.code.arg1[this.ip] as string;
 

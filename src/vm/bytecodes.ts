@@ -35,7 +35,7 @@ enum BC {
   EXIT,
 
   CALL_PRIMITIVE,
-  CALL_NATIVE,
+  CALL_TRANSPILED,
 
   PRINT_TOP,
 };
