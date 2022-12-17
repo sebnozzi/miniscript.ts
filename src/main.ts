@@ -12,6 +12,15 @@ const sampleCode = [
   "print fib(30)"
 ].join("\n");
 
+function runCompilerDemo() {
+  const p = new Parser(sampleCode);
+  const statements = p.parse();
+  const compiler = new Compiler(statements);
+  const code = compiler.compile();
+  console.log(code);
+  runCode(code);
+}
+
 function runParserDemo() {
   const p = new Parser(sampleCode);
   const statements = p.parse();
@@ -30,10 +39,9 @@ function runTokenDemo() {
   }
 }
 
-function run() {
+function runCode(prgCode: Code) {
   console.log("Starting")
-  let t0 = performance.now();
-  let prgCode = fibProgram(30);
+
   let p = new Processor(prgCode);
 
   p.addPrimitive("print", function(opStack: Stack<any>, context: Context){
@@ -41,10 +49,18 @@ function run() {
     console.log(arg);
   });
 
+  let t0: number = performance.now();
+
   p.onFinished = function() {
     let t1 = performance.now();
     console.log("Finished")
     console.log(t1 - t0, " milliseconds");
   }
+  
   p.run();
+}
+
+function run() {
+  let prgCode = fibProgram(30);
+  runCode(prgCode);
 }

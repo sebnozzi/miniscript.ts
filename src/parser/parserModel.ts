@@ -107,7 +107,7 @@ class FunctionCallStatement implements Statement {
 }
 
 class ReturnStatement implements Statement {
-  constructor(private optValue: OptExpression) {}
+  constructor(public optValue: OptExpression) {}
   toJson(): object {
     return {
       "ReturnStatement": {
@@ -287,7 +287,7 @@ class PropertyAccessExpr implements Expression {
 }
 
 class Argument {
-  constructor(public name: String, public defaultValue: OptExpression) {}
+  constructor(public name: string, public defaultValue: OptExpression) {}
   toJson(): object {
     return {
       "Argument": {

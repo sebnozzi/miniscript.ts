@@ -62,22 +62,29 @@ class Processor {
       switch (this.code.opCodes[this.ip]) {
         case BC.CALL: {
           let funcName: string = this.code.arg1[this.ip] as string;
-          let funcDef: FuncDef = this.context.get(funcName);
+
+          // Try to see if it's a primitive
+          if (funcName in this.primitives) {
+            let prim = this.primitives[funcName];
+            prim(this.opStack, this.context);
+            this.ip += 1;
+          } else {
+            let funcDef: FuncDef = this.context.get(funcName);
           
-          // Let it return to the next bytecode after the call
-          this.ip += 1;
-          this.pushFrame();
-
-          this.code = funcDef.code;
-          this.context = new Context(this.globalContext);
-          this.ip = 0;
-
-          // Pop and set parameters as variables
-          for (let paramName of funcDef.params) {
-            const paramValue = this.opStack.pop();
-            this.context.setLocal(paramName, paramValue);
+            // Let it return to the next bytecode after the call
+            this.ip += 1;
+            this.pushFrame();
+  
+            this.code = funcDef.code;
+            this.context = new Context(this.globalContext);
+            this.ip = 0;
+  
+            // Pop and set parameters as variables
+            for (let paramName of funcDef.params) {
+              const paramValue = this.opStack.pop();
+              this.context.setLocal(paramName, paramValue);
+            }
           }
-
           break;
         }
         case BC.RETURN: {
@@ -104,6 +111,48 @@ class Processor {
           this.ip += 1
           break;
         }
+        case BC.COMPARE_GE: {
+          let valueB = this.opStack.pop()
+          let valueA = this.opStack.pop()
+          if (greaterEquals(valueA, valueB)) {
+            this.opStack.push(1)
+          } else {
+            this.opStack.push(0)
+          }
+          this.ip += 1
+          break;
+        }
+        case BC.COMPARE_GT: {
+          let valueB = this.opStack.pop()
+          let valueA = this.opStack.pop()
+          if (greaterThan(valueA, valueB)) {
+            this.opStack.push(1)
+          } else {
+            this.opStack.push(0)
+          }
+          break;
+        }
+        case BC.COMPARE_LE: {
+          let valueB = this.opStack.pop()
+          let valueA = this.opStack.pop()
+          if (lessEquals(valueA, valueB)) {
+            this.opStack.push(1)
+          } else {
+            this.opStack.push(0)
+          }
+          this.ip += 1
+          break;
+        }
+        case BC.COMPARE_LT: {
+          let valueB = this.opStack.pop()
+          let valueA = this.opStack.pop()
+          if (lessThan(valueA, valueB)) {
+            this.opStack.push(1)
+          } else {
+            this.opStack.push(0)
+          }
+          break;
+        }
         case BC.JUMP_GE: {
           let jumpAddr = this.code.arg1[this.ip]
           let valueB = this.opStack.pop()
@@ -126,10 +175,32 @@ class Processor {
           }
           break;
         }
+        case BC.JUMP_FALSE: {
+          let jumpAddr = this.code.arg1[this.ip]
+          let value = this.opStack.pop()
+          if (typeof value == "number") {
+            if (value == 0) {
+              this.ip = jumpAddr
+            } else {
+              this.ip += 1
+            }
+          } else {
+            throw new Error("Type not supported: " + value)
+          }
+          break;
+        }
         case BC.ADD_VALUES: {
           let valueInStack_1 = this.opStack.pop()
           let valueInStack_2 = this.opStack.pop()
           let result = add(valueInStack_1, valueInStack_2)
+          this.opStack.push(result)
+          this.ip += 1;
+          break;
+        }
+        case BC.SUBTRACT_VALUES: {
+          let valueInStack_2 = this.opStack.pop()
+          let valueInStack_1 = this.opStack.pop()
+          let result = subtract(valueInStack_1, valueInStack_2)
           this.opStack.push(result)
           this.ip += 1;
           break;
