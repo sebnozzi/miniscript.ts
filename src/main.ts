@@ -91,6 +91,11 @@ function runInlinedFib() {
   runCode(prgCode);
 }
 
+function runInlineCallFib() {
+  let prgCode = inlineCallFibProgram(30);
+  runCode(prgCode);
+}
+
 function debugCode(prgCode: Code) {
   console.log("Starting");
   const e = globalThis.editor;

@@ -292,4 +292,68 @@ class Processor {
     this.code = frame.code;
   }
 
+  resolveAndPush(id: string) {
+    const value = this.context.get("n")
+    this.opStack.push(value)
+  }
+
+  pushNumber(nr: number) {
+    this.opStack.push(nr)
+  }
+
+  compareLessEqual() {
+    let valueB = this.opStack.pop()
+    let valueA = this.opStack.pop()
+    if (lessEquals(valueA, valueB)) {
+      this.opStack.push(1)
+    } else {
+      this.opStack.push(0)
+    }
+  }
+
+  jumpIfFalse() {
+    let value = this.opStack.pop()
+    if (value == 0) {
+      this.ip = 2
+    } else {
+      this.ip ++;
+    }
+  }
+
+  doReturn() {
+    this.popFrame()
+  }
+
+  subtractValues() {
+    let valueInStack_2 = this.opStack.pop()
+    let valueInStack_1 = this.opStack.pop()
+    let result = subtract(valueInStack_1, valueInStack_2)
+    this.opStack.push(result)
+  }
+
+  resolveAndCall(funcName: string) {
+    let funcDef: FuncDef = this.context.get(funcName);
+  
+    // Let it return to the next bytecode after the call
+    this.ip += 1;
+    this.pushFrame();
+
+    this.code = funcDef.code;
+    this.context = new Context(this.globalContext);
+    this.ip = 0;
+
+    // Pop and set parameters as variables
+    for (let paramName of funcDef.params) {
+      const paramValue = this.opStack.pop();
+      this.context.setLocal(paramName, paramValue);
+    }
+  }
+
+  addValues() {
+    let valueInStack_1 = this.opStack.pop()
+    let valueInStack_2 = this.opStack.pop()
+    let result = add(valueInStack_1, valueInStack_2)
+    this.opStack.push(result)
+  }
+
 }
