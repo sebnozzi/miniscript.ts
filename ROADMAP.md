@@ -30,3 +30,6 @@ Possible performance optimizations:
   - use parallel arrays for opcodes / args (use ref / arg like microScript?)
   - pre-allocate local variable slots? (access them by number instead of resolving each time)
   - use only one stack for locals with a moving "offset"?
+    - only possible if the amount of local variables is fixed
+  - the compiler now emits sub-optimal bytecode sequences
+    - one can re-combine some bytecodes into more compact ones ()
