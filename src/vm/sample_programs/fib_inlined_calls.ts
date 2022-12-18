@@ -7,7 +7,7 @@ function inlineCallFibProgram(n: number) {
       vm.resolveAndPush("n")
       vm.pushNumber(1)
       vm.compareLessEqual()
-      vm.jumpIfFalse()
+      vm.jumpIfFalse(2)
     },
     // 1: if block
     function(vm: Processor, context: Context, opStack: Stack<any>) {

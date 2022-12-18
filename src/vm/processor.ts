@@ -311,10 +311,10 @@ class Processor {
     }
   }
 
-  jumpIfFalse() {
+  jumpIfFalse(addr: number) {
     let value = this.opStack.pop()
     if (value == 0) {
-      this.ip = 2
+      this.ip = addr
     } else {
       this.ip ++;
     }
