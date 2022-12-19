@@ -60,7 +60,7 @@ class Processor {
       switch (this.code.opCodes[this.ip]) {
         case BC.CALL_TRANSPILED: {
           let transpiledBlock: Function = this.code.arg1[this.ip];
-          transpiledBlock(this, this.context, this.opStack);
+          transpiledBlock(this);
           break;
         }
         case BC.CALL: {
@@ -297,8 +297,8 @@ class Processor {
     this.opStack.push(value)
   }
 
-  pushNumber(nr: number) {
-    this.opStack.push(nr)
+  pushValue(value: any) {
+    this.opStack.push(value)
   }
 
   compareLessEqual() {
@@ -347,6 +347,12 @@ class Processor {
       const paramValue = this.opStack.pop();
       this.context.setLocal(paramName, paramValue);
     }
+  }
+
+  callPrimitive(funcName: string) {
+    let prim = this.primitives[funcName];
+    prim(this.opStack, this.context);
+    this.ip++;
   }
 
   addValues() {

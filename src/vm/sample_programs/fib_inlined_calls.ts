@@ -3,33 +3,33 @@
 function inlineCallFibProgram(n: number) {
   const fibFunctions = [
     // 0: pre if-block
-    function(vm: Processor, context: Context, opStack: Stack<any>) {
+    function(vm: Processor) {
       vm.resolveAndPush("n")
-      vm.pushNumber(1)
+      vm.pushValue(1)
       vm.compareLessEqual()
       vm.jumpIfFalse(2)
     },
     // 1: if block
-    function(vm: Processor, context: Context, opStack: Stack<any>) {
+    function(vm: Processor) {
       vm.resolveAndPush("n")
       vm.doReturn()
     },
     // 2: else (call 1)
-    function(vm: Processor, context: Context, opStack: Stack<any>) {
+    function(vm: Processor) {
       vm.resolveAndPush("n")
-      vm.pushNumber(1)
+      vm.pushValue(1)
       vm.subtractValues()
       vm.resolveAndCall("fib")
     },
     // 3: else (call 2)
-    function(vm: Processor, context: Context, opStack: Stack<any>) {
+    function(vm: Processor) {
       vm.resolveAndPush("n")
-      vm.pushNumber(2)
+      vm.pushValue(2)
       vm.subtractValues()
       vm.resolveAndCall("fib")
     },
     // 3: else (add & return)
-    function(vm: Processor, context: Context, opStack: Stack<any>) {
+    function(vm: Processor) {
       vm.addValues()
       vm.doReturn()
     }
@@ -51,12 +51,19 @@ function inlineCallFibProgram(n: number) {
   // `end function`
 
   // Call "fib"
-  mainBld.push(BC.PUSH, n)
-  mainBld.push(BC.CALL, "fib")
+  mainBld.push(BC.CALL_TRANSPILED, function(vm: Processor) {
+    vm.pushValue(n)
+    vm.resolveAndCall("fib")
+  });
 
-  mainBld.push(BC.PUSH, "Results: ")
-  mainBld.push(BC.CALL_PRIMITIVE, "print")
-  mainBld.push(BC.PRINT_TOP)
+  mainBld.push(BC.CALL_TRANSPILED, function(vm: Processor) {
+    vm.pushValue("Results:")
+    vm.callPrimitive("print")
+  });
+  mainBld.push(BC.CALL_TRANSPILED, function(vm: Processor) {
+    vm.callPrimitive("print")
+  });
+
   mainBld.push(BC.EXIT)
 
   let mainPrg = mainBld.build();
