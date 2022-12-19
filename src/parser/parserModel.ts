@@ -1,4 +1,12 @@
-// == Statements
+// TODO: move the whole toJson thing outside of these models.
+// It is only for debugging, they should be external.
+
+interface Expression {
+  location(): SrcLocation;
+  toJson(): object
+}
+
+type OptExpression = Expression | undefined
 
 interface Statement {
   toJson(): object
@@ -16,9 +24,15 @@ function toJsonArray(elements: jsonCapable[]): object[] {
   return result
 }
 
+// == Statements
+
 // An expression found at the level of a statement
 class ExpressionStatement implements Statement {
   constructor(public expression: Expression) {}
+
+  location() {
+    return this.expression.location()
+  }
 
   toJson(): object {
     return {
@@ -29,8 +43,13 @@ class ExpressionStatement implements Statement {
   }
 }
 
-class ConditionedStatements implements Statement {
+class ConditionedStatements {
   constructor(public condition: Expression, public statements: Statement[]) {}
+  
+  location() {
+    return this.condition.location();
+  }
+
   toJson(): object {
     return {
       "ConditionedStatements": {
@@ -58,7 +77,7 @@ class IfStatement implements Statement {
 }
 
 class WhileStatement implements Statement {
-  constructor(public condition: Expression, public statements: Statement[]) { }
+  constructor(public condition: Expression, public headerLocation: SrcLocation, public statements: Statement[]) { }
   toJson(): object {
     return {
       "WhileStatement": {
@@ -70,7 +89,7 @@ class WhileStatement implements Statement {
 }
 
 class ForStatement implements Statement {
-  constructor(public loopVar: Identifier, public rangeExpr: Expression, public statements: Statement[]) {}
+  constructor(public loopVar: Identifier, public rangeExpr: Expression, public headerLocation: SrcLocation, public statements: Statement[]) {}
   toJson(): object {
     return {
       "ForStatement": {
@@ -84,6 +103,11 @@ class ForStatement implements Statement {
 
 class AssignmentStatement implements Statement {
   constructor(public target: Expression, public value: Expression) {}
+  
+  location() {
+    return this.target.location().upTo(this.value.location());
+  }
+
   toJson(): object {
     return {
       "AssignmentStatement": {
@@ -96,6 +120,14 @@ class AssignmentStatement implements Statement {
 
 class FunctionCallStatement implements Statement {
   constructor(public callTarget: Expression, public args: Expression[]) {}
+  location(): SrcLocation {
+    if (this.args.length > 0) {
+      const lastArg = this.args[this.args.length - 1];
+      return this.callTarget.location().upTo(lastArg.location());
+    } else {
+      return this.callTarget.location();
+    }
+  }
   toJson(): object {
     return {
       "FunctionCallStatement": {
@@ -107,7 +139,10 @@ class FunctionCallStatement implements Statement {
 }
 
 class ReturnStatement implements Statement {
-  constructor(public optValue: OptExpression) {}
+  constructor(public optValue: OptExpression, private fullLocation: SrcLocation) {}
+  location() {
+    return this.fullLocation;
+  }
   toJson(): object {
     return {
       "ReturnStatement": {
@@ -118,6 +153,10 @@ class ReturnStatement implements Statement {
 }
 
 class BreakStatement implements Statement {
+  constructor(private fullLocation: SrcLocation) {}
+  location() {
+    return this.fullLocation;
+  }
   toJson(): object {
     return {
       "BreakStatement": null
@@ -125,6 +164,10 @@ class BreakStatement implements Statement {
   }
 }
 class ContinueStatement implements Statement {
+  constructor(private fullLocation: SrcLocation) {}
+  location() {
+    return this.fullLocation;
+  }
   toJson(): object {
     return {
       "ContinueStatement": null
@@ -134,14 +177,13 @@ class ContinueStatement implements Statement {
 
 // == Expressions
 
-interface Expression {
-  toJson(): object
-}
-
-type OptExpression = Expression | undefined
-
 class BinaryExpr implements Expression {
   constructor(public left: Expression, public operator: Token, public right: Expression) {}
+  
+  location() {
+    return this.left.location().upTo(this.right.location());
+  }
+  
   toJson(): object {
     return {
       "BinaryExpr": {
@@ -155,6 +197,11 @@ class BinaryExpr implements Expression {
 
 class LogicExpr implements Expression {
   constructor(public left: Expression, public operator: Token, public right: Expression) {}
+  
+  location() {
+    return this.left.location().upTo(this.right.location());
+  }
+
   toJson(): object {
     return {
       "LogicExpr": {
@@ -168,6 +215,11 @@ class LogicExpr implements Expression {
 
 class UnaryExpr implements Expression {
   constructor(public operator: Token, public expr: Expression) {}
+
+  location() {
+    return this.operator.location.upTo(this.expr.location());
+  }
+
   toJson(): object {
     return {
       "UnaryExpr": {
@@ -179,7 +231,12 @@ class UnaryExpr implements Expression {
 }
 
 class Literal implements Expression {
-  constructor(public value: any) {}
+  constructor(public value: any, private fullLocation: SrcLocation) {}
+  
+  location(): SrcLocation {
+    return this.fullLocation;
+  }
+
   toJson(): object {
     return {
       "Literal": {
@@ -190,7 +247,12 @@ class Literal implements Expression {
 }
 
 class GroupingExpr implements Expression {
-  constructor(public expr: Expression) {}
+  constructor(public expr: Expression, private fullLocation: SrcLocation) {}
+  
+  location(): SrcLocation {
+    return this.fullLocation;
+  }
+
   toJson(): object {
     return {
       "GroupingExpr": {
@@ -202,6 +264,11 @@ class GroupingExpr implements Expression {
 
 class IdentifierExpr implements Expression {
   constructor(public identifier: Identifier) {}
+  
+  location() {
+    return this.identifier.location;
+  }
+
   toJson(): object {
     return {
       "IdentifierExpr": {
@@ -212,7 +279,13 @@ class IdentifierExpr implements Expression {
 }
 
 class FunctionCallExpr implements Expression {
-  constructor(public callTarget: Expression, public args: Expression[]) {}
+  
+  constructor(public callTarget: Expression, public args: Expression[], private fullLocation: SrcLocation) {}
+
+  location() {
+    return this.fullLocation;
+  }
+
   toJson(): object {
     return {
       "FunctionCallExpr": {
@@ -224,7 +297,13 @@ class FunctionCallExpr implements Expression {
 }
 
 class ListExpr implements Expression {
-  constructor(public elements: Expression[]) {}
+  
+  constructor(public elements: Expression[], private fullLocation: SrcLocation) {}
+
+  location() {
+    return this.fullLocation;
+  }
+
   toJson(): object {
     return {
       "ListExpr": {
@@ -235,7 +314,13 @@ class ListExpr implements Expression {
 }
 
 class MapExpr implements Expression {
-  constructor(public elements: Map<Expression, Expression>) {}
+  
+  constructor(public elements: Map<Expression, Expression>, private fullLocation: SrcLocation) {}
+
+  location() {
+    return this.fullLocation;
+  }
+
   toJson(): object {
     const entries = []
     for (let [key, value] of this.elements) {
@@ -250,7 +335,10 @@ class MapExpr implements Expression {
 }
 
 class ListAccessExpr implements Expression {
-  constructor(public accessTarget: Expression, public indexExpr: Expression) {}
+  constructor(public accessTarget: Expression, public indexExpr: Expression, private fullLocation: SrcLocation) {}
+  location(): SrcLocation {
+    return this.fullLocation;
+  }
   toJson(): object {
     return {
       "ListAccessExpr": {
@@ -262,7 +350,10 @@ class ListAccessExpr implements Expression {
 }
 
 class ListSlicingExpr implements Expression {
-  constructor(public accessTarget: Expression, public start: OptExpression, public stop: OptExpression) {}
+  constructor(public accessTarget: Expression, public start: OptExpression, public stop: OptExpression, private fullLocation: SrcLocation) {}
+  location(): SrcLocation {
+    return this.fullLocation;
+  }
   toJson(): object {
     return {
       "ListSlicingExpr": {
@@ -276,6 +367,11 @@ class ListSlicingExpr implements Expression {
 
 class PropertyAccessExpr implements Expression {
   constructor(public accessTarget: Expression, public property: Identifier) {}
+  
+  location(): SrcLocation {
+    return this.accessTarget.location().upTo(this.property.location);
+  }
+  
   toJson(): object {
     return {
       "PropertyAccessExpr": {
@@ -287,7 +383,12 @@ class PropertyAccessExpr implements Expression {
 }
 
 class Argument {
-  constructor(public name: string, public defaultValue: OptExpression) {}
+  constructor(public name: string, public defaultValue: OptExpression, private fullLocation: SrcLocation) {}
+  
+  location() {
+    return this.fullLocation;
+  }
+
   toJson(): object {
     return {
       "Argument": {
@@ -299,7 +400,13 @@ class Argument {
 }
 
 class FunctionBodyExpr implements Expression {
-  constructor(public args: Argument[], public statements: Statement[]) {}
+  
+  constructor(public args: Argument[], public statements: Statement[], private fullLocation: SrcLocation) {}
+
+  location() {
+    return this.fullLocation;
+  }
+
   toJson(): object {
     return {
       "FunctionBodyExpr": {
@@ -311,7 +418,10 @@ class FunctionBodyExpr implements Expression {
 }
 
 class FunctionRefExpr implements Expression {
-  constructor(public refTarget: Expression)  {}
+  constructor(public refTarget: Expression, private fullLocation: SrcLocation)  {}
+  location() {
+    return this.fullLocation;
+  }
   toJson(): object {
     return {
       "FunctionRefExpr": {
@@ -322,6 +432,10 @@ class FunctionRefExpr implements Expression {
 }
 
 class SelfExpr implements Expression {
+  constructor(private fullLocation: SrcLocation) {}
+  location() {
+    return this.fullLocation;
+  }
   toJson(): object {
     return {
       "SelfExpr": {}
@@ -330,6 +444,10 @@ class SelfExpr implements Expression {
 }
 
 class SuperExpr implements Expression {
+  constructor(private fullLocation: SrcLocation) {}
+  location() {
+    return this.fullLocation;
+  }
   toJson(): object {
     return {
       "SuperExpr": {}

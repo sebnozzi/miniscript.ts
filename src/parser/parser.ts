@@ -270,7 +270,10 @@ class Parser {
   }
 
   private whileStatement(context: ParsingContext): Statement {
+    const whileToken = this.previous()
+
     const condition = this.expression(context)
+
     // Should consume newlines or semicolons
     this.consumeAtLeastOne([TokenType.SEMICOLON, TokenType.NEWLINE], "Expected semicolon or newline after while-condition")
 
@@ -281,10 +284,14 @@ class Parser {
     // Check for closing "end while"
     this.consume(TokenType.KW_END_WHILE, "Expected 'end while' at the end of while block")
 
-    return new WhileStatement(condition, whileStatements)
+    const headerLocation = whileToken.location.upTo(condition.location());
+
+    return new WhileStatement(condition, headerLocation, whileStatements);
   }
 
   private forStatement(context: ParsingContext): Statement {
+    const forToken = this.previous();
+
     const loopVar = this.consume(TokenType.IDENTIFIER_TK, "Expected identifier as loop variable") as Identifier
 
     this.consume(TokenType.OP_IN, "Expected 'in' after loop-variable in for")
@@ -301,12 +308,15 @@ class Parser {
     // Check for closing "end for"
     this.consume(TokenType.KW_END_FOR, "Expected 'end for' at the end of while block")
 
-    return new ForStatement(loopVar, rangeExpression, forStatements)
+    const headerLocation = forToken.location.upTo(rangeExpression.location());
+
+    return new ForStatement(loopVar, rangeExpression, headerLocation, forStatements);
   }
 
   private breakStatement(context: ParsingContext): BreakStatement {
     if (context.insideLoop) {
-      return new BreakStatement()
+      const fullLocation = this.previous().location;
+      return new BreakStatement(fullLocation);
     } else {
       throw this.failParsing("Keyword 'break' only allowed in for / while loops")
     }
@@ -314,21 +324,27 @@ class Parser {
 
   private continueStatement(context: ParsingContext): ContinueStatement {
     if (context.insideLoop) {
-      return new ContinueStatement()
+      const fullLocation = this.previous().location;
+      return new ContinueStatement(fullLocation);
     } else {
       throw this.failParsing("Keyword 'continue' only allowed in for / while loops")
     }
   }
 
   private returnStatement(context: ParsingContext): ReturnStatement {
+    const openingToken = this.previous();
+    let fullLocation: SrcLocation;
+
     if (context.insideFunction) {
       let optReturnValue
       if (this.isAtEndOfStatement(context)) {
         optReturnValue = undefined
+        fullLocation = openingToken.location;
       } else {
-        optReturnValue = this.expression(context)
+        optReturnValue = this.expression(context) as Expression;
+        fullLocation = openingToken.location.upTo(optReturnValue.location());
       }      
-      return new ReturnStatement(optReturnValue)
+      return new ReturnStatement(optReturnValue, fullLocation);
     } else {
       throw this.failParsing("Keyword 'return' only allowed in function body")
     }
@@ -370,7 +386,7 @@ class Parser {
       this.advance()
     }
 
-    const target = this.call(context)
+    const target: Expression = this.call(context)
 
     this.consume(TokenType.ASSIGN, "Expected '=' in assignment")
 
@@ -510,9 +526,10 @@ class Parser {
       const right = this.call(context)
       // Try to convert a negated number to a literal expression
       if (right instanceof Literal && typeof right.value == "number" && operator.tokenType == TokenType.OP_MINUS) {
-        return new Literal(-right.value)
+        const fullLocation = operator.location.upTo(right.location());
+        return new Literal(-right.value, fullLocation);
       } else {
-        return new UnaryExpr(operator, right)
+        return new UnaryExpr(operator, right);
       }
     } else if (this.tokenMatch(TokenType.OP_FUNCREF)) {
       return this.functionReference(context)
@@ -522,11 +539,14 @@ class Parser {
   }
 
   private functionReference(context: ParsingContext): Expression {
-    const refTarget = this.call(context)
+    const openingToken = this.previous();
+
+    const refTarget: Expression = this.call(context)
     if (refTarget instanceof IdentifierExpr 
       || refTarget instanceof PropertyAccessExpr
       || refTarget instanceof ListAccessExpr) {
-        return new FunctionRefExpr(refTarget)
+        const fullLocation = openingToken.location.upTo(refTarget.location());
+        return new FunctionRefExpr(refTarget, fullLocation);
     } else {
       throw new ParseError("Invalid reference target for '@': " + refTarget)
     }
@@ -560,6 +580,7 @@ class Parser {
 
   private finishCall(callTarget: Expression, context: ParsingContext): Expression {
     let args: Expression[] = []
+    
     if (!this.check(TokenType.CLOSE_ROUND)) {
       do {
         const argumentExpression = this.functionBodyOrExpr(context)
@@ -567,7 +588,11 @@ class Parser {
       } while(this.tokenMatch(TokenType.COMMA))
     }
     this.consume(TokenType.CLOSE_ROUND, "Expected closing ')' after function arguments")
-    return new FunctionCallExpr(callTarget, args)
+    
+    const closingToken = this.previous();
+    const fullLocation = callTarget.location().upTo(closingToken.location);
+
+    return new FunctionCallExpr(callTarget, args, fullLocation);
   }
 
   private functionBodyOrExpr(context: ParsingContext): Expression {
@@ -579,6 +604,7 @@ class Parser {
   }
 
   private listAccessOrSlicing(listTarget: Expression, context: ParsingContext): Expression {
+    const openingToken = this.previous();
 
     let slicing = false
 
@@ -587,7 +613,7 @@ class Parser {
     let indexExpr: Expression | undefined = undefined
 
     if(this.tokenMatch(TokenType.COLON)) {
-      // Slicing with not start
+      // Slicing with no start
       slicing = true
       // Check for ']', if not, parse stopExpr
       if(!this.check(TokenType.CLOSE_SQUARE)) {
@@ -612,33 +638,34 @@ class Parser {
 
     this.consume(TokenType.CLOSE_SQUARE, "Expected closing ']' for list access. Found: " + this.peek().tokenType)
 
+    const closingToken = this.previous();
+    const fullRange = SrcLocation.forTokenRange(openingToken, closingToken);
+
     if (slicing) {
-      return new ListSlicingExpr(listTarget, startExpr, stopExpr)
+      return new ListSlicingExpr(listTarget, startExpr, stopExpr, fullRange);
     } else {
-      return new ListAccessExpr(listTarget, indexExpr as Expression)
+      return new ListAccessExpr(listTarget, indexExpr as Expression, fullRange);
     }
   }
 
   private primary(context: ParsingContext): Expression {
     if (this.tokenMatch(TokenType.KW_FALSE)) {
-      return new Literal(false)
+      return new Literal(false, this.previous().location);
     } else if (this.tokenMatch(TokenType.KW_TRUE)) {
-      return new Literal(true)
+      return new Literal(true, this.previous().location);
     } else if (this.tokenMatch(TokenType.KW_NULL)) {
-      return new Literal(null)
+      return new Literal(null, this.previous().location);
     } else if (this.tokenMatch(TokenType.KW_SELF)) {
       return this.selfExpr(context)
     } else if (this.tokenMatch(TokenType.KW_SUPER)) {
       return this.superExpr(context)
     } else if (this.tokenMatch(TokenType.INT_LITERAL, TokenType.FLOAT_LITERAL, TokenType.STRING_LITERAL)) {
       const token = this.previous() as LiteralToken<any>
-      return new Literal(token.value)
+      return new Literal(token.value, token.location);
     } else if (this.check(TokenType.IDENTIFIER_TK)) {
-      return this.identifier()
+      return this.identifier();
     } else if (this.tokenMatch(TokenType.OPEN_ROUND)) {
-      const expr = this.expression(context)
-      this.consume(TokenType.CLOSE_ROUND, "Expected ')' after expression.")
-      return new GroupingExpr(expr)
+      return this.groupingExpr(context);
     } else if (this.tokenMatch(TokenType.OPEN_SQUARE)) {
       return this.listLiteral(context)
     } else if (this.tokenMatch(TokenType.OPEN_CURLY)) {
@@ -648,6 +675,15 @@ class Parser {
     }
   }
 
+  private groupingExpr(context: ParsingContext): GroupingExpr {
+    const openingToken = this.previous();
+    const expr = this.expression(context);
+    this.consume(TokenType.CLOSE_ROUND, "Expected ')' after expression.")
+    const closingToken = this.previous();
+    const fullLocation = SrcLocation.forTokenRange(openingToken, closingToken);
+    return new GroupingExpr(expr, fullLocation);
+  }
+
   private identifier(): IdentifierExpr {
     const token = this.consume(TokenType.IDENTIFIER_TK, "Identifier expected") as Identifier
     return new IdentifierExpr(token)
@@ -655,7 +691,8 @@ class Parser {
 
   private selfExpr(context: ParsingContext): SelfExpr {
     if (context.insideFunction) {
-      return new SelfExpr()
+      const token = this.previous()
+      return new SelfExpr(token.location)
     } else {
       throw this.failParsing("Keyword 'self' only allowed inside a function")
     }
@@ -663,13 +700,15 @@ class Parser {
 
   private superExpr(context: ParsingContext): SuperExpr {
     if (context.insideFunction) {
-      return new SuperExpr()
+      const token = this.previous()
+      return new SuperExpr(token.location)
     } else {
       throw this.failParsing("Keyword 'super' only allowed inside a function")
     }
   }
 
   private listLiteral(context: ParsingContext): ListExpr {
+    const openingToken = this.previous()
     let elements: Expression[] = []
     if (!this.check(TokenType.CLOSE_SQUARE)) {
       var continueParsing = true
@@ -686,10 +725,15 @@ class Parser {
       } while(this.tokenMatch(TokenType.COMMA) && continueParsing)
     }
     this.consume(TokenType.CLOSE_SQUARE, "Expected closing ']' in list literal")
-    return new ListExpr(elements)
+    
+    const closingToken = this.previous()
+    const fullLocation = SrcLocation.forTokenRange(openingToken, closingToken);
+    
+    return new ListExpr(elements, fullLocation);
   }
 
   private mapLiteral(context: ParsingContext): MapExpr {
+    const openingToken = this.previous();
     let elements = new Map<Expression, Expression>()
     if (!this.check(TokenType.CLOSE_CURLY)) {
       var continueParsing = true
@@ -708,10 +752,15 @@ class Parser {
       } while(this.tokenMatch(TokenType.COMMA) && continueParsing)
     }
     this.consume(TokenType.CLOSE_CURLY, "Expected closing '}' in map literal")
-    return new MapExpr(elements)
+
+    const closingToken = this.previous()
+    const fullLocation = SrcLocation.forTokenRange(openingToken, closingToken);
+
+    return new MapExpr(elements, fullLocation);
   }
 
   private functionBody(context: ParsingContext): FunctionBodyExpr {
+    const openingToken = this.previous();
     const functionContext = context.enterFunction()
 
     // Parse arguments
@@ -721,16 +770,19 @@ class Parser {
         if (this.check(TokenType.IDENTIFIER_TK)) {
           const identifierExpr = this.identifier()
           const name = identifierExpr.identifier.value
+          let fullLocation: SrcLocation;
           let defaultValue: Expression | undefined;
           if (this.tokenMatch(TokenType.ASSIGN)) {
-            defaultValue = this.unary(context)
+            defaultValue = this.unary(context) as Expression;
+            fullLocation = identifierExpr.location().upTo(defaultValue.location());
           } else {
-            defaultValue = undefined
+            defaultValue = undefined;
+            fullLocation = identifierExpr.location();
           }
       
           // TODO: check that default value is not too complex?
           //  Should be literal
-          const argument = new Argument(name, defaultValue)
+          const argument = new Argument(name, defaultValue, fullLocation)
           args.push(argument)
         }
       } while (this.tokenMatch(TokenType.COMMA))
@@ -740,7 +792,10 @@ class Parser {
     const bodyStatements = this.parseUntil([TokenType.KW_END_FUNCTION], functionContext)
     this.consume(TokenType.KW_END_FUNCTION, "Expected 'end function' at the end of function-body")
 
-    return new FunctionBodyExpr(args, bodyStatements)
+    const closingToken = this.previous()
+    const fullLocation = SrcLocation.forTokenRange(openingToken, closingToken);
+
+    return new FunctionBodyExpr(args, bodyStatements, fullLocation)
   }
 
   private consume(tokenType: TokenType, message: String): Token {
@@ -780,7 +835,7 @@ class Parser {
   }
 
   private failParsing(message: String): Error {
-    const pos = this.peek().position
+    const pos = this.peek().location.start;
     return new ParseError(`At line ${pos.row}, column ${pos.col}: $message`)
   }
 

@@ -14,7 +14,10 @@ class NumberLiteral {
 class Tokenizer {
 
   private readonly input: string;
-  private pos: Pos = new Pos(0, 1, 1)
+  private readonly source: string | undefined;
+  private pos: Pos;
+  private startPos: Pos;
+  private tokenLength: number;
   private _currentChar: string = '\u0000'
   private _peek2Str: string = ""
   private _lastTokenIsSpace: boolean = false
@@ -45,9 +48,12 @@ class Tokenizer {
     "new": TokenType.KW_NEW,
   }
 
-  constructor(input: string) {
+  constructor(input: string, source: string | undefined = undefined) {
     this.input = input;
     this.pos = new Pos(0, 1, 1);
+    this.startPos = this.pos.copy();
+    this.tokenLength = 0;
+    this.source = source;
   }
 
   tokenize(): Token[] {
@@ -56,7 +62,7 @@ class Tokenizer {
     while (this.hasInput()) {
       this.processNextToken()
     }
-    this.addEofToken(this.pos)
+    this.addEofToken(this.location())
 
     const tokensCombined = this.combinedTokens(this.tokens)
 
@@ -65,6 +71,17 @@ class Tokenizer {
 
   private idx(): number {
     return this.pos.idx;
+  }
+
+  private saveStartPos() {
+    this.startPos = this.pos.copy();
+    this.tokenLength = 0;
+  }
+
+  private location(): SrcLocation {
+    const endPos = this.pos.copy();
+    const loc = new SrcLocation(this.startPos, endPos, this.source);
+    return loc;
   }
 
   private hasInput(): boolean {
@@ -126,15 +143,21 @@ class Tokenizer {
   }
 
   private advance(amount: number = 1) {
-    let i = 0
+    let i = 0;
     while (i < amount) {
-      this.pos.advance()
-      i += 1
+      this.pos.advance();
+      this.tokenLength += 1;
+      i += 1;
     }
 
     if (this.hasInput()) {
       this.updateCharAndPeek()
     }
+  }
+
+  private addToken(newToken: Token) {
+    this.tokens.push(newToken);
+    this.tokenLength = 0;
   }
 
   private updateCharAndPeek() {
@@ -198,7 +221,7 @@ class Tokenizer {
     if (spaces.length > 0) {
       this._lastTokenIsSpace = true
     }
-  }
+   }
 
   private processNewline() {
     const peek2 = this.peek2Chars()
@@ -215,6 +238,7 @@ class Tokenizer {
   }
 
   private processSymbol() {
+    this.saveStartPos();
     const symbolValue: string = this.fetchSymbol()
     if (symbolValue in this.keywordTable) {
       const tokenType = this.keywordTable[symbolValue]
@@ -225,7 +249,8 @@ class Tokenizer {
   }
 
   private processOperator() {
-    const startPos = this.pos
+    this.saveStartPos();
+
     const peek1 = this.getChar()
     const peek2 = this.peek2Chars()
     let charsToAdvance = 0
@@ -298,7 +323,7 @@ class Tokenizer {
           this.addSimpleToken(TokenType.OP_FUNCREF)
           break;
         default:
-          throw new ParseError("Unhandled operator: " + peek1 + " at " + startPos)
+          throw new ParseError("Unhandled operator: " + peek1 + " at " + this.startPos)
       }
     }
 
@@ -306,14 +331,13 @@ class Tokenizer {
   }
 
   private processStringLiteral() {
-    const startPos = this.pos
+    this.saveStartPos();
     const value = this.fetchStringLiteral()
-    this.addStringLiteralToken(value, startPos)
+    this.addStringLiteralToken(value, this.location())
   }
 
   private fetchStringLiteral() {
     let chars = ""
-    const startPos = this.pos
     let closed = false
 
     // Skip opening quote
@@ -337,7 +361,7 @@ class Tokenizer {
     }
 
     if (!closed) {
-      throw new ParseError("Unterminated string literal at " + startPos)
+      throw new ParseError("Unterminated string literal at " + this.startPos)
     }
 
     return chars
@@ -349,6 +373,7 @@ class Tokenizer {
    * It is part of a float literal if followed by a number
    * */
   private processDot() {
+    this.saveStartPos();
     const nextChars = this.peek2Chars()
     
     if (nextChars.length > 1 && this.isNumericChar(nextChars[1])) {
@@ -363,18 +388,16 @@ class Tokenizer {
    * If dot found, consume until non-numeric char is found.
    */
   private processNumberLiteral() {
-    const startPos = this.pos
+    this.saveStartPos();
     const value = this.fetchNumberLiteral()
     if (value.isInt) {
-      this.addIntLiteralToken(value.numberValue, startPos)
+      this.addIntLiteralToken(value.numberValue, this.location())
     } else {
-      this.addFloatLiteralToken(value.numberValue, startPos)
+      this.addFloatLiteralToken(value.numberValue, this.location())
     }
   }
 
   private fetchNumberLiteral(): NumberLiteral {
-    const startPos = this.pos
-
     let consumingFloatingPart = false
     let intDigits = ""
     let floatDigits = ""
@@ -392,7 +415,7 @@ class Tokenizer {
         }
       } else if (ch == '.') {
         if (consumingFloatingPart) {
-          throw new ParseError("Unexpected repeated dot found: " + startPos)
+          throw new ParseError("Unexpected repeated dot found: " + this.startPos)
         }
         consumingFloatingPart = true
         this.advance()
@@ -434,53 +457,53 @@ class Tokenizer {
     const afterSpace = this.processAfterSpaces()
     const newToken: Token = new SimpleToken(
       tokenType,
-      this.pos,
+      this.location(),
       afterSpace)
-    this.tokens.push(newToken)
+    this.addToken(newToken)
   }
 
   private addIdentifierToken(identifierValue: string) {
     const afterSpace = this.processAfterSpaces()
     const newToken = new Identifier(
       identifierValue,
-      this.pos,
+      this.location(),
       afterSpace)
-    this.tokens.push(newToken)
+    this.addToken(newToken)
   }
 
-  private addStringLiteralToken(stringValue: string, tokenPosition: Pos) {
+  private addStringLiteralToken(stringValue: string, tokenLocation: SrcLocation) {
     const afterSpace = this.processAfterSpaces()
     const newToken = new StringLiteral(
       stringValue,
-      tokenPosition,
+      tokenLocation,
       afterSpace)
-    this.tokens.push(newToken)
+    this.addToken(newToken)
   }
 
-  private addIntLiteralToken(intValue: number, tokenPosition: Pos) {
+  private addIntLiteralToken(intValue: number, tokenLocation: SrcLocation) {
     const afterSpace = this.processAfterSpaces()
     const newToken = new IntLiteral(
       intValue,
-      tokenPosition,
+      tokenLocation,
       afterSpace)
-    this.tokens.push(newToken)
+    this.addToken(newToken)
   }
 
-  private addFloatLiteralToken(floatValue: number, tokenPosition: Pos) {
+  private addFloatLiteralToken(floatValue: number, tokenLocation: SrcLocation) {
     const afterSpace = this.processAfterSpaces()
     const newToken = new FloatLiteral(
       floatValue,
-      tokenPosition,
+      tokenLocation,
       afterSpace)
-    this.tokens.push(newToken)
+    this.addToken(newToken)
   }
 
-  private addEofToken(tokenPosition: Pos) {
+  private addEofToken(tokenLocation: SrcLocation) {
     const afterSpace = this.processAfterSpaces()
     const newToken = new EofToken(
-      tokenPosition,
+      tokenLocation,
       afterSpace)
-    this.tokens.push(newToken)
+    this.addToken(newToken)
   }
 
   private fetchSymbol(): string {
@@ -509,6 +532,7 @@ class Tokenizer {
   }
 
   private processCharToken(tokenType: TokenType) {
+    this.saveStartPos();
     this.addSimpleToken(tokenType)
     this.advance()
   }
@@ -534,26 +558,32 @@ class Tokenizer {
         let secondTokenFound: boolean = false
         if (optNextToken != null) {
           if (optNextToken.tokenType == TokenType.KW_IF) {
-            tokenToAdd = new SimpleToken(TokenType.KW_END_IF, token.position, token.afterSpace)
+            const newLocation = token.location.upTo(optNextToken.location);
+            tokenToAdd = new SimpleToken(TokenType.KW_END_IF, newLocation, token.afterSpace)
             secondTokenFound = true
           } else if (optNextToken.tokenType == TokenType.KW_WHILE) {
-            tokenToAdd = new SimpleToken(TokenType.KW_END_WHILE, token.position, token.afterSpace)
+            const newLocation = token.location.upTo(optNextToken.location);
+            tokenToAdd = new SimpleToken(TokenType.KW_END_WHILE, newLocation, token.afterSpace)
             secondTokenFound = true
           } else if (optNextToken.tokenType == TokenType.KW_FOR) {
-            tokenToAdd = new SimpleToken(TokenType.KW_END_FOR, token.position, token.afterSpace)
+            const newLocation = token.location.upTo(optNextToken.location);
+            tokenToAdd = new SimpleToken(TokenType.KW_END_FOR, newLocation, token.afterSpace)
             secondTokenFound = true
           } else if (optNextToken.tokenType == TokenType.KW_FUNCTION) {
-            tokenToAdd = new SimpleToken(TokenType.KW_END_FUNCTION, token.position, token.afterSpace)
+            const newLocation = token.location.upTo(optNextToken.location);
+            tokenToAdd = new SimpleToken(TokenType.KW_END_FUNCTION, newLocation, token.afterSpace)
             secondTokenFound = true
           }
         }
         if (!secondTokenFound) {
           throw new ParseError("Expected token of type if / for / while / function after 'end")
         }
+      // Combine "ELSE" + "IF" to "ELSE IF"
       } else if (token.tokenType == TokenType.KW_ELSE) {
         if (optNextToken != null && optNextToken instanceof SimpleToken) {
           if (optNextToken.tokenType == TokenType.KW_IF) {
-            tokenToAdd = new SimpleToken(TokenType.KW_ELSE_IF, token.position, token.afterSpace)
+            const newLocation = token.location.upTo(optNextToken.location);
+            tokenToAdd = new SimpleToken(TokenType.KW_ELSE_IF, newLocation, token.afterSpace)
           }
         }
       }
