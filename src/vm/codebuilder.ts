@@ -6,11 +6,17 @@ class CodeBuilder {
   addresses: {[label: string]: number};
   unresolved: number[];
 
+  srcMapIpStart: number;
+  srcMap: SourceMap;
+
   constructor() {
     this.prg = new Code();
     this.ip = 0;
     this.addresses = {}
     this.unresolved = [];
+
+    this.srcMapIpStart = -1;
+    this.srcMap = new SourceMap();
   }
 
   push(opCode: BC, arg1: any = null, arg2: any = null) {
@@ -28,13 +34,47 @@ class CodeBuilder {
     this.ip++
   }
 
+  startMapEntry() {
+    this.srcMapIpStart = this.ip;
+  }
+
+  endMapEntry(srcLoc: SrcLocation) {
+    const ipStart = this.srcMapIpStart;
+    const ipEnd = this.ip - 1;
+    if (ipStart < 0) {
+      throw new Error("No starting map-entry");
+    }
+    // Check if the range has a call within
+    // If so, mark as step-in-able
+    const hasCall = this.containsCall(ipStart, ipEnd);
+    // Create entry
+    if (hasCall) {
+      this.srcMap.pushCall(ipStart, ipEnd, srcLoc);
+    } else {
+      this.srcMap.pushEntry(ipStart, ipEnd, srcLoc);
+    }
+    this.srcMapIpStart = -1;
+  }
+
+  containsCall(ipStart: number, ipEnd: number): boolean {
+    for(let idx = ipStart; idx <= ipEnd; idx++) {
+      const opCode = this.prg.opCodes[idx];
+      if (opCode == BC.CALL) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   define_address(label: string) {
     this.addresses[label] = this.ip;
   }
 
   build(): Code {
     this.resolveAddresses()
-    return this.prg;
+    const code = this.prg;
+    code.srcMap = this.srcMap;
+    return code;
   }
 
   private resolveAddresses() {
