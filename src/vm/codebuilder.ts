@@ -4,6 +4,7 @@ class CodeBuilder {
   prg: Code;
   ip: number;
   addresses: {[label: string]: number};
+  unresolvedIdx = 0;
   unresolved: number[];
 
   srcMapIpStart: number;
@@ -32,6 +33,10 @@ class CodeBuilder {
     this.prg.arg2.push(arg2)
     this.unresolved.push(this.ip)
     this.ip++
+  }
+
+  newLabel() {
+    return `addr_${this.unresolvedIdx++}`;
   }
 
   startMapEntry() {

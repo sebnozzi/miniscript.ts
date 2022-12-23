@@ -47,22 +47,23 @@ class Compiler {
 
       b.startMapEntry();
       this.compileExpression(s.ifBranch.condition);
-      // TODO: request an unique address from builder ... this will fail for nested ifs
-      this.builder.push_unresolved(BC.JUMP_FALSE, `addr_${addrNr}`);
+      const endIfLabel = b.newLabel();
+      this.builder.push_unresolved(BC.JUMP_FALSE, endIfLabel);
       b.endMapEntry(s.ifBranch.condition.location());
 
       this.compileStatements(s.ifBranch.statements);
-      this.builder.define_address(`addr_${addrNr++}`);
+      this.builder.define_address(endIfLabel);
 
       for (let elseIf of s.elseIfs) {
+        let elseIfLabel = b.newLabel();
         b.startMapEntry();
         this.compileExpression(elseIf.condition)
         const elseIfIpEnd = b.ip;
-        this.builder.push_unresolved(BC.JUMP_FALSE, `addr_${addrNr}`)
+        this.builder.push_unresolved(BC.JUMP_FALSE, elseIfLabel)
         b.endMapEntry(elseIf.condition.location());
 
-        this.compileStatements(elseIf.statements)
-        this.builder.define_address(`addr_${addrNr++}`)
+        this.compileStatements(elseIf.statements);
+        this.builder.define_address(elseIfLabel);
       }
 
       if (s.elseBranch.length > 0) {
