@@ -19,4 +19,8 @@ class Stack<T> {
     }
   }
 
+  count(): number {
+    return this.elements.length;
+  }
+
 }

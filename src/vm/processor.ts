@@ -18,8 +18,6 @@ class Processor {
   savedFrames: Stack<Frame>;
   // Counter used to return control back to host.
   cycleCount: number;
-  // Flag used to signalize that execution is finished.
-  finished: boolean;
   // Callback when processing done
   onFinished: Function;
   // Map of primitives
@@ -33,24 +31,23 @@ class Processor {
     this.savedFrames = new Stack<Frame>();
     this.opStack = new Stack();
     this.cycleCount = 0;
-    this.finished = false;
     this.onFinished = function() {};
     this.primitives = {};
   }
 
   run() {
-    this.executeSomeCycles();
+    this.runUntilDone();
   }
 
   addPrimitive(name: string, impl: Function) {
     this.primitives[name] = impl;
   }
 
-  executeSomeCycles() {
+  runUntilDone(maxCount: number = 73681) {
     if (!this.isFinished()) {
-      this.executeCycles(73681)
+      this.executeCycles(maxCount)
       window.setTimeout(() => {
-        this.executeSomeCycles()
+        this.runUntilDone()
       }, 0)
     } else {
       this.onFinished();
@@ -58,6 +55,7 @@ class Processor {
   }
 
   executeCycles(maxCount: number) {
+    this.cycleCount = 0;
     while(this.cycleCount < maxCount) {
       switch (this.code.opCodes[this.ip]) {
         case BC.CALL: {
@@ -263,11 +261,16 @@ class Processor {
       } // switch
       this.cycleCount++;
     } // while
-    this.cycleCount = 0;
   }
 
   isFinished(): boolean {
     return this.ip >= this.code.opCodes.length;
+  }
+
+  willExecuteCall(): boolean {
+    const op = this.code.opCodes[this.ip];
+    const isCall = op == BC.CALL;
+    return isCall;
   }
 
   pushFrame() {

@@ -1,5 +1,5 @@
 
-const enum BC {
+enum BC {
   // Push primitive value to stack
   PUSH,
 
