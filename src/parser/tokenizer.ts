@@ -253,25 +253,26 @@ class Tokenizer {
 
     const peek1 = this.getChar()
     const peek2 = this.peek2Chars()
-    let charsToAdvance = 0
+    let charsToAdvance = 0;
+    let tokenTypeToAdd: TokenType | null = null;
 
     // Try to handle 2-char operators first
     switch(peek2) {
       case "==":
-        charsToAdvance = 2
-        this.addSimpleToken(TokenType.OP_EQUALS)
+        charsToAdvance = 2;
+        tokenTypeToAdd = TokenType.OP_EQUALS;
         break;
       case "!=":
-        charsToAdvance = 2
-        this.addSimpleToken(TokenType.OP_NOT_EQUALS)
+        charsToAdvance = 2;
+        tokenTypeToAdd = TokenType.OP_NOT_EQUALS;
         break;
       case "<=":
-        charsToAdvance = 2
-        this.addSimpleToken(TokenType.OP_LESS_EQUALS)
+        charsToAdvance = 2;
+        tokenTypeToAdd = TokenType.OP_LESS_EQUALS;
         break;
       case ">=":
-        charsToAdvance = 2
-        this.addSimpleToken(TokenType.OP_GREATER_EQUALS)
+        charsToAdvance = 2;
+        tokenTypeToAdd = TokenType.OP_GREATER_EQUALS;
         break;
       default:
         // Nothing, we'll try with one-char below
@@ -279,55 +280,58 @@ class Tokenizer {
     }
 
     // If nothing matched with 2 chars, try with one
-    if (charsToAdvance == 0) {
+    if (tokenTypeToAdd === null) {
       switch(peek1) {
         case '=':
           // Not really an operator, but handled here
-          charsToAdvance = 1
-          this.addSimpleToken(TokenType.ASSIGN)
+          charsToAdvance = 1;
+          tokenTypeToAdd = TokenType.ASSIGN;
           break;
         case '<':
-          charsToAdvance = 1
-          this.addSimpleToken(TokenType.OP_LESS)
+          charsToAdvance = 1;
+          tokenTypeToAdd = TokenType.OP_LESS;
           break;
         case '>':
-          charsToAdvance = 1
-          this.addSimpleToken(TokenType.OP_GREATER)
+          charsToAdvance = 1;
+          tokenTypeToAdd = TokenType.OP_GREATER;
           break;
         case '+':
-          charsToAdvance = 1
-          this.addSimpleToken(TokenType.OP_PLUS)
+          charsToAdvance = 1;
+          tokenTypeToAdd = TokenType.OP_PLUS;
           break;
         case '-':
-          charsToAdvance = 1
-          this.addSimpleToken(TokenType.OP_MINUS)
+          charsToAdvance = 1;
+          tokenTypeToAdd = TokenType.OP_MINUS;
           break;
         case '*':
-          charsToAdvance = 1
-          this.addSimpleToken(TokenType.OP_MULT)
+          charsToAdvance = 1;
+          tokenTypeToAdd = TokenType.OP_MULT;
           break;
         case '/':
-          charsToAdvance = 1
-          this.addSimpleToken(TokenType.OP_DIV)
+          charsToAdvance = 1;
+          tokenTypeToAdd = TokenType.OP_DIV;
           break;
         case '%':
-          charsToAdvance = 1
-          this.addSimpleToken(TokenType.OP_MOD)
+          charsToAdvance = 1;
+          tokenTypeToAdd = TokenType.OP_MOD;
           break;
         case '^':
-          charsToAdvance = 1
-          this.addSimpleToken(TokenType.OP_POW)
+          charsToAdvance = 1;
+          tokenTypeToAdd = TokenType.OP_POW;
           break;
         case '@':
-          charsToAdvance = 1
-          this.addSimpleToken(TokenType.OP_FUNCREF)
+          charsToAdvance = 1;
+          tokenTypeToAdd = TokenType.OP_FUNCREF;
           break;
         default:
           throw new ParseError("Unhandled operator: " + peek1 + " at " + this.startPos)
       }
     }
 
-    this.advance(charsToAdvance)
+    if (tokenTypeToAdd != null) {
+      this.addSimpleToken(tokenTypeToAdd);
+      this.advance(charsToAdvance);
+    }
   }
 
   private processStringLiteral() {
@@ -533,8 +537,8 @@ class Tokenizer {
 
   private processCharToken(tokenType: TokenType) {
     this.saveStartPos();
+    this.advance();
     this.addSimpleToken(tokenType)
-    this.advance()
   }
 
   private combinedTokens(tokens: Token[]): Token[] {
