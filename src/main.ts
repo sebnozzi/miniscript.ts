@@ -96,8 +96,21 @@ function runInlineCallFib() {
   runCode(prgCode);
 }
 
+function compileAndRun() {
+  const e = globalThis.editor;
+  const srcCode = e.getValue();
+
+  const p = new Parser(srcCode);
+  const statements = p.parse();
+  const compiler = new Compiler(statements);
+  const code = compiler.compile();
+
+  console.log("Compiled code:", code);
+  // console.log(code);
+  runCode(code);
+}
+
 function debugCode(prgCode: Code) {
-  console.log("Starting");
   const e = globalThis.editor;
 
   let p = new Processor(prgCode);
@@ -127,6 +140,7 @@ function debugCode(prgCode: Code) {
     }
   }
 
+  const runBtn: HTMLButtonElement = document.getElementById("runBtn") as HTMLButtonElement;
   const stepOverBtn: HTMLButtonElement = document.getElementById("stepOverBtn") as HTMLButtonElement;
   const stepIntoBtn: HTMLButtonElement = document.getElementById("stepIntoBtn") as HTMLButtonElement;
   const stepOutBtn: HTMLButtonElement = document.getElementById("stepOutBtn") as HTMLButtonElement;
@@ -166,6 +180,9 @@ function debugCode(prgCode: Code) {
     disableButton(stepOutBtn);
   };
 
+  runBtn.addEventListener("click", () => {
+    compileAndRun();
+  });
   stepOverBtn.addEventListener("click", () => {
     d.stepOver();
   });
