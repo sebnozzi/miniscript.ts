@@ -193,8 +193,8 @@ class Processor {
           break;
         }
         case BC.ADD_VALUES: {
-          let valueInStack_1 = this.opStack.pop()
           let valueInStack_2 = this.opStack.pop()
+          let valueInStack_1 = this.opStack.pop()
           let result = add(valueInStack_1, valueInStack_2)
           this.opStack.push(result)
           this.ip += 1;
@@ -356,8 +356,8 @@ class Processor {
   }
 
   addValues() {
-    let valueInStack_1 = this.opStack.pop()
     let valueInStack_2 = this.opStack.pop()
+    let valueInStack_1 = this.opStack.pop()
     let result = add(valueInStack_1, valueInStack_2)
     this.opStack.push(result)
   }
