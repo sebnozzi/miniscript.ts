@@ -3,29 +3,29 @@
 function inlinedFibProgram(n: number) {
   const fibFunctions = [
     // 0: pre if-block
-    function(vm: Processor, context: Context, opStack: Stack<any>) {
+    function(vm: Processor) {
       // resolve and push "n"
       {
-        const value = context.get("n")
-        opStack.push(value)
+        const value = vm.context.get("n")
+        vm.opStack.push(value)
       }
       // push constant 1
       {
-        opStack.push(1)
+        vm.opStack.push(1)
       }
       // compare less-or-equal
       {
-        let valueB = opStack.pop()
-        let valueA = opStack.pop()
+        let valueB = vm.opStack.pop()
+        let valueA = vm.opStack.pop()
         if (lessEquals(valueA, valueB)) {
-          opStack.push(1)
+          vm.opStack.push(1)
         } else {
-          opStack.push(0)
+          vm.opStack.push(0)
         }
       }
       // jump if result false
       {
-        let value = opStack.pop()
+        let value = vm.opStack.pop()
         if (value == 0) {
           vm.ip = 2
         } else {
@@ -34,11 +34,11 @@ function inlinedFibProgram(n: number) {
       }
     },
     // 1: if block
-    function(vm: Processor, context: Context, opStack: Stack<any>) {
+    function(vm: Processor) {
       // resolve and push "n"
       {
-        const value = context.get("n")
-        opStack.push(value)
+        const value = vm.context.get("n")
+        vm.opStack.push(value)
       }
       // return
       {
@@ -46,27 +46,27 @@ function inlinedFibProgram(n: number) {
       }
     },
     // 2: else (call 1)
-    function(vm: Processor, context: Context, opStack: Stack<any>) {
+    function(vm: Processor) {
       // resolve and push "n"
       {
-        const value = context.get("n")
-        opStack.push(value)
+        const value = vm.context.get("n")
+        vm.opStack.push(value)
       }
       // push constant 1
       {
-        opStack.push(1)
+        vm.opStack.push(1)
       }
       // subtract values
       {
-        let valueInStack_2 = opStack.pop()
-        let valueInStack_1 = opStack.pop()
+        let valueInStack_2 = vm.opStack.pop()
+        let valueInStack_1 = vm.opStack.pop()
         let result = subtract(valueInStack_1, valueInStack_2)
-        opStack.push(result)
+        vm.opStack.push(result)
       }
       // call "fib"
       {
         let funcName = "fib"
-        let funcDef: FuncDef = context.get(funcName);
+        let funcDef: FuncDef = vm.context.get(funcName);
       
         // Let it return to the next bytecode after the call
         vm.ip += 1;
@@ -78,33 +78,33 @@ function inlinedFibProgram(n: number) {
     
         // Pop and set parameters as variables
         for (let paramName of funcDef.params) {
-          const paramValue = opStack.pop();
+          const paramValue = vm.opStack.pop();
           vm.context.setLocal(paramName, paramValue);
         }
       }
     },
     // 3: else (call 2)
-    function(vm: Processor, context: Context, opStack: Stack<any>) {
+    function(vm: Processor) {
       // resolve and push "n"
       {
-        const value = context.get("n")
-        opStack.push(value)
+        const value = vm.context.get("n")
+        vm.opStack.push(value)
       }
       // push constant 2
       {
-        opStack.push(2)
+        vm.opStack.push(2)
       }
       // subtract values
       {
-        let valueInStack_2 = opStack.pop()
-        let valueInStack_1 = opStack.pop()
+        let valueInStack_2 = vm.opStack.pop()
+        let valueInStack_1 = vm.opStack.pop()
         let result = subtract(valueInStack_1, valueInStack_2)
-        opStack.push(result)
+        vm.opStack.push(result)
       }
       // call "fib"
       {
         let funcName = "fib"
-        let funcDef: FuncDef = context.get(funcName);
+        let funcDef: FuncDef = vm.context.get(funcName);
       
         // Let it return to the next bytecode after the call
         vm.ip += 1;
@@ -116,19 +116,19 @@ function inlinedFibProgram(n: number) {
     
         // Pop and set parameters as variables
         for (let paramName of funcDef.params) {
-          const paramValue = opStack.pop();
+          const paramValue = vm.opStack.pop();
           vm.context.setLocal(paramName, paramValue);
         }
       }
     },
     // 3: else (add & return)
-    function(vm: Processor, context: Context, opStack: Stack<any>) {
+    function(vm: Processor) {
       // add
       {
-        let valueInStack_1 = opStack.pop()
-        let valueInStack_2 = opStack.pop()
+        let valueInStack_1 = vm.opStack.pop()
+        let valueInStack_2 = vm.opStack.pop()
         let result = add(valueInStack_1, valueInStack_2)
-        opStack.push(result)
+        vm.opStack.push(result)
       }
       // return
       {
