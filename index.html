@@ -5,6 +5,9 @@
     <meta charset="UTF-8">
     <title>mathLoop.ts</title>
     <style type="text/css" media="screen">
+      #mainWrapper {
+        display: flex;
+      }
       #editor { 
         position: relative;
         width: 100%;
@@ -18,17 +21,37 @@
         position: absolute;
         background-color: blue;
       }
+      #resultArea {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+      }
+      #gfx {
+        border: 2px solid gray;
+      }
     </style>
   </head>
   <body>
-    <div id="toolbar">
-      <button id="runBtn">Run</button>
-      <button id="stepOverBtn">Step Over</button>
-      <button id="stepIntoBtn">Step Into</button>
-      <button id="stepOutBtn">Step Out</button>
-    </div>
-    <div id="editor_container">
-      <pre id="editor"></pre>
+
+    <div id="mainWrapper">
+
+      <div id="devArea">
+        <div id="toolbar">
+          <button id="runBtn">Run</button>
+          <button id="stepOverBtn">Step Over</button>
+          <button id="stepIntoBtn">Step Into</button>
+          <button id="stepOutBtn">Step Out</button>
+        </div>
+        <div id="editor_container">
+          <pre id="editor"></pre>
+        </div>
+      </div>
+
+      <div id="resultArea">
+        <canvas id="gfx" width="640" height="480"></canvas>
+      </div>
+
     </div>
 
     <script type="text/javascript" src="build/vm.js"></script>

@@ -22,6 +22,13 @@ First graphic intrinsitcs?
 Sourcemaps? (this makes sense when we compile code)
 
 ---
+1) Make it work (cover all of MiniScript)
+
+2) Make it debuggable
+
+3) THEN make it fast(er)
+
+
 Possible performance optimizations:
 - From microScript:
   - avoid pop/push by manipulating stack in-place

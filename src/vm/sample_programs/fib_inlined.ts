@@ -72,7 +72,7 @@ function inlinedFibProgram(n: number) {
         vm.ip += 1;
         vm.pushFrame();
     
-        vm.code = funcDef.code;
+        vm.code = funcDef.getCode();
         vm.context = new Context(vm.globalContext);
         vm.ip = 0;
     
@@ -110,7 +110,7 @@ function inlinedFibProgram(n: number) {
         vm.ip += 1;
         vm.pushFrame();
     
-        vm.code = funcDef.code;
+        vm.code = funcDef.getCode();
         vm.context = new Context(vm.globalContext);
         vm.ip = 0;
     
@@ -157,7 +157,7 @@ function inlinedFibProgram(n: number) {
   mainBld.push(BC.CALL, "fib")
 
   mainBld.push(BC.PUSH, "Results: ")
-  mainBld.push(BC.CALL_PRIMITIVE, "print")
+  mainBld.push(BC.CALL, "print", 1)
   mainBld.push(BC.PRINT_TOP)
   mainBld.push(BC.EXIT)
 

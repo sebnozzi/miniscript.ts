@@ -9,7 +9,7 @@ class ExpressionCompiler {
     if (e instanceof Literal) {
       b.push(BC.PUSH, e.value)
     } else if (e instanceof IdentifierExpr) {
-      b.push(BC.PUSH_VAR, e.identifier.value)
+      b.push(BC.EVAL_ID, e.identifier.value)
     } else if (e instanceof BinaryExpr) {
       this.compileBinaryExpression(e);
     } else if (e instanceof FunctionCallExpr) {
@@ -28,10 +28,11 @@ class ExpressionCompiler {
     for (let arg of args) {
       this.compileExpression(arg)
     }
+    const argCount = args.length;
     // Resolve and call target
     if (callTarget instanceof IdentifierExpr) {
-      const identifier = callTarget.identifier.value
-      this.builder.push(BC.CALL, identifier)
+      const identifier = callTarget.identifier.value;
+      this.builder.push(BC.CALL, identifier, argCount);
     } else {
       throw new Error("Calling anything other than identifiers not supported")
     }

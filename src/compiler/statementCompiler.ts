@@ -11,7 +11,9 @@ class StatementCompiler {
 
   private compileStatement(s: Statement) {
     const b = this.builder;
-    if (s instanceof AssignmentStatement) {
+    if (s instanceof ExpressionStatement) {
+      this.compileExpressionStatement(s);
+    } else if (s instanceof AssignmentStatement) {
       this.compileAssignmentStatement(s);
     } else if (s instanceof ReturnStatement) {
       this.compileReturnStatement(s);
@@ -26,6 +28,14 @@ class StatementCompiler {
 
   private compileExpression(e: Expression) {
     this.expressionCompiler.compileExpression(e);
+  }
+
+  private compileExpressionStatement(s: ExpressionStatement) {
+    // Compile expression and discard result
+    this.builder.startMapEntry();
+    this.expressionCompiler.compileExpression(s.expression);
+    this.builder.push(BC.POP)
+    this.builder.endMapEntry(s.location());
   }
 
   private compileAssignmentStatement(s: AssignmentStatement) {
@@ -80,8 +90,9 @@ class StatementCompiler {
 
   private compileFunctionCallStatement(s: FunctionCallStatement) {
     this.builder.startMapEntry();
-    this.expressionCompiler.compileFuncCall(s.callTarget, s.args)
-    const callIpEnd = this.builder.ip - 1;
+    this.expressionCompiler.compileFuncCall(s.callTarget, s.args);
+    // Discard returned value, since it's a statement
+    this.builder.push(BC.POP)
     this.builder.endMapEntry(s.location());
     // TODO: discard return value ... we need a flag to indicate that something was returned
   }

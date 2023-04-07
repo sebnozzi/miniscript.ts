@@ -7,7 +7,13 @@ class Stack<T> {
   }
 
   push(element: T) {
-    this.elements.push(element)
+    if (element === undefined) {
+      // This happens when a function returns no value.
+      // Store null. It should be popped in the next cycle.
+      this.elements.push(null as T);
+    } else {
+      this.elements.push(element)
+    }
   }
 
   pop(): T {

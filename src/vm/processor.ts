@@ -20,8 +20,6 @@ class Processor {
   cycleCount: number;
   // Callback when processing done
   onFinished: Function;
-  // Map of primitives
-  primitives: {[id: string]: Function};
 
   constructor(programCode: Code) {
     this.code = programCode;
@@ -32,15 +30,19 @@ class Processor {
     this.opStack = new Stack();
     this.cycleCount = 0;
     this.onFinished = function() {};
-    this.primitives = {};
   }
 
   run() {
     this.runUntilDone();
   }
 
-  addPrimitive(name: string, impl: Function) {
-    this.primitives[name] = impl;
+  addNative(name: string, argCount: number, impl: Function) {
+    let args = [];
+    for (let argIdx = 0; argIdx < argCount; argIdx++) {
+      args.push(`arg_${argIdx + 1}`);
+    }
+    const funcDef = new FuncDef(args, impl);
+    this.globalContext.setLocal(name, funcDef);
   }
 
   runUntilDone(maxCount: number = 73681) {
@@ -65,27 +67,50 @@ class Processor {
         }
         case BC.CALL: {
           let funcName: string = this.code.arg1[this.ip] as string;
+          let argCount: number = this.code.arg2[this.ip] as number;
 
-          // Try to see if it's a primitive
-          if (funcName in this.primitives) {
-            let prim = this.primitives[funcName];
-            prim(this.opStack, this.context);
-            this.ip += 1;
+          const resolved: any = this.context.get(funcName);
+
+          if (!(resolved instanceof FuncDef)) {
+            throw new Error(`Identifier ${funcName} should be a function`);
           } else {
-            let funcDef: FuncDef = this.context.get(funcName);
-          
-            // Let it return to the next bytecode after the call
-            this.ip += 1;
-            this.pushFrame();
-  
-            this.code = funcDef.code;
-            this.context = new Context(this.globalContext);
-            this.ip = 0;
-  
-            // Pop and set parameters as variables
-            for (let paramName of funcDef.params) {
-              const paramValue = this.opStack.pop();
-              this.context.setLocal(paramName, paramValue);
+            const funcDef = resolved as FuncDef;
+
+            if (argCount > funcDef.params.length) {
+              throw new Error(`Too many parameters in call to ${funcName}. Expected ${funcDef.params.length} found ${argCount}.`)
+            } else if (argCount < funcDef.params.length) {
+              throw new Error(`Too few parameters in call to ${funcName}. Expected ${funcDef.params.length} found ${argCount}.`)
+            }
+
+            if (funcDef.isNative()) {
+              const func = funcDef.getFunction();
+              // Build parameter list
+              let paramValues = [];
+              // Pop and set parameters
+              for (let {} of funcDef.params) {
+                const paramValue = this.opStack.pop();
+                paramValues.unshift(paramValue);
+              }
+              // Call with parameters
+              const retVal = func.apply(this, paramValues);
+              // Push return value to stack
+              this.opStack.push(retVal);
+              // Advance IP
+              this.ip += 1;
+            } else {
+              // Let it return to the next bytecode after the call
+              this.ip += 1;
+              this.pushFrame();
+    
+              this.code = funcDef.getCode();
+              this.context = new Context(this.globalContext);
+              this.ip = 0;
+    
+              // Pop and set parameters as variables
+              for (let paramName of funcDef.params) {
+                const paramValue = this.opStack.pop();
+                this.context.setLocal(paramName, paramValue);
+              }
             }
           }
           break;
@@ -101,11 +126,33 @@ class Processor {
           this.ip += 1;
           break;
         }
-        case BC.PUSH_VAR: {
-          let varName = this.code.arg1[this.ip]
-          let value = this.context.get(varName)
-          this.opStack.push(value)
-          this.ip += 1;
+        case BC.EVAL_ID: {
+          const identifier = this.code.arg1[this.ip];
+          const value = this.context.get(identifier);
+
+          if (value instanceof FuncDef) {
+            // If it's a function, it should be called.
+            // The resulting value will be put in the stack instead.
+            const funcDef: FuncDef = value as FuncDef;
+            if (funcDef.isNative()) {
+              const func = funcDef.getFunction();
+              const retVal = func.apply(this, []);
+              this.opStack.push(retVal);
+              this.ip += 1;
+            } else {
+              // Let it return to the next bytecode after the call
+              this.ip += 1;
+              this.pushFrame();
+              // Set the new code to run
+              this.code = funcDef.getCode();
+              this.context = new Context(this.globalContext);
+              this.ip = 0;  
+            }
+          } else {
+            // If it's not a function, use the value as-is
+            this.opStack.push(value)
+            this.ip += 1;
+          }
           break;
         }
         case BC.PUSH: {
@@ -241,16 +288,11 @@ class Processor {
           this.ip = this.code.opCodes.length;
           break;
         }
-        case BC.CALL_PRIMITIVE: {
-          let name = this.code.arg1[this.ip];
-          let prim = this.primitives[name];
-          if (prim) {
-            prim(this.opStack, this.context);
-            this.ip += 1;
-            break;
-          } else {
-            throw new Error("Primitive not found: " + name);
-          }
+        case BC.POP: {
+          // Pop and discard value
+          this.opStack.pop()
+          this.ip += 1;
+          break;
         }
         case BC.PRINT_TOP: {
           let value = this.opStack.pop()
@@ -283,6 +325,10 @@ class Processor {
     frame.context = this.context;
     frame.ip = this.ip;
     this.savedFrames.push(frame);
+    // Remove at some point?
+    if (this.savedFrames.count() > 100) {
+      throw new Error("Too much recursion");
+    }
   }
 
   popFrame() {
@@ -293,7 +339,7 @@ class Processor {
   }
 
   resolveAndPush(id: string) {
-    const value = this.context.get("n")
+    const value = this.context.get(id)
     this.opStack.push(value)
   }
 
@@ -338,7 +384,7 @@ class Processor {
     this.ip += 1;
     this.pushFrame();
 
-    this.code = funcDef.code;
+    this.code = funcDef.getCode();
     this.context = new Context(this.globalContext);
     this.ip = 0;
 
@@ -347,12 +393,6 @@ class Processor {
       const paramValue = this.opStack.pop();
       this.context.setLocal(paramName, paramValue);
     }
-  }
-
-  callPrimitive(funcName: string) {
-    let prim = this.primitives[funcName];
-    prim(this.opStack, this.context);
-    this.ip++;
   }
 
   addValues() {

@@ -58,10 +58,10 @@ function inlineCallFibProgram(n: number) {
 
   mainBld.push(BC.CALL_TRANSPILED, function(vm: Processor) {
     vm.pushValue("Results:")
-    vm.callPrimitive("print")
+    vm.resolveAndCall("print")
   });
   mainBld.push(BC.CALL_TRANSPILED, function(vm: Processor) {
-    vm.callPrimitive("print")
+    vm.resolveAndCall("print")
   });
 
   mainBld.push(BC.EXIT)

@@ -16,19 +16,19 @@ function fibProgram(n: number): Code {
   // `fib = function(n) ...`
   // Builer for the "fib function"
   const fibBld = new CodeBuilder()
-  fibBld.push(BC.PUSH_VAR, "n")
+  fibBld.push(BC.EVAL_ID, "n")
   fibBld.push(BC.PUSH, 1)
   fibBld.push_unresolved(BC.JUMP_GT, "else")
   // if part
-  fibBld.push(BC.PUSH_VAR, "n")
+  fibBld.push(BC.EVAL_ID, "n")
   fibBld.push(BC.RETURN)
   // else part
   fibBld.define_address("else")
-  fibBld.push(BC.PUSH_VAR, "n")
+  fibBld.push(BC.EVAL_ID, "n")
   fibBld.push(BC.SUBTR_N, 1)
   fibBld.push(BC.CALL, "fib")
   // When function returns, stack has return value
-  fibBld.push(BC.PUSH_VAR, "n")
+  fibBld.push(BC.EVAL_ID, "n")
   fibBld.push(BC.SUBTR_N, 2)
   fibBld.push(BC.CALL, "fib")
   // Now stack has both return values, add them.
@@ -48,7 +48,7 @@ function fibProgram(n: number): Code {
   mainBld.push(BC.CALL, "fib")
 
   mainBld.push(BC.PUSH, "Results: ")
-  mainBld.push(BC.CALL_PRIMITIVE, "print")
+  mainBld.push(BC.CALL, "print", 1)
   mainBld.push(BC.PRINT_TOP)
   mainBld.push(BC.EXIT)
 

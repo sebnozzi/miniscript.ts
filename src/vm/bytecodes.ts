@@ -4,7 +4,7 @@ enum BC {
   PUSH,
 
   // Resolve variable and push value to stack
-  PUSH_VAR,
+  EVAL_ID,
 
   // Assign value to local variable
   ASSIGN_LOCAL,
@@ -34,8 +34,8 @@ enum BC {
   RETURN,
   EXIT,
 
-  CALL_PRIMITIVE,
   CALL_TRANSPILED,
 
+  POP,
   PRINT_TOP,
 };
