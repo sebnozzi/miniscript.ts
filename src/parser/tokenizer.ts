@@ -274,6 +274,36 @@ class Tokenizer {
         charsToAdvance = 2;
         tokenTypeToAdd = TokenType.OP_GREATER_EQUALS;
         break;
+      case "+=":
+        // Not really an operator, but handled here
+        charsToAdvance = 2;
+        tokenTypeToAdd = TokenType.PLUS_ASSIGN;
+        break;
+      case "-=":
+        // Not really an operator, but handled here
+        charsToAdvance = 2;
+        tokenTypeToAdd = TokenType.MINUS_ASSIGN;
+        break; 
+      case "*=":
+        // Not really an operator, but handled here
+        charsToAdvance = 2;
+        tokenTypeToAdd = TokenType.MULT_ASSIGN;
+        break;
+      case "/=":
+        // Not really an operator, but handled here
+        charsToAdvance = 2;
+        tokenTypeToAdd = TokenType.DIV_ASSIGN;
+        break; 
+      case "%=":
+        // Not really an operator, but handled here
+        charsToAdvance = 2;
+        tokenTypeToAdd = TokenType.MOD_ASSIGN;
+        break;
+      case "^=":
+        // Not really an operator, but handled here
+        charsToAdvance = 2;
+        tokenTypeToAdd = TokenType.POW_ASSIGN;
+        break; 
       default:
         // Nothing, we'll try with one-char below
         break;

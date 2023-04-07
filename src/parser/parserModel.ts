@@ -118,6 +118,24 @@ class AssignmentStatement implements Statement {
   }
 }
 
+class MathAssignmentStatement implements Statement {
+  constructor(public target: Expression, public opToken: TokenType, public value: Expression) {}
+  
+  location() {
+    return this.target.location().upTo(this.value.location());
+  }
+
+  toJson(): object {
+    return {
+      "MathAssignmentStatement": {
+        "target": this.target.toJson(),
+        "op": TokenType[this.opToken],
+        "value": this.value.toJson()
+      }
+    }
+  }
+}
+
 class FunctionCallStatement implements Statement {
   constructor(public callTarget: Expression, public args: Expression[]) {}
   location(): SrcLocation {

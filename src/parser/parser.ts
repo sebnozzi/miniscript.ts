@@ -117,6 +117,12 @@ class Parser {
       TokenType.OP_AND,
       TokenType.OP_OR,
       TokenType.ASSIGN,
+      TokenType.PLUS_ASSIGN,
+      TokenType.MINUS_ASSIGN,
+      TokenType.MULT_ASSIGN,
+      TokenType.DIV_ASSIGN,
+      TokenType.MOD_ASSIGN,
+      TokenType.POW_ASSIGN,
     ]
 
     let cleanedUpTokens: Token[] = []
@@ -203,11 +209,26 @@ class Parser {
       return this.continueStatement(context)
     } else if (this.tokenMatch(TokenType.KW_RETURN)) {
       return this.returnStatement(context)
-    } else if (this.tokensInStatementBoundaryMatch(TokenType.ASSIGN)) {
-      // Looks like an assignment
-      return this.assignmentStatement(context)
     } else {
-      return this.expressionStatement(context)
+      const assignmentTokenTypes = [
+        TokenType.ASSIGN,
+        TokenType.PLUS_ASSIGN,
+        TokenType.MINUS_ASSIGN,
+        TokenType.MULT_ASSIGN,
+        TokenType.DIV_ASSIGN,
+        TokenType.MOD_ASSIGN,
+        TokenType.POW_ASSIGN,
+      ];
+      const optTokenType = this.findTokenWithinStatementBoundary(assignmentTokenTypes);
+      if (optTokenType === TokenType.ASSIGN) {
+        // Looks like an assignment
+        return this.assignmentStatement(context);
+      } else if(optTokenType !== null) {
+        // Looks like a math-assignment
+        return this.mathAssignmentStatement(optTokenType, context);
+      } else {
+        return this.expressionStatement(context);
+      }
     }
   }
 
@@ -397,6 +418,41 @@ class Parser {
     } else {
       throw this.failParsing("Invalid assignment target")
     }
+  }
+
+  private mathAssignmentStatement(tokenType: TokenType, context: ParsingContext): AssignmentStatement {
+
+    const target: Expression = this.call(context)
+
+    const tokenStr = this.mathAssignmentString(tokenType);
+    this.consume(tokenType, `Expected '${tokenStr}' in math-assignment`)
+
+    const value = this.functionBodyOrExpr(context)
+
+    if(target instanceof IdentifierExpr || target instanceof PropertyAccessExpr || target instanceof ListAccessExpr) {
+      return new MathAssignmentStatement(target, tokenType, value)
+    } else {
+      throw this.failParsing("Invalid math-assignment target")
+    }
+  }
+
+  private mathAssignmentString(tokenType: TokenType): string | Error {
+    switch (tokenType) {
+      case TokenType.PLUS_ASSIGN:
+        return "+=";
+      case TokenType.MINUS_ASSIGN:
+        return "+=";
+      case TokenType.MULT_ASSIGN:
+        return "+=";
+      case TokenType.DIV_ASSIGN:
+        return "+=";
+      case TokenType.MOD_ASSIGN:
+        return "+=";
+      case TokenType.POW_ASSIGN:
+        return "+=";
+      default:
+        return this.failParsing("Unexpected math-assignment token type: " + TokenType[tokenType]);
+      }
   }
 
   private expression(context: ParsingContext): Expression {
@@ -671,7 +727,7 @@ class Parser {
     } else if (this.tokenMatch(TokenType.OPEN_CURLY)) {
       return this.mapLiteral(context)
     } else {
-      throw this.failParsing("Expected expression. Found: " + this.peek().tokenType)
+      throw this.failParsing("Expected expression. Found: " + TokenType[this.peek().tokenType]);
     }
   }
 
@@ -798,7 +854,7 @@ class Parser {
     return new FunctionBodyExpr(args, bodyStatements, fullLocation)
   }
 
-  private consume(tokenType: TokenType, message: String): Token {
+  private consume(tokenType: TokenType, message: string): Token {
     if (this.check(tokenType)) {
       return this.advance()
     } else {
@@ -834,9 +890,9 @@ class Parser {
     }
   }
 
-  private failParsing(message: String): Error {
+  private failParsing(message: string): Error {
     const pos = this.peek().location.start;
-    return new ParseError(`At line ${pos.row}, column ${pos.col}: $message`)
+    return new ParseError(`At line ${pos.row}, column ${pos.col}: ${message}`);
   }
 
   private tokenMatch(...types: TokenType[]): boolean {
@@ -865,24 +921,19 @@ class Parser {
    *
    * Useful for "guessing" statements
    * */
-  private tokensInStatementBoundaryMatch(tokenType: TokenType): boolean {
+  private findTokenWithinStatementBoundary(tokenTypes: TokenType[]): TokenType | null {
     let idx = this.current
-    let shouldSeek = true
-    let matchFound = false
-    while (shouldSeek) {
+    while (true) {
       const token = this.tokens[idx]
       if ([TokenType.EOF, TokenType.SEMICOLON, TokenType.NEWLINE].includes(token.tokenType)) {
         // Statement boundary reached
-        shouldSeek = false
-      } else if (token.tokenType == tokenType) {
+        return null;
+      } else if (tokenTypes.includes(token.tokenType)) {
         // Match found
-        matchFound = true
-        shouldSeek = false
+        return token.tokenType;
       }
       idx += 1
     }
-
-    return matchFound
   }
 
   private check(tokenType: TokenType): boolean {
