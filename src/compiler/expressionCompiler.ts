@@ -48,6 +48,10 @@ class ExpressionCompiler {
     this.compileExpression(e.left)
     this.compileExpression(e.right)
     switch (e.operator.tokenType) {
+      case TokenType.OP_EQUALS: {
+        this.builder.push(BC.COMPARE_EQ)
+        break;
+      }
       case TokenType.OP_PLUS: {
         this.builder.push(BC.ADD_VALUES)
         break;

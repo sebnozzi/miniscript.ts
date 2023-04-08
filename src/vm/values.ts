@@ -1,9 +1,19 @@
 /// <reference path="./code.ts"/>
 
+function equals(a: any, b: any): boolean {
+  if (typeof a === "number" && typeof b === "number") {
+    return a == b
+  } else {
+    console.info("Not supported for values","a:",a,"b:",b);
+    throw new Error("Invalid operation");
+  }
+}
+
 function greaterEquals(a: any, b: any): boolean {
   if (typeof a === "number" && typeof b === "number") {
     return a >= b
   } else {
+    console.info("Not supported for values","a:",a,"b:",b);
     throw new Error("Invalid operation");
   }
 }
@@ -12,6 +22,7 @@ function greaterThan(a: any, b: any): boolean {
   if (typeof a === "number" && typeof b === "number") {
     return a > b
   } else {
+    console.info("Not supported for values","a:",a,"b:",b);
     throw new Error("Invalid operation");
   }
 }
@@ -20,6 +31,7 @@ function lessEquals(a: any, b: any): boolean {
   if (typeof a === "number" && typeof b === "number") {
     return a <= b
   } else {
+    console.info("Not supported for values","a:",a,"b:",b);
     throw new Error("Invalid operation");
   }
 }
@@ -28,6 +40,7 @@ function lessThan(a: any, b: any): boolean {
   if (typeof a === "number" && typeof b === "number") {
     return a < b
   } else {
+    console.info("Not supported for values","a:",a,"b:",b);
     throw new Error("Invalid operation");
   }
 }
@@ -38,6 +51,7 @@ function add(a: any, b: any): any {
   } else if (typeof a === "string" || typeof b === "string") {
     return toString(a) + toString(b);
   } else {
+    console.info("Not supported for values","a:",a,"b:",b);
     throw new Error("Invalid operation");
   }
 }
@@ -46,6 +60,7 @@ function subtract(a: any, b: any): number {
   if (typeof a === "number" && typeof b === "number") {
     return a - b
   } else {
+    console.info("Not supported for values","a:",a,"b:",b);
     throw new Error("Invalid operation");
   }
 }
@@ -54,6 +69,7 @@ function divide(a: any, b: any): number {
   if (typeof a === "number" && typeof b === "number") {
     return a / b
   } else {
+    console.info("Not supported for values","a:",a,"b:",b);
     throw new Error("Invalid operation");
   }
 }
@@ -62,6 +78,7 @@ function multiply(a: any, b: any): number {
   if (typeof a === "number" && typeof b === "number") {
     return a * b
   } else {
+    console.info("Not supported for values","a:",a,"b:",b);
     throw new Error("Invalid operation");
   }
 }
@@ -70,6 +87,7 @@ function power(a: any, b: any): number {
   if (typeof a === "number" && typeof b === "number") {
     return Math.pow(a, b);
   } else {
+    console.info("Not supported for values","a:",a,"b:",b);
     throw new Error("Invalid operation");
   }
 }
