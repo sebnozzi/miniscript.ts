@@ -12,12 +12,18 @@ class Compiler {
   }
   
   compile(): Code {
-    this.statementCompiler.compileStatements(this.statements)
-    this.builder.push(BC.EXIT)
+    this.statementCompiler.compileStatements(this.statements);
+    this.builder.push(BC.EXIT);
     const prg = this.builder.build();
     return prg
   }
 
-  
+  compileFunctionBody(): Code {
+    this.statementCompiler.compileStatements(this.statements);
+    this.builder.push(BC.PUSH, null);
+    this.builder.push(BC.RETURN);
+    const prg = this.builder.build();
+    return prg
+  } 
 
 }

@@ -131,7 +131,7 @@ class ExpressionCompiler {
     }
     // Compile code
     const funcCompiler = new Compiler(e.statements);
-    const funcCode = funcCompiler.compile();
+    const funcCode = funcCompiler.compileFunctionBody();
     // Build and push function definition
     let funcDef = new FuncDef(argNames, funcCode);
     this.builder.push(BC.PUSH, funcDef);
