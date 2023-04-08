@@ -56,6 +56,9 @@ class StatementCompiler {
     this.builder.startMapEntry();
     if (s.optValue) {
       this.compileExpression(s.optValue)
+    } else {
+      // Push a "null" value if not explicitly returning anything
+      this.builder.push(BC.PUSH, null);
     }
     this.builder.push(BC.RETURN);
     this.builder.endMapEntry(s.location());
