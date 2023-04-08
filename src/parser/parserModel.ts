@@ -391,6 +391,15 @@ class ListExpr implements Expression {
     return "List Expression";
   }
 
+  hasAllLiteralElements(): boolean {
+    for (let e of this.elements) {
+      if (!(e instanceof Literal)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   toJson(): object {
     return {
       "ListExpr": {

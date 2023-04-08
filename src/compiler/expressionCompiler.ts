@@ -16,6 +16,8 @@ class ExpressionCompiler {
       this.compileLogicExpression(e);
     } else if (e instanceof GroupingExpr) {
       this.compileExpression(e.expr);
+    } else if (e instanceof ListExpr) {
+      this.compileListExpression(e);
     } else if (e instanceof FunctionCallExpr) {
       this.compileFuncCall(e.callTarget, e.args)
     } else if (e instanceof FunctionBodyExpr) {
@@ -101,6 +103,19 @@ class ExpressionCompiler {
       }
       default:
         throw new Error("Operator not implemented: " + TokenType[e.operator.tokenType])
+    }
+  }
+
+  private compileListExpression(e: ListExpr) {
+    if (e.hasAllLiteralElements()) {
+      const resultList = [];
+      for (let element of e.elements) {
+        const literal = element as Literal;
+        resultList.push(literal.value);
+      }
+      this.builder.push(BC.PUSH, resultList);
+    } else {
+      throw new Error("Mixed lists not yet implemented");
     }
   }
 
