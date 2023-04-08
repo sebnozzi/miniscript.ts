@@ -25,11 +25,9 @@ function runDebugDemo() {
   const sampleCode = [
     "fib = function(n)",
     "  if n <= 1 then",
-    "    print n",
     "    return n",
     "  else",
     "    result = fib(n-1) + fib(n-2)",
-    "    print result",
     "    return result",
     "  end if",
     "end function",
