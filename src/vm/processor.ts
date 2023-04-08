@@ -279,6 +279,22 @@ class Processor {
           this.ip += 1;
           break;
         }
+        case BC.LOGIC_AND_VALUES: {
+          let valueInStack_2 = this.opStack.pop()
+          let valueInStack_1 = this.opStack.pop()
+          let result = logic_and(valueInStack_1, valueInStack_2)
+          this.opStack.push(result)
+          this.ip += 1;
+          break;
+        }
+        case BC.LOGIC_OR_VALUES: {
+          let valueInStack_2 = this.opStack.pop()
+          let valueInStack_1 = this.opStack.pop()
+          let result = logic_or(valueInStack_1, valueInStack_2)
+          this.opStack.push(result)
+          this.ip += 1;
+          break;
+        }
         case BC.ADD_N: {
           let valueToAdd = this.code.arg1[this.ip];
           let valueInStack = this.opStack.pop()

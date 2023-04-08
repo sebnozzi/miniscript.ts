@@ -74,6 +74,36 @@ function power(a: any, b: any): number {
   }
 }
 
+function logic_and(a: any, b: any): number {
+  a = toBooleanNr(a);
+  b = toBooleanNr(b);
+  if (typeof a === "number" && typeof b === "number") {
+    return a * b;
+  } else {
+    console.info("Not supported for values","a:",a,"b:",b);
+    throw new Error("Invalid operation");
+  }
+}
+
+function logic_or(a: any, b: any): number {
+  a = toBooleanNr(a);
+  b = toBooleanNr(b);
+  if (typeof a === "number" && typeof b === "number") {
+    return 1 - (1-a) * (1-b);
+  } else {
+    console.info("Not supported for values","a:",a,"b:",b);
+    throw new Error("Invalid operation");
+  }
+}
+
+function toBooleanNr(value: any): number {
+  if (value === null) {
+    return 0;
+  } else {
+    return value;
+  }
+}
+
 function toString(a: any): string {
   if (typeof a === "number") {
     return "" + a;

@@ -12,12 +12,14 @@ class ExpressionCompiler {
       b.push(BC.EVAL_ID, e.identifier.value)
     } else if (e instanceof BinaryExpr) {
       this.compileBinaryExpression(e);
+    } else if (e instanceof LogicExpr) {
+      this.compileLogicExpression(e);
     } else if (e instanceof FunctionCallExpr) {
       this.compileFuncCall(e.callTarget, e.args)
     } else if (e instanceof FunctionBodyExpr) {
       this.compileFunctionBodyExpression(e);
     } else {
-      throw new Error("Expression type not yet supported: " + typeof e)
+      throw new Error("Expression type not yet supported: " + e.description())
     }
   }
 
@@ -76,6 +78,23 @@ class ExpressionCompiler {
       }
       case TokenType.OP_GREATER: {
         this.builder.push(BC.COMPARE_GT)
+        break;
+      }
+      default:
+        throw new Error("Operator not implemented: " + TokenType[e.operator.tokenType])
+    }
+  }
+
+  private compileLogicExpression(e: LogicExpr) {
+    this.compileExpression(e.left)
+    this.compileExpression(e.right)
+    switch (e.operator.tokenType) {
+      case TokenType.OP_AND: {
+        this.builder.push(BC.LOGIC_AND_VALUES)
+        break;
+      }
+      case TokenType.OP_OR: {
+        this.builder.push(BC.LOGIC_OR_VALUES)
         break;
       }
       default:
