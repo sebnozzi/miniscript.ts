@@ -706,9 +706,11 @@ class Parser {
 
   private primary(context: ParsingContext): Expression {
     if (this.tokenMatch(TokenType.KW_FALSE)) {
-      return new Literal(false, this.previous().location);
+      // Convert "false" to literal 0 right away
+      return new Literal(0, this.previous().location);
+      // Convert "true" to literal 1 right away
     } else if (this.tokenMatch(TokenType.KW_TRUE)) {
-      return new Literal(true, this.previous().location);
+      return new Literal(1, this.previous().location);
     } else if (this.tokenMatch(TokenType.KW_NULL)) {
       return new Literal(null, this.previous().location);
     } else if (this.tokenMatch(TokenType.KW_SELF)) {
