@@ -10,6 +10,7 @@ interface Expression {
 type OptExpression = Expression | undefined
 
 interface Statement {
+  description(): string;
   toJson(): object
 }
 
@@ -33,6 +34,10 @@ class ExpressionStatement implements Statement {
 
   location() {
     return this.expression.location()
+  }
+
+  description(): string {
+    return "Expression Statement";
   }
 
   toJson(): object {
@@ -66,6 +71,11 @@ class IfStatement implements Statement {
   constructor(public ifBranch: ConditionedStatements,
     public elseIfs: ConditionedStatements[],
     public elseBranch: Statement[]) {}
+ 
+  description(): string {
+    return "If Statement";
+  }
+
   toJson(): object {
     return {
       "IfStatement": {
@@ -79,6 +89,9 @@ class IfStatement implements Statement {
 
 class WhileStatement implements Statement {
   constructor(public condition: Expression, public headerLocation: SrcLocation, public statements: Statement[]) { }
+  description(): string {
+    return "While Statement";
+  }  
   toJson(): object {
     return {
       "WhileStatement": {
@@ -91,6 +104,9 @@ class WhileStatement implements Statement {
 
 class ForStatement implements Statement {
   constructor(public loopVar: Identifier, public rangeExpr: Expression, public headerLocation: SrcLocation, public statements: Statement[]) {}
+  description(): string {
+    return "For Statement";
+  }
   toJson(): object {
     return {
       "ForStatement": {
@@ -105,6 +121,10 @@ class ForStatement implements Statement {
 class AssignmentStatement implements Statement {
   constructor(public target: Expression, public value: Expression) {}
   
+  description(): string {
+    return "Assignment";
+  }
+
   location() {
     return this.target.location().upTo(this.value.location());
   }
@@ -122,6 +142,10 @@ class AssignmentStatement implements Statement {
 class MathAssignmentStatement implements Statement {
   constructor(public target: Expression, public opToken: TokenType, public value: Expression) {}
   
+  description(): string {
+    return "Math-Assignment";
+  }
+
   location() {
     return this.target.location().upTo(this.value.location());
   }
@@ -139,6 +163,9 @@ class MathAssignmentStatement implements Statement {
 
 class FunctionCallStatement implements Statement {
   constructor(public callTarget: Expression, public args: Expression[]) {}
+  description(): string {
+    return "Function Call Statement";
+  }
   location(): SrcLocation {
     if (this.args.length > 0) {
       const lastArg = this.args[this.args.length - 1];
@@ -162,6 +189,9 @@ class ReturnStatement implements Statement {
   location() {
     return this.fullLocation;
   }
+  description(): string {
+    return "Return Statement";
+  }
   toJson(): object {
     return {
       "ReturnStatement": {
@@ -176,6 +206,9 @@ class BreakStatement implements Statement {
   location() {
     return this.fullLocation;
   }
+  description(): string {
+    return "Break Statement";
+  }
   toJson(): object {
     return {
       "BreakStatement": null
@@ -186,6 +219,9 @@ class ContinueStatement implements Statement {
   constructor(private fullLocation: SrcLocation) {}
   location() {
     return this.fullLocation;
+  }
+  description(): string {
+    return "Continue Statement";
   }
   toJson(): object {
     return {

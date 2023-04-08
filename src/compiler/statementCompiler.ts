@@ -22,7 +22,7 @@ class StatementCompiler {
     } else if (s instanceof FunctionCallStatement) {
       this.compileFunctionCallStatement(s);
     } else {
-      throw new Error("Compilation of statement not implemented: " + typeof s)
+      throw new Error("Compilation of statement not implemented: " + s.description())
     }
   }
 
