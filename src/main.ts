@@ -35,7 +35,13 @@ function runDebugDemo() {
   ].join("\n");
   
   const e = globalThis.editor;
-  e.setValue(sampleCode);
+  const savedPrg = loadProgram();
+  if (savedPrg) {
+    e.setValue(savedPrg);
+
+  } else {
+    e.setValue(sampleCode);
+  }
 
   const p = new Parser(sampleCode);
   const statements = p.parse();
@@ -123,6 +129,24 @@ function compileAndRun() {
   runCode(code);
 }
 
+function storeProgram() {
+  const e = globalThis.editor;
+  const srcCode = e.getValue();
+  const storage = window.localStorage;
+  storage.setItem("code", srcCode);
+}
+
+function loadProgram() {
+  const storage = window.localStorage;
+  const code = storage.getItem("code");
+  return code;
+}
+
+function clr() {
+  const storage = window.localStorage;
+  storage.clear();
+}
+
 function debugCode(prgCode: Code) {
   const e = globalThis.editor;
 
@@ -145,7 +169,6 @@ function debugCode(prgCode: Code) {
   }
 
   const d = new Debugger(p);
-  console.log(d);
 
   const removeMarkers = () => {
     for(let id of Object.keys(e.session.getMarkers())) {
@@ -195,6 +218,7 @@ function debugCode(prgCode: Code) {
 
   runBtn.addEventListener("click", () => {
     compileAndRun();
+    storeProgram();
   });
   stepOverBtn.addEventListener("click", () => {
     d.stepOver();
