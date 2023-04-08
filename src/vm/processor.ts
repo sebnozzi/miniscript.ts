@@ -255,6 +255,30 @@ class Processor {
           this.ip += 1;
           break;
         }
+        case BC.MULTIPLY_VALUES: {
+          let valueInStack_2 = this.opStack.pop()
+          let valueInStack_1 = this.opStack.pop()
+          let result = multiply(valueInStack_1, valueInStack_2)
+          this.opStack.push(result)
+          this.ip += 1;
+          break;
+        }
+        case BC.DIVIDE_VALUES: {
+          let valueInStack_2 = this.opStack.pop()
+          let valueInStack_1 = this.opStack.pop()
+          let result = divide(valueInStack_1, valueInStack_2)
+          this.opStack.push(result)
+          this.ip += 1;
+          break;
+        }
+        case BC.POWER_VALUES: {
+          let valueInStack_2 = this.opStack.pop()
+          let valueInStack_1 = this.opStack.pop()
+          let result = power(valueInStack_1, valueInStack_2)
+          this.opStack.push(result)
+          this.ip += 1;
+          break;
+        }
         case BC.ADD_N: {
           let valueToAdd = this.code.arg1[this.ip];
           let valueInStack = this.opStack.pop()

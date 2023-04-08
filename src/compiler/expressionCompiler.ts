@@ -50,6 +50,18 @@ class ExpressionCompiler {
         this.builder.push(BC.SUBTRACT_VALUES)
         break;
       }
+      case TokenType.OP_MULT: {
+        this.builder.push(BC.MULTIPLY_VALUES)
+        break;
+      }
+      case TokenType.OP_DIV: {
+        this.builder.push(BC.DIVIDE_VALUES)
+        break;
+      }
+      case TokenType.OP_POW: {
+        this.builder.push(BC.POWER_VALUES)
+        break;
+      }
       case TokenType.OP_LESS_EQUALS: {
         this.builder.push(BC.COMPARE_LE)
         break;

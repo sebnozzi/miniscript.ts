@@ -58,6 +58,22 @@ function divide(a: any, b: any): number {
   }
 }
 
+function multiply(a: any, b: any): number {
+  if (typeof a === "number" && typeof b === "number") {
+    return a * b
+  } else {
+    throw new Error("Invalid operation");
+  }
+}
+
+function power(a: any, b: any): number {
+  if (typeof a === "number" && typeof b === "number") {
+    return Math.pow(a, b);
+  } else {
+    throw new Error("Invalid operation");
+  }
+}
+
 function toString(a: any): string {
   if (typeof a === "number") {
     return "" + a;

@@ -17,6 +17,10 @@ enum BC {
   // Subtract two stack values, leaving result in the stack
   SUBTRACT_VALUES,
 
+  MULTIPLY_VALUES,
+  DIVIDE_VALUES,
+  POWER_VALUES,
+
   SUBTR_N,
   DIVIDE_N,
 
