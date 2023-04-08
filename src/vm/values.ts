@@ -78,7 +78,7 @@ function logic_and(a: any, b: any): number {
   a = toBooleanNr(a);
   b = toBooleanNr(b);
   if (typeof a === "number" && typeof b === "number") {
-    return a * b;
+    return absClamp01(a * b);
   } else {
     console.info("Not supported for values","a:",a,"b:",b);
     throw new Error("Invalid operation");
@@ -89,11 +89,17 @@ function logic_or(a: any, b: any): number {
   a = toBooleanNr(a);
   b = toBooleanNr(b);
   if (typeof a === "number" && typeof b === "number") {
-    return 1 - (1-a) * (1-b);
+    return absClamp01(a + b - a * b);
   } else {
     console.info("Not supported for values","a:",a,"b:",b);
     throw new Error("Invalid operation");
   }
+}
+
+function absClamp01(value: number): number {
+  if (value < 0) value = -value;
+  if (value > 1) return 1;
+  return value;
 }
 
 function toBooleanNr(value: any): number {
