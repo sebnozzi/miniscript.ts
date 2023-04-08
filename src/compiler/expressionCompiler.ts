@@ -14,6 +14,8 @@ class ExpressionCompiler {
       this.compileBinaryExpression(e);
     } else if (e instanceof LogicExpr) {
       this.compileLogicExpression(e);
+    } else if (e instanceof GroupingExpr) {
+      this.compileExpression(e.expr);
     } else if (e instanceof FunctionCallExpr) {
       this.compileFuncCall(e.callTarget, e.args)
     } else if (e instanceof FunctionBodyExpr) {
