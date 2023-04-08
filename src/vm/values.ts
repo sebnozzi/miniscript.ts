@@ -107,6 +107,8 @@ function toBooleanNr(value: any): number {
     return 0;
   } else if (typeof value == "number" ) {
     return value;
+  } else if (value instanceof Array) {
+    return value.length;
   } else {
     throw new Error("Type not supported: " + value);
   }
