@@ -3,7 +3,8 @@
 
 interface Expression {
   location(): SrcLocation;
-  toJson(): object
+  toJson(): object;
+  description(): string;
 }
 
 type OptExpression = Expression | undefined
@@ -201,6 +202,10 @@ class BinaryExpr implements Expression {
   location() {
     return this.left.location().upTo(this.right.location());
   }
+
+  description(): string {
+    return "Binary Expression";
+  }
   
   toJson(): object {
     return {
@@ -218,6 +223,10 @@ class LogicExpr implements Expression {
   
   location() {
     return this.left.location().upTo(this.right.location());
+  }
+
+  description(): string {
+    return "Logic Expression";
   }
 
   toJson(): object {
@@ -238,6 +247,10 @@ class UnaryExpr implements Expression {
     return this.operator.location.upTo(this.expr.location());
   }
 
+  description(): string {
+    return "Unary Expression";
+  }
+
   toJson(): object {
     return {
       "UnaryExpr": {
@@ -253,6 +266,10 @@ class Literal implements Expression {
   
   location(): SrcLocation {
     return this.fullLocation;
+  }
+
+  description(): string {
+    return "Literal";
   }
 
   toJson(): object {
@@ -271,6 +288,10 @@ class GroupingExpr implements Expression {
     return this.fullLocation;
   }
 
+  description(): string {
+    return "Grouping Expression";
+  }
+
   toJson(): object {
     return {
       "GroupingExpr": {
@@ -285,6 +306,10 @@ class IdentifierExpr implements Expression {
   
   location() {
     return this.identifier.location;
+  }
+
+  description(): string {
+    return "Identifier";
   }
 
   toJson(): object {
@@ -302,6 +327,10 @@ class FunctionCallExpr implements Expression {
 
   location() {
     return this.fullLocation;
+  }
+
+  description(): string {
+    return "Function Call Expression";
   }
 
   toJson(): object {
@@ -322,6 +351,10 @@ class ListExpr implements Expression {
     return this.fullLocation;
   }
 
+  description(): string {
+    return "List Expression";
+  }
+
   toJson(): object {
     return {
       "ListExpr": {
@@ -337,6 +370,10 @@ class MapExpr implements Expression {
 
   location() {
     return this.fullLocation;
+  }
+
+  description(): string {
+    return "Map Expression";
   }
 
   toJson(): object {
@@ -357,6 +394,11 @@ class ListAccessExpr implements Expression {
   location(): SrcLocation {
     return this.fullLocation;
   }
+
+  description(): string {
+    return "List Access";
+  }
+
   toJson(): object {
     return {
       "ListAccessExpr": {
@@ -371,6 +413,9 @@ class ListSlicingExpr implements Expression {
   constructor(public accessTarget: Expression, public start: OptExpression, public stop: OptExpression, private fullLocation: SrcLocation) {}
   location(): SrcLocation {
     return this.fullLocation;
+  }
+  description(): string {
+    return "List Slicing";
   }
   toJson(): object {
     return {
@@ -388,6 +433,10 @@ class PropertyAccessExpr implements Expression {
   
   location(): SrcLocation {
     return this.accessTarget.location().upTo(this.property.location);
+  }
+
+  description(): string {
+    return "Property Access";
   }
   
   toJson(): object {
@@ -425,6 +474,10 @@ class FunctionBodyExpr implements Expression {
     return this.fullLocation;
   }
 
+  description(): string {
+    return "Function Body";
+  }
+
   toJson(): object {
     return {
       "FunctionBodyExpr": {
@@ -440,6 +493,9 @@ class FunctionRefExpr implements Expression {
   location() {
     return this.fullLocation;
   }
+  description(): string {
+    return "Function Reference";
+  }
   toJson(): object {
     return {
       "FunctionRefExpr": {
@@ -454,6 +510,9 @@ class SelfExpr implements Expression {
   location() {
     return this.fullLocation;
   }
+  description(): string {
+    return "Self Expression";
+  }
   toJson(): object {
     return {
       "SelfExpr": {}
@@ -465,6 +524,9 @@ class SuperExpr implements Expression {
   constructor(private fullLocation: SrcLocation) {}
   location() {
     return this.fullLocation;
+  }
+  description(): string {
+    return "Super Expression";
   }
   toJson(): object {
     return {
