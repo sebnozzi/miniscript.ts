@@ -171,7 +171,7 @@ function debugCode(prgCode: Code) {
       const scol = srcLoc.start.col - 1;
       const erow = srcLoc.end.row - 1;
       const ecol = srcLoc.end.col - 1;
-      e.session.addMarker(new Range(srow, scol, erow, ecol), "blue", "text");
+      //e.session.addMarker(new Range(srow, scol, erow, ecol), "blue", "text");
     }
 
     if (d.canStepIn()) {
