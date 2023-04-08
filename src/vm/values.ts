@@ -105,8 +105,10 @@ function absClamp01(value: number): number {
 function toBooleanNr(value: any): number {
   if (value === null) {
     return 0;
-  } else {
+  } else if (typeof value == "number" ) {
     return value;
+  } else {
+    throw new Error("Type not supported: " + value);
   }
 }
 

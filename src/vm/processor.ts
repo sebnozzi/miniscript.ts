@@ -227,15 +227,12 @@ class Processor {
         }
         case BC.JUMP_FALSE: {
           let jumpAddr = this.code.arg1[this.ip]
-          let value = this.opStack.pop()
-          if (typeof value == "number") {
-            if (value == 0) {
-              this.ip = jumpAddr
-            } else {
-              this.ip += 1
-            }
+          let value = this.opStack.pop();
+          value = toBooleanNr(value);
+          if (value == 0) {
+            this.ip = jumpAddr
           } else {
-            throw new Error("Type not supported: " + value)
+            this.ip += 1
           }
           break;
         }
