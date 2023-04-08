@@ -62,14 +62,21 @@ class StatementCompiler {
   }
 
   private compileIfStatement(s: IfStatement) {
+    // End of only the if / then part
+    const endIfThenLabel = this.builder.newLabel();
+    // End of the whole if / then / else-ifs block
+    const endFullIfBlockLabel = this.builder.newLabel();
+    
     this.builder.startMapEntry();
+    
     this.compileExpression(s.ifBranch.condition);
-    const endIfLabel = this.builder.newLabel();
-    this.builder.push_unresolved(BC.JUMP_FALSE, endIfLabel);
+    this.builder.push_unresolved(BC.JUMP_FALSE, endIfThenLabel);
+
     this.builder.endMapEntry(s.ifBranch.condition.location());
 
     this.compileStatements(s.ifBranch.statements);
-    this.builder.define_address(endIfLabel);
+    this.builder.push_unresolved(BC.JUMP, endFullIfBlockLabel);
+    this.builder.define_address(endIfThenLabel);
 
     for (let elseIf of s.elseIfs) {
       let elseIfLabel = this.builder.newLabel();
@@ -80,12 +87,15 @@ class StatementCompiler {
       this.builder.endMapEntry(elseIf.condition.location());
 
       this.compileStatements(elseIf.statements);
+      this.builder.push_unresolved(BC.JUMP, endFullIfBlockLabel);
       this.builder.define_address(elseIfLabel);
     }
 
     if (s.elseBranch.length > 0) {
       this.compileStatements(s.elseBranch);
     }
+
+    this.builder.define_address(endFullIfBlockLabel);
   }
 
   private compileFunctionCallStatement(s: FunctionCallStatement) {
