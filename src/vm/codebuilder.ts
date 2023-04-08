@@ -21,18 +21,14 @@ class CodeBuilder {
   }
 
   push(opCode: BC, arg1: any = null, arg2: any = null) {
-    this.prg.opCodes.push(opCode)
-    this.prg.arg1.push(arg1)
-    this.prg.arg2.push(arg2)
-    this.ip++
+    this.prg.push(opCode, arg1, arg2);
+    this.ip++;
   }
   
   push_unresolved(opCode: BC, arg1: any = null, arg2: any = null) {
-    this.prg.opCodes.push(opCode)
-    this.prg.arg1.push(arg1)
-    this.prg.arg2.push(arg2)
-    this.unresolved.push(this.ip)
-    this.ip++
+    this.prg.push(opCode, arg1, arg2);
+    this.unresolved.push(this.ip);
+    this.ip++;
   }
 
   newLabel() {
