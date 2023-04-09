@@ -60,11 +60,6 @@ class Processor {
     this.cycleCount = 0;
     while(this.cycleCount < maxCount) {
       switch (this.code.opCodes[this.ip]) {
-        case BC.CALL_TRANSPILED: {
-          let transpiledBlock: Function = this.code.arg1[this.ip];
-          transpiledBlock(this);
-          break;
-        }
         case BC.CALL: {
           let funcName: string = this.code.arg1[this.ip] as string;
           let argCount: number = this.code.arg2[this.ip] as number;
@@ -356,7 +351,7 @@ class Processor {
       } // switch
       this.cycleCount++;
     } // while
-  }
+  } // executeCycles
 
   isFinished(): boolean {
     return this.ip >= this.code.opCodes.length;
@@ -384,70 +379,6 @@ class Processor {
     this.ip = frame.ip;
     this.context = frame.context;
     this.code = frame.code;
-  }
-
-  resolveAndPush(id: string) {
-    const value = this.context.get(id)
-    this.opStack.push(value)
-  }
-
-  pushValue(value: any) {
-    this.opStack.push(value)
-  }
-
-  compareLessEqual() {
-    let valueB = this.opStack.pop()
-    let valueA = this.opStack.pop()
-    if (lessEquals(valueA, valueB)) {
-      this.opStack.push(1)
-    } else {
-      this.opStack.push(0)
-    }
-  }
-
-  jumpIfFalse(addr: number) {
-    let value = this.opStack.pop()
-    if (value == 0) {
-      this.ip = addr
-    } else {
-      this.ip ++;
-    }
-  }
-
-  doReturn() {
-    this.popFrame()
-  }
-
-  subtractValues() {
-    let valueInStack_2 = this.opStack.pop()
-    let valueInStack_1 = this.opStack.pop()
-    let result = subtract(valueInStack_1, valueInStack_2)
-    this.opStack.push(result)
-  }
-
-  resolveAndCall(funcName: string) {
-    let funcDef: FuncDef = this.context.get(funcName);
-  
-    // Let it return to the next bytecode after the call
-    this.ip += 1;
-    this.pushFrame();
-
-    this.code = funcDef.getCode();
-    this.context = new Context(this.globalContext);
-    this.ip = 0;
-
-    // Pop and set parameters as variables
-    for (let paramName of funcDef.params) {
-      const paramValue = this.opStack.pop();
-      this.context.setLocal(paramName, paramValue);
-    }
-  }
-
-  addValues() {
-    let valueInStack_2 = this.opStack.pop()
-    let valueInStack_1 = this.opStack.pop()
-    let result = add(valueInStack_1, valueInStack_2)
-    this.opStack.push(result)
   }
 
 }

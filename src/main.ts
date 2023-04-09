@@ -1,5 +1,4 @@
 /// <reference path="./vm/processor.ts"/>
-/// <reference path="./vm/sample_programs/sumProgram.ts"/>
 
 const sampleCode = [
   "fib = function(n)",
@@ -103,16 +102,6 @@ function runCode(prgCode: Code) {
   }
   
   p.run();
-}
-
-function runInlinedFib() {
-  let prgCode = inlinedFibProgram(30);
-  runCode(prgCode);
-}
-
-function runInlineCallFib() {
-  let prgCode = inlineCallFibProgram(30);
-  runCode(prgCode);
 }
 
 function compileAndRun() {
@@ -233,7 +222,3 @@ function debugCode(prgCode: Code) {
   d.start();
 }
 
-function run() {
-  let prgCode = fibProgram(30);
-  runCode(prgCode);
-}

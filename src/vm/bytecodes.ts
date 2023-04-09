@@ -42,9 +42,7 @@ enum BC {
   CALL,
   RETURN,
   EXIT,
-
-  CALL_TRANSPILED,
-
+  
   POP,
   PRINT_TOP,
 };
