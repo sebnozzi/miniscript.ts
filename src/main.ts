@@ -206,8 +206,8 @@ function debugCode(prgCode: Code) {
   };
 
   runBtn.addEventListener("click", () => {
-    compileAndRun();
     storeProgram();
+    compileAndRun();
   });
   stepOverBtn.addEventListener("click", () => {
     d.stepOver();
