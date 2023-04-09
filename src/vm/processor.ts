@@ -38,7 +38,7 @@ class Processor {
 
   addNative(name: string, argCount: number, impl: Function) {
     let args = [];
-    let defaultValues = {};
+    let defaultValues: any[] = [];
     for (let argIdx = 0; argIdx < argCount; argIdx++) {
       args.push(`arg_${argIdx + 1}`);
     }
@@ -151,7 +151,7 @@ class Processor {
               let params = [];
               // Use default values, if any
               if (funcDef.argNames.length > 0) {
-                params = funcDef.getLastNDefaultValues(funcDef.argNames.length);
+                params = funcDef.defaultValues;
               }
               const func = funcDef.getFunction();
               const retVal = func.apply(this, params);
@@ -165,10 +165,8 @@ class Processor {
               this.code = funcDef.getCode();
               this.context = new Context(this.globalContext);
               // Populate default values, if any
-              if (funcDef.argNames.length > 0) {
-                for (let argName of funcDef.argNames) {
-                  this.context.setLocal(argName, funcDef.defaultValues[argName]);
-                }
+              for (let idx = 0; idx < funcDef.argNames.length; idx++) {
+                this.context.setLocal(funcDef.argNames[idx], funcDef.defaultValues[idx]);
               }
               // Set initial ip
               this.ip = 0;  

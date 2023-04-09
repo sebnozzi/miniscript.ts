@@ -125,11 +125,13 @@ class ExpressionCompiler {
   private compileFunctionBodyExpression(e: FunctionBodyExpr) {
     // Resolve argument names
     const argNames: string[] = [];
-    const defaultValues: {[argName: string]: any} = [];
+    const defaultValues: any[] = [];
     for (let arg of e.args) {
       argNames.push(arg.name);
       if (arg.defaultValue) {
-        defaultValues[arg.name] = arg.defaultValue.value;
+        defaultValues.push(arg.defaultValue.value);
+      } else {
+        defaultValues.push(undefined);
       }
     }
     // Compile code
