@@ -436,7 +436,7 @@ class Parser {
     }
   }
 
-  private mathAssignmentString(tokenType: TokenType): string | Error {
+  private mathAssignmentString(tokenType: TokenType): string {
     switch (tokenType) {
       case TokenType.PLUS_ASSIGN:
         return "+=";
@@ -451,7 +451,7 @@ class Parser {
       case TokenType.POW_ASSIGN:
         return "+=";
       default:
-        return this.failParsing("Unexpected math-assignment token type: " + TokenType[tokenType]);
+        throw this.failParsing("Unexpected math-assignment token type: " + TokenType[tokenType]);
       }
   }
 
@@ -829,23 +829,26 @@ class Parser {
           const identifierExpr = this.identifier()
           const name = identifierExpr.identifier.value
           let fullLocation: SrcLocation;
-          let defaultValue: Expression | undefined;
+          let defaultValue: Literal | undefined;
           if (this.tokenMatch(TokenType.ASSIGN)) {
-            defaultValue = this.unary(context) as Expression;
+            //  Should be literal
+            const defaultValueExpr = this.unary(context) as Expression;
+            defaultValue = this.ensureLiteral(defaultValueExpr);
             fullLocation = identifierExpr.location().upTo(defaultValue.location());
           } else {
             defaultValue = undefined;
             fullLocation = identifierExpr.location();
           }
       
-          // TODO: check that default value is not too complex?
-          //  Should be literal
           const argument = new Argument(name, defaultValue, fullLocation)
           args.push(argument)
         }
       } while (this.tokenMatch(TokenType.COMMA))
       this.consume(TokenType.CLOSE_ROUND, "Expected closing ')' after argument list")
     }
+    // Check that default arguments are contiguous
+    this.checkContiguousDefaultValues(args);
+
     // Parse statements
     const bodyStatements = this.parseUntil([TokenType.KW_END_FUNCTION], functionContext)
     this.consume(TokenType.KW_END_FUNCTION, "Expected 'end function' at the end of function-body")
@@ -854,6 +857,26 @@ class Parser {
     const fullLocation = SrcLocation.forTokenRange(openingToken, closingToken);
 
     return new FunctionBodyExpr(args, bodyStatements, fullLocation)
+  }
+
+  private ensureLiteral(expr: Expression): Literal {
+    if (expr instanceof Literal) {
+      return expr as Literal;
+    } else {
+      throw this.failParsing("Default value should be literal");
+    }
+  }
+
+  private checkContiguousDefaultValues(args: Argument[]) {
+    let checkDefaultValueFlag = false;
+    for(let arg of args) {
+      if (!checkDefaultValueFlag && arg.defaultValue !== undefined) {
+        checkDefaultValueFlag = true
+      }
+      if (checkDefaultValueFlag && arg.defaultValue === undefined) {
+        throw this.failParsing("Default arguments should be contiguous");
+      }
+    }
   }
 
   private consume(tokenType: TokenType, message: string): Token {

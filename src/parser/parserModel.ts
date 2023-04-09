@@ -8,6 +8,7 @@ interface Expression {
 }
 
 type OptExpression = Expression | undefined
+type OptLiteral = Literal | undefined;
 
 interface Statement {
   description(): string;
@@ -495,7 +496,7 @@ class PropertyAccessExpr implements Expression {
 }
 
 class Argument {
-  constructor(public name: string, public defaultValue: OptExpression, private fullLocation: SrcLocation) {}
+  constructor(public name: string, public defaultValue: OptLiteral, private fullLocation: SrcLocation) {}
   
   location() {
     return this.fullLocation;

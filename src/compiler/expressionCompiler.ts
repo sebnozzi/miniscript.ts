@@ -29,9 +29,7 @@ class ExpressionCompiler {
 
   compileFuncCall(callTarget: Expression, args: Expression[]) {
     // Push parameters
-    // TODO: there is no check that the amount of parameters is correct
-    // This should happen at runtime. We need to register how many parameters were pushed.
-    for (let arg of args) {
+     for (let arg of args) {
       this.compileExpression(arg)
     }
     const argCount = args.length;
@@ -40,6 +38,7 @@ class ExpressionCompiler {
       const identifier = callTarget.identifier.value;
       this.builder.push(BC.CALL, identifier, argCount);
     } else {
+      // TODO
       throw new Error("Calling anything other than identifiers not supported")
     }
   }
@@ -125,15 +124,19 @@ class ExpressionCompiler {
 
   private compileFunctionBodyExpression(e: FunctionBodyExpr) {
     // Resolve argument names
-    let argNames: string[] = [];
+    const argNames: string[] = [];
+    const defaultValues: {[argName: string]: any} = [];
     for (let arg of e.args) {
       argNames.push(arg.name);
+      if (arg.defaultValue) {
+        defaultValues[arg.name] = arg.defaultValue.value;
+      }
     }
     // Compile code
     const funcCompiler = new Compiler(e.statements);
     const funcCode = funcCompiler.compileFunctionBody();
     // Build and push function definition
-    let funcDef = new FuncDef(argNames, funcCode);
+    let funcDef = new FuncDef(argNames, defaultValues, funcCode);
     this.builder.push(BC.PUSH, funcDef);
   }
 

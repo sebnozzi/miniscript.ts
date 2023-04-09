@@ -38,10 +38,11 @@ class Processor {
 
   addNative(name: string, argCount: number, impl: Function) {
     let args = [];
+    let defaultValues = {};
     for (let argIdx = 0; argIdx < argCount; argIdx++) {
       args.push(`arg_${argIdx + 1}`);
     }
-    const funcDef = new FuncDef(args, impl);
+    const funcDef = new FuncDef(args, defaultValues, impl);
     this.globalContext.setLocal(name, funcDef);
   }
 
@@ -71,10 +72,21 @@ class Processor {
           } else {
             const funcDef = resolved as FuncDef;
 
-            if (argCount > funcDef.params.length) {
-              throw new Error(`Too many parameters in call to ${funcName}. Expected ${funcDef.params.length} found ${argCount}.`)
-            } else if (argCount < funcDef.params.length) {
-              throw new Error(`Too few parameters in call to ${funcName}. Expected ${funcDef.params.length} found ${argCount}.`)
+            const funcArgCount = funcDef.argNames.length;
+            const minArgCount = funcDef.requiredArgCount;
+
+            if (argCount > funcArgCount) {
+              throw new Error(`Too many parameters in call to ${funcName}. Expected at most ${funcArgCount}, found ${argCount}.`)
+            } else if (argCount < funcDef.argNames.length) {
+              if (argCount < minArgCount) {
+                throw new Error(`Too few parameters in call to ${funcName}. Expected at least ${minArgCount} found ${argCount}.`)
+              }
+              // Push the missing default argument values
+              const missingArgCount = funcArgCount - argCount;
+              const defaultValues = funcDef.getLastNDefaultValues(missingArgCount);
+              for (let value of defaultValues) {
+                this.opStack.push(value);
+              }
             }
 
             if (funcDef.isNative()) {
@@ -82,7 +94,7 @@ class Processor {
               // Build parameter list
               let paramValues = [];
               // Pop and set parameters
-              for (let {} of funcDef.params) {
+              for (let {} of funcDef.argNames) {
                 const paramValue = this.opStack.pop();
                 paramValues.unshift(paramValue);
               }
@@ -102,9 +114,9 @@ class Processor {
               this.ip = 0;
     
               // Pop and set parameters as variables
-              for (let paramName of funcDef.params) {
+              for (let argName of funcDef.reversedArgNames) {
                 const paramValue = this.opStack.pop();
-                this.context.setLocal(paramName, paramValue);
+                this.context.setLocal(argName, paramValue);
               }
             }
           }
@@ -129,9 +141,20 @@ class Processor {
             // If it's a function, it should be called.
             // The resulting value will be put in the stack instead.
             const funcDef: FuncDef = value as FuncDef;
+
+            if (funcDef.requiredArgCount > 0) {
+              throw new Error(`Not enough parameters calling ${identifier}. Required at least: ${funcDef.requiredArgCount}`);
+            }
+
+            // Decide how to call function
             if (funcDef.isNative()) {
+              let params = [];
+              // Use default values, if any
+              if (funcDef.argNames.length > 0) {
+                params = funcDef.getLastNDefaultValues(funcDef.argNames.length);
+              }
               const func = funcDef.getFunction();
-              const retVal = func.apply(this, []);
+              const retVal = func.apply(this, params);
               this.opStack.push(retVal);
               this.ip += 1;
             } else {
@@ -141,6 +164,13 @@ class Processor {
               // Set the new code to run
               this.code = funcDef.getCode();
               this.context = new Context(this.globalContext);
+              // Populate default values, if any
+              if (funcDef.argNames.length > 0) {
+                for (let argName of funcDef.argNames) {
+                  this.context.setLocal(argName, funcDef.defaultValues[argName]);
+                }
+              }
+              // Set initial ip
               this.ip = 0;  
             }
           } else {
