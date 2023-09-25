@@ -37,12 +37,22 @@ class Processor {
   }
 
   addNative(name: string, argCount: number, impl: Function) {
-    let args = [];
-    let defaultValues: any[] = [];
+    const args = [];
     for (let argIdx = 0; argIdx < argCount; argIdx++) {
-      args.push(`arg_${argIdx + 1}`);
+      args.push(new FuncDefArg(`arg_${argIdx + 1}`, undefined));
     }
-    const funcDef = new FuncDef(args, defaultValues, impl);
+    const funcDef = new FuncDef(args, impl);
+    this.globalContext.setLocal(name, funcDef);
+  }
+
+  addNativeWithDefaults(name: string, argCount: number, defaultValues: any[], impl: Function) {
+    const args = [];
+    for (let argIdx = 0; argIdx < argCount; argIdx++) {
+      const defaultValue = defaultValues[argIdx];
+      const arg = new FuncDefArg(`arg_${argIdx + 1}`, defaultValue);
+      args.push(arg);
+    }
+    const funcDef = new FuncDef(args, impl);
     this.globalContext.setLocal(name, funcDef);
   }
 
@@ -93,7 +103,7 @@ class Processor {
               const func = funcDef.getFunction();
               // Build parameter list
               let paramValues = [];
-              // Pop and set parameters
+              // Pop param values from stack (even default ones)
               for (let {} of funcDef.argNames) {
                 const paramValue = this.opStack.pop();
                 paramValues.unshift(paramValue);

@@ -123,22 +123,20 @@ class ExpressionCompiler {
   }
 
   private compileFunctionBodyExpression(e: FunctionBodyExpr) {
-    // Resolve argument names
-    const argNames: string[] = [];
-    const defaultValues: any[] = [];
+    // Resolve arguments (names / default values)
+    const args = [];
     for (let arg of e.args) {
-      argNames.push(arg.name);
       if (arg.defaultValue) {
-        defaultValues.push(arg.defaultValue.value);
+        args.push(new FuncDefArg(arg.name, arg.defaultValue.value));
       } else {
-        defaultValues.push(undefined);
+        args.push(new FuncDefArg(arg.name, undefined));
       }
     }
     // Compile code
     const funcCompiler = new Compiler(e.statements);
     const funcCode = funcCompiler.compileFunctionBody();
     // Build and push function definition
-    let funcDef = new FuncDef(argNames, defaultValues, funcCode);
+    let funcDef = new FuncDef(args, funcCode);
     this.builder.push(BC.PUSH, funcDef);
   }
 
