@@ -191,8 +191,10 @@ class StatementCompiler {
 
   private compileBreakStatement(s: BreakStatement, context: CompilerContext) {
     if (context.insideWhile() && context instanceof WhileContext) {
+      this.builder.startMapEntry();
       // Jump to end of while
       this.builder.push_unresolved(BC.JUMP, context.endLabel);
+      this.builder.endMapEntry(s.location());
     } else if (context.insideForLoop()) {
       throw new Error("TODO: break in for-loops not implemented");
     } else {
@@ -202,8 +204,10 @@ class StatementCompiler {
 
   private compileContinueStatement(s: ContinueStatement, context: CompilerContext) {
     if (context.insideWhile() && context instanceof WhileContext) {
+      this.builder.startMapEntry();
       // Jump to start of while
       this.builder.push_unresolved(BC.JUMP, context.startLabel);
+      this.builder.endMapEntry(s.location());
     } else if (context.insideForLoop()) {
       throw new Error("TODO: continue in for-loops not implemented");
     } else {
