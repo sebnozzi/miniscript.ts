@@ -1,6 +1,5 @@
 
 Next steps:
-- while statements
 - break / continue within "while"
 - for statements
 - break / continue within "for"
@@ -12,7 +11,10 @@ Next steps:
 
 ===
 
-Optimization idea:‚
+Optimization ideas:
+- Compile expressions like "x = x + 1" to a ONE opcode
+  Of course the same for "x += 1"
+
 - Have internal "range" objects, that act as iterators ...
   That is: don't generate all values at once, but give them as-needed
 

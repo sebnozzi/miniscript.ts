@@ -19,6 +19,10 @@ class StatementCompiler {
       this.compileReturnStatement(s);
     } else if (s instanceof IfStatement) {
       this.compileIfStatement(s);  
+    } else if (s instanceof WhileStatement) {
+      this.compileWhileStatement(s);  
+    } else if (s instanceof ForStatement) {
+      this.compileForStatement(s);  
     } else if (s instanceof FunctionCallStatement) {
       this.compileFunctionCallStatement(s);
     } else {
@@ -99,6 +103,32 @@ class StatementCompiler {
     }
 
     this.builder.define_address(endFullIfBlockLabel);
+  }
+
+  private compileWhileStatement(s: WhileStatement) {
+    const startWhileLabel = this.builder.newLabel();
+    const endWhileLabel = this.builder.newLabel();
+
+    // While header
+    this.builder.startMapEntry();
+    this.builder.define_address(startWhileLabel);
+    this.compileExpression(s.condition);
+    this.builder.push_unresolved(BC.JUMP_FALSE, endWhileLabel);
+    this.builder.endMapEntry(s.condition.location());
+
+    // Statements
+    this.compileStatements(s.statements);
+
+    // Jump to start (loop)
+    this.builder.push_unresolved(BC.JUMP, startWhileLabel);
+
+    // Define end
+    this.builder.define_address(endWhileLabel);
+  }
+
+  private compileForStatement(s: ForStatement) {
+    
+    throw new Error("TODO: Compilation of for-statement not yet implemented");
   }
 
   private compileFunctionCallStatement(s: FunctionCallStatement) {
