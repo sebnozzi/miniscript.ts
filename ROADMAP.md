@@ -1,11 +1,20 @@
 
 Next steps:
 - while statements
+- break / continue within "while"
 - for statements
+- break / continue within "for"
+
 - indexed-assignment (x[idx] = expr) for arrays
 - map literals / map expressions
 - indexed-assignment (x[idx] = expr) for maps
 - field-assignment (expr.fieldName = expr)
+
+===
+
+Optimization idea:‚
+- Have internal "range" objects, that act as iterators ...
+  That is: don't generate all values at once, but give them as-needed
 
 ===
 
