@@ -1,9 +1,10 @@
 
 Next steps:
-- for statements
 - while statements
+- for statements
+- indexed-assignment (x[idx] = expr) for arrays
 - map literals / map expressions
-- indexed-assignment (x[idx] = expr)
+- indexed-assignment (x[idx] = expr) for maps
 - field-assignment (expr.fieldName = expr)
 
 ===
