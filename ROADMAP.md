@@ -1,6 +1,5 @@
 
 Next steps:
-- break / continue within "while"
 - for statements
 - break / continue within "for"
 
