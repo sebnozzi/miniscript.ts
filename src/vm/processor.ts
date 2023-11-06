@@ -224,6 +224,7 @@ class Processor {
           } else {
             this.opStack.push(0)
           }
+          this.ip += 1
           break;
         }
         case BC.COMPARE_LE: {
@@ -245,6 +246,7 @@ class Processor {
           } else {
             this.opStack.push(0)
           }
+          this.ip += 1
           break;
         }
         case BC.JUMP_GE: {
