@@ -1,15 +1,69 @@
 
+class CompilerContext {
+
+  parent: CompilerContext | undefined = undefined;
+
+  constructor() {
+    this.parent = undefined;
+  }
+
+  insideWhile(): boolean {
+    return this.parent !== undefined ? this.parent.insideWhile() : false;
+  }
+  insideForLoop(): boolean {
+    return this.parent !== undefined ? this.parent.insideForLoop() : false;
+  }
+  insideFunctionBody(): boolean {
+    return this.parent !== undefined ? this.parent.insideFunctionBody() : false;
+  }
+}
+
+class WhileContext extends CompilerContext {
+
+  public readonly startLabel: string;
+  public readonly endLabel: string;
+
+  constructor(parent: CompilerContext, startLabel: string, endLabel: string) {
+    super();
+    this.parent = parent;
+    this.startLabel = startLabel;
+    this.endLabel = endLabel;
+  }
+  insideWhile(): boolean {
+    return true;
+  }
+}
+
+class ForLoopContext extends CompilerContext {
+  constructor(parent: CompilerContext) {
+    super();
+    this.parent = parent;
+  }
+  insideForLoop(): boolean {
+    return true;
+  }
+}
+
+class FunctionBodyContext extends CompilerContext {
+  constructor() {
+    super();
+  }
+  insideFunctionBody(): boolean {
+    return true;
+  }
+}
+
 class StatementCompiler {
 
   constructor(private builder: CodeBuilder, private expressionCompiler: ExpressionCompiler) { }
 
-  compileStatements(statements: Statement[]) {
+  compileStatements(statements: Statement[], context: CompilerContext) {
     for(const s of statements) {
-      this.compileStatement(s)
+      this.compileStatement(s, context)
     } 
   }
 
-  private compileStatement(s: Statement) {
+  private compileStatement(s: Statement, context: CompilerContext) {
     const b = this.builder;
     if (s instanceof ExpressionStatement) {
       this.compileExpressionStatement(s);
@@ -18,11 +72,15 @@ class StatementCompiler {
     } else if (s instanceof ReturnStatement) {
       this.compileReturnStatement(s);
     } else if (s instanceof IfStatement) {
-      this.compileIfStatement(s);  
+      this.compileIfStatement(s, context);  
     } else if (s instanceof WhileStatement) {
-      this.compileWhileStatement(s);  
+      this.compileWhileStatement(s, context);  
     } else if (s instanceof ForStatement) {
-      this.compileForStatement(s);  
+      this.compileForStatement(s, context);
+    } else if (s instanceof BreakStatement) {
+      this.compileBreakStatement(s, context);
+    } else if (s instanceof ContinueStatement) {
+      this.compileContinueStatement(s, context);  
     } else if (s instanceof FunctionCallStatement) {
       this.compileFunctionCallStatement(s);
     } else {
@@ -68,7 +126,7 @@ class StatementCompiler {
     this.builder.endMapEntry(s.location());
   }
 
-  private compileIfStatement(s: IfStatement) {
+  private compileIfStatement(s: IfStatement, context: CompilerContext) {
     // End of only the if / then part
     const endIfThenLabel = this.builder.newLabel();
     // End of the whole if / then / else-ifs block
@@ -81,7 +139,7 @@ class StatementCompiler {
 
     this.builder.endMapEntry(s.ifBranch.condition.location());
 
-    this.compileStatements(s.ifBranch.statements);
+    this.compileStatements(s.ifBranch.statements, context);
     this.builder.push_unresolved(BC.JUMP, endFullIfBlockLabel);
     this.builder.define_address(endIfThenLabel);
 
@@ -93,19 +151,19 @@ class StatementCompiler {
       this.builder.push_unresolved(BC.JUMP_FALSE, elseIfLabel)
       this.builder.endMapEntry(elseIf.condition.location());
 
-      this.compileStatements(elseIf.statements);
+      this.compileStatements(elseIf.statements, context);
       this.builder.push_unresolved(BC.JUMP, endFullIfBlockLabel);
       this.builder.define_address(elseIfLabel);
     }
 
     if (s.elseBranch.length > 0) {
-      this.compileStatements(s.elseBranch);
+      this.compileStatements(s.elseBranch, context);
     }
 
     this.builder.define_address(endFullIfBlockLabel);
   }
 
-  private compileWhileStatement(s: WhileStatement) {
+  private compileWhileStatement(s: WhileStatement, context: CompilerContext) {
     const startWhileLabel = this.builder.newLabel();
     const endWhileLabel = this.builder.newLabel();
 
@@ -117,7 +175,8 @@ class StatementCompiler {
     this.builder.endMapEntry(s.condition.location());
 
     // Statements
-    this.compileStatements(s.statements);
+    const whileContext = new WhileContext(context, startWhileLabel, endWhileLabel);
+    this.compileStatements(s.statements, whileContext);
 
     // Jump to start (loop)
     this.builder.push_unresolved(BC.JUMP, startWhileLabel);
@@ -126,9 +185,30 @@ class StatementCompiler {
     this.builder.define_address(endWhileLabel);
   }
 
-  private compileForStatement(s: ForStatement) {
-    
+  private compileForStatement(s: ForStatement, context: CompilerContext) {
     throw new Error("TODO: Compilation of for-statement not yet implemented");
+  }
+
+  private compileBreakStatement(s: BreakStatement, context: CompilerContext) {
+    if (context.insideWhile() && context instanceof WhileContext) {
+      // Jump to end of while
+      this.builder.push_unresolved(BC.JUMP, context.endLabel);
+    } else if (context.insideForLoop()) {
+      throw new Error("TODO: break in for-loops not implemented");
+    } else {
+      throw new Error("break outside while / for loop");
+    }
+  }
+
+  private compileContinueStatement(s: ContinueStatement, context: CompilerContext) {
+    if (context.insideWhile() && context instanceof WhileContext) {
+      // Jump to start of while
+      this.builder.push_unresolved(BC.JUMP, context.startLabel);
+    } else if (context.insideForLoop()) {
+      throw new Error("TODO: continue in for-loops not implemented");
+    } else {
+      throw new Error("continue outside while / for loop");
+    }
   }
 
   private compileFunctionCallStatement(s: FunctionCallStatement) {
