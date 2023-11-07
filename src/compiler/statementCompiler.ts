@@ -1,4 +1,7 @@
 
+// Not to be confused with a runtime-context. This refers to where in the 
+// CODE (statically speaking) we are placed. Depending on that, certain 
+// things are allowed or not.
 class CompilerContext {
 
   parent: CompilerContext | undefined = undefined;
@@ -97,7 +100,7 @@ class StatementCompiler {
     } else if (s instanceof AssignmentStatement) {
       this.compileAssignmentStatement(s);
     } else if (s instanceof ReturnStatement) {
-      this.compileReturnStatement(s);
+      this.compileReturnStatement(s, context);
     } else if (s instanceof IfStatement) {
       this.compileIfStatement(s, context);  
     } else if (s instanceof WhileStatement) {
@@ -141,16 +144,20 @@ class StatementCompiler {
     }
   }
 
-  private compileReturnStatement(s: ReturnStatement) {
-    this.builder.startMapEntry();
-    if (s.optValue) {
-      this.compileExpression(s.optValue)
+  private compileReturnStatement(s: ReturnStatement, context: CompilerContext) {
+    if (context instanceof FunctionBodyContext) {
+      this.builder.startMapEntry();
+      if (s.optValue) {
+        this.compileExpression(s.optValue)
+      } else {
+        // Push a "null" value if not explicitly returning anything
+        this.builder.push(BC.PUSH, null);
+      }
+      this.builder.push(BC.RETURN);
+      this.builder.endMapEntry(s.location());
     } else {
-      // Push a "null" value if not explicitly returning anything
-      this.builder.push(BC.PUSH, null);
+      throw new Error("return outside function body");
     }
-    this.builder.push(BC.RETURN);
-    this.builder.endMapEntry(s.location());
   }
 
   private compileIfStatement(s: IfStatement, context: CompilerContext) {
