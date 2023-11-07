@@ -19,8 +19,12 @@ describe('VM', function() {
               const expectedOutput = test.output;
 
               runCode(srcCode, testName, (lines) => {
-                chai.assert.deepEqual(lines, expectedOutput);
-                done();
+                try {
+                  chai.assert.deepEqual(lines, expectedOutput);
+                  done();
+                } catch(e) {
+                  throw e;
+                }
               });
 
             });
