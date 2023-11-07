@@ -5,7 +5,7 @@ describe('Parser', function() {
 
   before(async function() {
 
-    return fetchAndParseTestSuite().then(tests => {
+    return fetchAndParseTestSuite('TestSuite.txt').then(tests => {
 
       describe('Parse Suite (dynamic)', function() {
         for (let test of tests) {

@@ -1,10 +1,10 @@
-async function fetchAndParseTestSuite() {
+async function fetchAndParseTestSuite(testSuiteFileName) {
   let options = {
     method: 'GET',
     credentials: "include",    
     headers: {}
   };
-  return fetch('TestSuite.txt', options)
+  return fetch(testSuiteFileName, options)
     .then(response => {
       return response.text();
     })

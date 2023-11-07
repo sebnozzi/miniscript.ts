@@ -1,13 +1,11 @@
 
 describe('VM', function() {
 
-  let tests = [];
-
   before(async function() {
 
-    return fetchAndParseTestSuite().then(tests => {
+    return fetchAndParseTestSuite('TestSuite.txt').then(tests => {
 
-      describe('Run Suite (dynamic)', function() {
+      describe('Run official Suite (dynamic)', function() {
         for (let test of tests) {
           const header = test.headers[1];
           const testName = header + ' (line ' + test.lineNr +')';
