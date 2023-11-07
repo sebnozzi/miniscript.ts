@@ -1,4 +1,18 @@
 ======================================================================
+==== for-loop with break and continue
+for i in range(1,9)
+	if i == 3 then continue
+	if i == 6 then break
+	print i
+end for
+print "done"
+----------------------------------------------------------------------
+1
+2
+4
+5
+done
+======================================================================
 ==== printing simple array
 ==== Should not be printed as a JS object, but formatted
 print [1,2,3]

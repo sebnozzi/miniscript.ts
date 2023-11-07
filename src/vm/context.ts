@@ -1,12 +1,15 @@
 /// <reference path="./values.ts"/>
 
 class Context {
+
   locals: {[id: string]: any};
   parent: Context | null;
+  forLoops: {[id: number]: ForLoop};
 
   constructor(parent: Context | null = null) {
     this.locals = {};
     this.parent = parent;
+    this.forLoops = {};
   }
 
   setLocal(identifier: string, value: any) {
@@ -22,6 +25,16 @@ class Context {
     } else {
       throw new Error("Could not resolve: " + identifier);
     }
+  }
+
+  registerForLoop(forLoopNr: number, forLoop: ForLoop) {
+    this.forLoops[forLoopNr] = forLoop;
+  }
+  getForLoop(forLoopNr: number): ForLoop {
+    return this.forLoops[forLoopNr];
+  }
+  deleteForLoop(forLoopNr: number) {
+    delete this.forLoops[forLoopNr];
   }
 
 }

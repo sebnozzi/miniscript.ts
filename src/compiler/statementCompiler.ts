@@ -8,13 +8,32 @@ class CompilerContext {
   }
 
   insideWhile(): boolean {
-    return this.parent !== undefined ? this.parent.insideWhile() : false;
+    if (this.parent) {
+      return this.parent.insideWhile();
+    } else {
+      return false
+    }
   }
   insideForLoop(): boolean {
-    return this.parent !== undefined ? this.parent.insideForLoop() : false;
+    if (this.parent) {
+      return this.parent.insideForLoop();
+    } else {
+      return false
+    }  
   }
   insideFunctionBody(): boolean {
-    return this.parent !== undefined ? this.parent.insideFunctionBody() : false;
+    if (this.parent) {
+      return this.parent.insideFunctionBody();
+    } else {
+      return false
+    }  
+  }
+  getForLoopNr(): number {
+    if (this.parent) {
+      return this.parent.getForLoopNr();
+    } else {
+      return 0
+    }
   }
 }
 
@@ -41,6 +60,14 @@ class ForLoopContext extends CompilerContext {
   }
   insideForLoop(): boolean {
     return true;
+  }
+  getForLoopNr(): number {
+    if (this.parent) {
+      // Increase for-loop-nr by one
+      return 1 + this.parent.getForLoopNr();
+    } else {
+      throw new Error("Parent not set");
+    }
   }
 }
 
@@ -76,7 +103,7 @@ class StatementCompiler {
     } else if (s instanceof WhileStatement) {
       this.compileWhileStatement(s, context);  
     } else if (s instanceof ForStatement) {
-      this.compileForStatement(s, context);
+      this.compileForLoopStatement(s, context);
     } else if (s instanceof BreakStatement) {
       this.compileBreakStatement(s, context);
     } else if (s instanceof ContinueStatement) {
@@ -185,8 +212,39 @@ class StatementCompiler {
     this.builder.define_address(endWhileLabel);
   }
 
-  private compileForStatement(s: ForStatement, context: CompilerContext) {
-    throw new Error("TODO: Compilation of for-statement not yet implemented");
+  private compileForLoopStatement(s: ForStatement, context: CompilerContext) {
+    const startForLoopLabel = this.builder.newLabel();
+    const endForLoopLabel = this.builder.newLabel();
+    const forLoopContext = new ForLoopContext(context);
+    const forLoopNr = forLoopContext.getForLoopNr();
+
+    // For loop DEFINITION (happens only once)
+
+    // Push for-loop local variable name
+    this.builder.push(BC.PUSH, s.loopVar.value);
+    // Push values to iterate over
+    this.compileExpression(s.rangeExpr);
+    // Push end-address (for "break" or when over)
+    this.builder.push_unresolved(BC.PUSH, endForLoopLabel);
+    // Push "header" address, for new iterations or continues
+    this.builder.push_unresolved(BC.PUSH, startForLoopLabel);
+    // Push opcode to create loop
+    this.builder.push(BC.CREATE_FOR_LOOP, forLoopNr);
+
+    // For header (control jumps here on every iteration)
+    this.builder.startMapEntry();
+    this.builder.define_address(startForLoopLabel);
+    this.builder.push(BC.ITERATE_FOR_LOOP, forLoopNr);
+    this.builder.endMapEntry(s.headerLocation);
+
+    // Statements
+    this.compileStatements(s.statements, forLoopContext);
+
+    // Jump to header (to iterate again)
+    this.builder.push_unresolved(BC.JUMP, startForLoopLabel);
+
+    // Define end
+    this.builder.define_address(endForLoopLabel);
   }
 
   private compileBreakStatement(s: BreakStatement, context: CompilerContext) {
@@ -195,8 +253,11 @@ class StatementCompiler {
       // Jump to end of while
       this.builder.push_unresolved(BC.JUMP, context.endLabel);
       this.builder.endMapEntry(s.location());
-    } else if (context.insideForLoop()) {
-      throw new Error("TODO: break in for-loops not implemented");
+    } else if (context.insideForLoop() && context instanceof ForLoopContext) {
+      this.builder.startMapEntry();
+      // Break out of for-loop
+      this.builder.push_unresolved(BC.BREAK_FOR_LOOP, context.getForLoopNr());
+      this.builder.endMapEntry(s.location());
     } else {
       throw new Error("break outside while / for loop");
     }
@@ -208,8 +269,11 @@ class StatementCompiler {
       // Jump to start of while
       this.builder.push_unresolved(BC.JUMP, context.startLabel);
       this.builder.endMapEntry(s.location());
-    } else if (context.insideForLoop()) {
-      throw new Error("TODO: continue in for-loops not implemented");
+    } else if (context.insideForLoop() && context instanceof ForLoopContext) {
+      this.builder.startMapEntry();
+      // Trigger a "continue" in for-loop (jump to header address)
+      this.builder.push_unresolved(BC.CONTINUE_FOR_LOOP, context.getForLoopNr());
+      this.builder.endMapEntry(s.location());
     } else {
       throw new Error("continue outside while / for loop");
     }

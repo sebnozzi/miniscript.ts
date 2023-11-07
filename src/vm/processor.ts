@@ -381,8 +381,49 @@ class Processor {
         }
         case BC.POP: {
           // Pop and discard value
-          this.opStack.pop()
+          this.opStack.pop();
           this.ip += 1;
+          break;
+        }
+        case BC.CREATE_FOR_LOOP: {
+          const forLoopNr = this.code.arg1[this.ip];
+          // Retrieve for-loop parameters
+          const startAddr = this.opStack.pop();
+          const endAddr = this.opStack.pop();
+          const values = this.opStack.pop();
+          const localVarName = this.opStack.pop();
+          // Create for-loop in current context
+          const forLoop = new ForLoop(startAddr, endAddr, localVarName, values);
+          this.context.registerForLoop(forLoopNr, forLoop);
+          // Advance IP
+          this.ip += 1;
+          break;
+        }
+        case BC.ITERATE_FOR_LOOP: {
+          const forLoopNr = this.code.arg1[this.ip];
+          const forLoop = this.context.getForLoop(forLoopNr);
+          if (forLoop.isOver()) {
+            this.ip = forLoop.endAddr;
+            this.context.deleteForLoop(forLoopNr);
+          } else {
+            const value = forLoop.iterate();
+            // Assign to local variable
+            this.context.setLocal(forLoop.localVarName, value);
+            this.ip += 1;
+          }
+          break;
+        }
+        case BC.BREAK_FOR_LOOP: {
+          const forLoopNr = this.code.arg1[this.ip];
+          const forLoop = this.context.getForLoop(forLoopNr);
+          this.context.deleteForLoop(forLoopNr);
+          this.ip = forLoop.endAddr;
+          break;
+        }
+        case BC.CONTINUE_FOR_LOOP: {
+          const forLoopNr = this.code.arg1[this.ip];
+          const forLoop = this.context.getForLoop(forLoopNr);
+          this.ip = forLoop.startAddr;
           break;
         }
         case BC.PRINT_TOP: {
