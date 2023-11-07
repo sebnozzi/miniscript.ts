@@ -1,6 +1,11 @@
 
 Next steps:
+- List access (print a[0])
+- List slicing (a[1:-1], a[:])
+- "List operations." in official suite
 - indexed-assignment (x[idx] = expr) for arrays
+- function invocation on objects (foo.method(1,2,3)) 
+  - test instrinsic methods
 - map literals / map expressions
 - indexed-assignment (x[idx] = expr) for maps
 - field-assignment (expr.fieldName = expr)
