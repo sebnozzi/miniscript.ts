@@ -9,10 +9,9 @@ function runCode(srcCode, testName, onDone) {
   let outLines = [];
 
   addImplicits(vm);
-  // Re-define "print" to output to our "outLines" as well
-  vm.addNative("print", 1, function(txt){
-    console.log(""+txt);
-    outLines.push(""+txt);
+  addPrintImplicit(vm, (line) => {
+    console.log(""+line);
+    outLines.push(""+line);
   });
 
   let t0 = performance.now();

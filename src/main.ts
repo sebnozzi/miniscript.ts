@@ -75,6 +75,9 @@ function runCode(prgCode: Code) {
   let p = new Processor(prgCode);
 
   addImplicits(p);
+  addPrintImplicit(p, (line: string) => {
+    console.log(line);
+  });
 
   let t0: number = performance.now();
 
@@ -125,6 +128,9 @@ function debugCode(prgCode: Code) {
   let p = new Processor(prgCode);
 
   addImplicits(p);
+  addPrintImplicit(p, (line: string) => {
+    console.log(line);
+  });
   
   p.onFinished = () => {
     console.log("DONE");

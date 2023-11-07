@@ -1,9 +1,11 @@
 
-function addImplicits(p: Processor) {
-
-  p.addNative("print", 1, function(txt: any){
-    console.log(txt);
+function addPrintImplicit(p: Processor, fnAcceptingLine: Function) {
+  p.addNative("print", 1, function(txt: any) {
+    fnAcceptingLine(txt);
   });
+}
+
+function addImplicits(p: Processor) {
 
   p.addNativeWithDefaults("range", 3, [undefined, undefined, null], function(start: number, stop: number, step: number) {
     checkInt(start, "Argument 'start' should be integer");
