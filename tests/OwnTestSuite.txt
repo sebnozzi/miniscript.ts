@@ -1,4 +1,16 @@
 ======================================================================
+==== Recursive Fibonacci
+fib = function(n)
+  if n <= 1 then
+    return n
+  else
+    return fib(n-1) + fib(n-2)
+  end if
+end function
+print "Result: " + fib(15)
+----------------------------------------------------------------------
+Result: 610
+======================================================================
 ==== Parent-scope variable resolution
 ==== This case shows how a variable in a parent scope should be resolved
 f1 = function
