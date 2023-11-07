@@ -8,6 +8,8 @@ function runCode(srcCode, testName, onDone) {
   let vm = new Processor(code);
   let outLines = [];
 
+  addImplicits(vm);
+  // Re-define "print" to output to our "outLines" as well
   vm.addNative("print", 1, function(txt){
     console.log(""+txt);
     outLines.push(""+txt);
