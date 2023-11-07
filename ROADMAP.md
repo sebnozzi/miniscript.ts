@@ -1,6 +1,5 @@
 
 Next steps:
-- Nested variable scopes (in nested functions)
 - indexed-assignment (x[idx] = expr) for arrays
 - map literals / map expressions
 - indexed-assignment (x[idx] = expr) for maps

@@ -42,7 +42,8 @@ class Processor {
       args.push(new FuncDefArg(`arg_${argIdx + 1}`, undefined));
     }
     const funcDef = new FuncDef(args, impl);
-    this.globalContext.setLocal(name, funcDef);
+    const boundFunc = new BoundFunction(funcDef, this.globalContext);
+    this.globalContext.setLocal(name, boundFunc);
   }
 
   addNativeWithDefaults(name: string, argCount: number, defaultValues: any[], impl: Function) {
@@ -53,7 +54,8 @@ class Processor {
       args.push(arg);
     }
     const funcDef = new FuncDef(args, impl);
-    this.globalContext.setLocal(name, funcDef);
+    const boundFunc = new BoundFunction(funcDef, this.globalContext);
+    this.globalContext.setLocal(name, boundFunc);
   }
 
   runUntilDone(maxCount: number = 73681) {
@@ -77,10 +79,11 @@ class Processor {
 
           const resolved: any = this.context.get(funcName);
 
-          if (!(resolved instanceof FuncDef)) {
+          if (!(resolved instanceof BoundFunction)) {
             throw new Error(`Identifier ${funcName} should be a function`);
           } else {
-            const funcDef = resolved as FuncDef;
+            const boundFunc = resolved as BoundFunction;
+            const funcDef = boundFunc.funcDef;
 
             const funcArgCount = funcDef.argNames.length;
             const minArgCount = funcDef.requiredArgCount;
@@ -120,7 +123,7 @@ class Processor {
               this.pushFrame();
     
               this.code = funcDef.getCode();
-              this.context = new Context(this.globalContext);
+              this.context = new Context(boundFunc.context);
               this.ip = 0;
     
               // Pop and set parameters as variables
@@ -147,10 +150,10 @@ class Processor {
           const identifier = this.code.arg1[this.ip];
           const value = this.context.get(identifier);
 
-          if (value instanceof FuncDef) {
+          if (value instanceof BoundFunction) {
             // If it's a function, it should be called.
             // The resulting value will be put in the stack instead.
-            const funcDef: FuncDef = value as FuncDef;
+            const funcDef: FuncDef = value.funcDef;
 
             if (funcDef.requiredArgCount > 0) {
               throw new Error(`Not enough parameters calling ${identifier}. Required at least: ${funcDef.requiredArgCount}`);
@@ -173,7 +176,7 @@ class Processor {
               this.pushFrame();
               // Set the new code to run
               this.code = funcDef.getCode();
-              this.context = new Context(this.globalContext);
+              this.context = new Context(value.context);
               // Populate default values, if any
               for (let idx = 0; idx < funcDef.argNames.length; idx++) {
                 this.context.setLocal(funcDef.argNames[idx], funcDef.defaultValues[idx]);
@@ -189,9 +192,15 @@ class Processor {
           break;
         }
         case BC.PUSH: {
-          let value: number = this.code.arg1[this.ip]
-          this.opStack.push(value)
-          this.ip += 1
+          let value: any = this.code.arg1[this.ip];
+          // If it's a FuncDef, store as bound-function with the current context
+          if (value instanceof FuncDef) {
+            const boundFunction = new BoundFunction(value, this.context);
+            this.opStack.push(boundFunction);
+          } else {
+            this.opStack.push(value);
+          }
+          this.ip += 1;
           break;
         }
         case BC.COMPARE_EQ: {

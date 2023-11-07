@@ -50,4 +50,20 @@ class FuncDef {
   getFunction(): Function {
     return this.code as Function;
   }
+
+}
+
+// A function definition which is bound to a context at runtime.
+// As such it's ready to run and variables should be able to be 
+// resolved even in parent contexts.
+class BoundFunction {
+
+  public readonly funcDef: FuncDef;
+  public readonly context: Context;
+
+  constructor(funcDef: FuncDef, context: Context) {
+    this.funcDef = funcDef;
+    this.context = context;
+  }
+
 }

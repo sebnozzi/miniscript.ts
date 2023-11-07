@@ -1,4 +1,22 @@
 ======================================================================
+==== Parent-scope variable resolution
+==== This case shows how a variable in a parent scope should be resolved
+f1 = function
+    // Define variable in local scope
+    x = 123
+    // A child scope is created, having a parent one
+    f2 = function
+        // Should access "x" from parent scope
+        print x
+    end function
+    // Call the function
+    f2
+end function
+// Call the outer-most function
+f1
+----------------------------------------------------------------------
+123
+======================================================================
 ==== for-loop with break and continue
 for i in range(1,9)
 	if i == 3 then continue
@@ -114,3 +132,4 @@ for-loop x: 4
 f's for-Loop x: 5
 f's resolved x: 5
 for-loop x: 5
+----------------------------------------------------------------------
