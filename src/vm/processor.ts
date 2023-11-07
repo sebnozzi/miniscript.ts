@@ -322,6 +322,14 @@ class Processor {
           this.ip += 1;
           break;
         }
+        case BC.MOD_VALUES: {
+          let valueInStack_2 = this.opStack.pop()
+          let valueInStack_1 = this.opStack.pop()
+          let result = modulus(valueInStack_1, valueInStack_2)
+          this.opStack.push(result)
+          this.ip += 1;
+          break;
+        }
         case BC.LOGIC_AND_VALUES: {
           let valueInStack_2 = this.opStack.pop()
           let valueInStack_1 = this.opStack.pop()

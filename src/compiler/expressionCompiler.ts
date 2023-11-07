@@ -71,6 +71,10 @@ class ExpressionCompiler {
         this.builder.push(BC.POWER_VALUES)
         break;
       }
+      case TokenType.OP_MOD: {
+        this.builder.push(BC.MOD_VALUES)
+        break;
+      }
       case TokenType.OP_LESS_EQUALS: {
         this.builder.push(BC.COMPARE_LE)
         break;

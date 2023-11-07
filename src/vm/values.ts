@@ -92,6 +92,15 @@ function power(a: any, b: any): number {
   }
 }
 
+function modulus(a: any, b: any): number {
+  if (typeof a === "number" && typeof b === "number") {
+    return a % b;
+  } else {
+    console.info("Not supported for values","a:",a,"b:",b);
+    throw new Error("Invalid operation");
+  }
+}
+
 function logic_and(a: any, b: any): number {
   a = toBooleanNr(a);
   b = toBooleanNr(b);
