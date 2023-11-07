@@ -1,0 +1,79 @@
+======================================================================
+==== while with break and continue
+i = 0
+while i < 10
+    i = i + 1
+    if i == 3 then continue
+    if i == 6 then break
+    print i
+end while
+print "done"
+----------------------------------------------------------------------
+1
+2
+4
+5
+done
+======================================================================
+==== Runtime shadowing of for-variables in local context
+==== Here we demonstrate how a for-loop variable is accessible in a 
+==== sub-function, but as soon as an assignment takes place there a 
+==== *local* version of that variable appears, and shadows the one in
+==== the upper context. IMPORTANT: this behavior is only known at 
+==== RUNTIME, it cannot be deduced analytically. Here we have two 
+==== if-branches (if/else) and sometimes the upper variable is overriden
+==== and sometimes not.
+f1 = function
+	x = 3
+	f2 = function
+		// Starting here, x is guaranteed to be defined
+		for x in range(1,5)
+			f = function
+				if x % 2 == 0 then
+					// ASSIGNMENT always creates a new local
+					// variable if one does not exist in the 
+					// local scope - this is known only at
+					// runtime. The "x" in the print refers
+					// to the newly created "x" (local)
+					x = 10
+					print "f's local x: " + x
+				else
+					// The "x" here is resolved to the one
+					// in the outer scope, at RUNTIME
+					print "f's for-Loop x: " + x
+				end if
+				// The "x" here is resolved to either local
+				// or outer scope at RUNTIME, depending on
+				// which if branch was executed.
+				print "f's resolved x: " + x		
+			end function
+			print ""
+			f
+			print "for-loop x: " + x
+		end for
+	end function
+	return f2
+end function
+
+f1
+----------------------------------------------------------------------
+
+f's for-Loop x: 1
+f's resolved x: 1
+for-loop x: 1
+
+f's local x: 10
+f's resolved x: 10
+for-loop x: 2
+
+f's for-Loop x: 3
+f's resolved x: 3
+for-loop x: 3
+
+f's local x: 10
+f's resolved x: 10
+for-loop x: 4
+
+f's for-Loop x: 5
+f's resolved x: 5
+for-loop x: 5
