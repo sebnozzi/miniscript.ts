@@ -1,5 +1,9 @@
 /// <reference path="./code.ts"/>
 
+type IndexedCollection = {
+  length: number;
+}
+
 function equals(a: any, b: any): boolean {
   if (typeof a === "number" && typeof b === "number") {
     return a == b
@@ -127,6 +131,16 @@ function absClamp01(value: number): number {
   if (value < 0) value = -value;
   if (value > 1) return 1;
   return value;
+}
+
+function computeEffectiveIndex(accessTarget: IndexedCollection, index: number): number {
+  // Compute effective index
+  const effectiveIndex = (index < 0) ? index + accessTarget.length : index;
+  // Check bounds
+  if (effectiveIndex < 0 || effectiveIndex >= accessTarget.length) {
+    throw new Error(`Index Error (index ${index} out of range)`);
+  }
+  return effectiveIndex;
 }
 
 function toBooleanNr(value: any): number {

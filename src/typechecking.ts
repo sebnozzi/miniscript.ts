@@ -19,10 +19,7 @@ function checkAccessTarget(accessTarget: any, index: any): number {
   // Check index type
   checkInt(index, "Index must be integer");
   // Compute effective index
-  const effectiveIndex = (index < 0) ? index + accessTarget.length : index;
-  // Check bounds
-  if (effectiveIndex < 0 || effectiveIndex >= accessTarget.length) {
-    throw new Error(`Index Error (index ${index} out of range)`);
-  }
+  const effectiveIndex = computeEffectiveIndex(accessTarget, index);
   return effectiveIndex;
 }
+
