@@ -20,6 +20,8 @@ class ExpressionCompiler {
       this.compileListExpression(e);
     } else if (e instanceof IndexedAccessExpr) {
       this.compileListAccessExpression(e);
+    } else if (e instanceof ListSlicingExpr) {
+      this.compileListSlicingExpression(e);
     } else if (e instanceof FunctionCallExpr) {
       this.compileFuncCall(e.callTarget, e.args)
     } else if (e instanceof FunctionBodyExpr) {
@@ -132,6 +134,25 @@ class ExpressionCompiler {
     this.compileExpression(e.indexExpr);
     this.compileExpression(e.accessTarget);
     this.builder.push(BC.INDEXED_ACCESS);
+  }
+
+  private compileListSlicingExpression(e: ListSlicingExpr) {
+    // Push start value
+    if (e.start) {
+      this.compileExpression(e.start);
+    } else {
+      this.builder.push(BC.PUSH, null);
+    }
+    // Push stop value
+    if (e.stop) {
+      this.compileExpression(e.stop);
+    } else {
+      this.builder.push(BC.PUSH, null);
+    }
+    // Push list expression
+    this.compileExpression(e.listTarget);
+    // Push opcode
+    this.builder.push(BC.SLICE_LIST);
   }
 
   private compileFunctionBodyExpression(e: FunctionBodyExpr) {

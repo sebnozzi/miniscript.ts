@@ -217,6 +217,37 @@ class Processor {
           this.ip += 1;
           break;
         }
+        case BC.SLICE_LIST: {
+          // Pop parameters
+          const listTarget = this.opStack.pop();
+          let endIdx = this.opStack.pop();
+          let startIdx = this.opStack.pop();
+          // Check list-target
+          if (!(listTarget instanceof Array)) {
+            throw new Error("Slice target must be a List");
+          }
+          // Check / compute indexes
+          if (startIdx) {
+            checkInt(startIdx, "Slice-start should be an integer value");
+            startIdx = computeEffectiveIndex(listTarget, startIdx);
+          } else {
+            // Take slice from the beginning
+            startIdx = 0;
+          }
+          if (endIdx) {
+            checkInt(endIdx, "Slice-end should be an integer value");
+            endIdx = computeEffectiveIndex(listTarget, endIdx);
+          } else {
+            // Take slice to the end
+            endIdx = listTarget.length;
+          }
+          // Compute slice
+          const newList = listTarget.slice(startIdx, endIdx);
+          // Push result
+          this.opStack.push(newList);
+          this.ip += 1;
+          break;
+        }
         case BC.PUSH: {
           let value: any = this.code.arg1[this.ip];
           // If it's a FuncDef, store as bound-function with the current context
