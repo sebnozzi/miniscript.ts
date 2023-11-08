@@ -613,7 +613,7 @@ class Parser {
     let continueParsing = true
 
     while (continueParsing) {
-      if (this.matchesNonAfterSpaces(TokenType.OPEN_ROUND)) {
+      if (this.tokenMatch(TokenType.OPEN_ROUND)) {
         expr = this.finishCall(expr, context)
       } else if (this.matchesNonAfterSpaces(TokenType.OPEN_SQUARE)) {
         expr = this.indexedAccessOrSlicing(expr, context)
