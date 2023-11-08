@@ -1,7 +1,10 @@
 
 Next steps:
-- List slicing (a[1:-1], a[:])
+- String indexing
+- String check for immutability (string index assignment should fail at runtime)
+- String slicing
 - "List operations." in official suite
+- Implement comparison chains, e.g. 0 <= x < 10
 - function invocation on objects (foo.method(1,2,3)) 
   - test instrinsic methods
 - map literals / map expressions
