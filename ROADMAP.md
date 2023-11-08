@@ -1,9 +1,8 @@
 
 Next steps:
-- List access (print a[0])
+- indexed-assignment (x[idx] = expr) for arrays
 - List slicing (a[1:-1], a[:])
 - "List operations." in official suite
-- indexed-assignment (x[idx] = expr) for arrays
 - function invocation on objects (foo.method(1,2,3)) 
   - test instrinsic methods
 - map literals / map expressions
