@@ -140,9 +140,23 @@ class Processor {
           break;
         }
         case BC.ASSIGN_LOCAL: {
-          let valueToAssign = this.opStack.pop();
-          let varName: string = this.code.arg1[this.ip] as string;
+          const valueToAssign = this.opStack.pop();
+          const varName: string = this.code.arg1[this.ip] as string;
           this.context.setLocal(varName, valueToAssign)
+          this.ip += 1;
+          break;
+        }
+        case BC.ASSIGN_INDEXED: {
+          // pop target
+          const accessTarget = this.opStack.pop();
+          // pop index
+          const index = this.opStack.pop();
+          // pop value
+          const valueToAssign = this.opStack.pop();
+          // Check and compute index
+          const effectiveIndex = checkAccessTarget(accessTarget, index);
+          // Assign
+          accessTarget[effectiveIndex] = valueToAssign;
           this.ip += 1;
           break;
         }
@@ -194,20 +208,8 @@ class Processor {
         case BC.INDEXED_ACCESS: {
           const accessTarget = this.opStack.pop();
           const index = this.opStack.pop();
-          // Check access target type
-            // TODO: implement also Maps
-          const validTarget = accessTarget instanceof Array;
-          if (!validTarget) {
-            throw new Error("Access target must be a List");
-          }
-          // Check index type
-          checkInt(index, "Index must be integer");
-          // Compute effective index
-          const effectiveIndex = (index < 0) ? index + accessTarget.length : index;
-          // Check bounds
-          if (effectiveIndex < 0 || effectiveIndex >= accessTarget.length) {
-            throw new Error(`Index Error (index ${index} out of range)`);
-          }
+          // Check and compute index
+          const effectiveIndex = checkAccessTarget(accessTarget, index);
           // Access element
           const element = accessTarget[effectiveIndex];
           // Push it

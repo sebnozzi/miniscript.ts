@@ -139,8 +139,13 @@ class StatementCompiler {
     if (target instanceof IdentifierExpr) {
       this.builder.push(BC.ASSIGN_LOCAL, target.identifier.value);
       this.builder.endMapEntry(s.location());
+    } else if (target instanceof IndexedAccessExpr) {
+      this.compileExpression(s.value);
+      this.compileExpression(target.indexExpr);
+      this.compileExpression(target.accessTarget);
+      this.builder.push(BC.ASSIGN_INDEXED);
     } else {
-      throw new Error("Only assignment to identifier implemented for now")
+      throw new Error("Only assignment to identifier implemented for now");
     }
   }
 

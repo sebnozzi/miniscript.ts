@@ -11,7 +11,9 @@ enum BC {
 
   // Assign value to local variable
   ASSIGN_LOCAL,
-  
+  // Assign value using indexed access, like myFoo[key] = value
+  ASSIGN_INDEXED,
+
   // Adds two stack values, leaving result in the stack
   ADD_VALUES,
   // Adds a value to a stack value; result is in the stack
