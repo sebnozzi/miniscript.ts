@@ -54,6 +54,12 @@ function add(a: any, b: any): any {
     return a + b
   } else if (typeof a === "string" || typeof b === "string") {
     return toString(a) + toString(b);
+  } else if (a instanceof Array) {
+    if (b instanceof Array) {
+      return a.concat(b);
+    } else {
+      throw new Error(`Got ${b} instead of another List`);
+    }
   } else {
     console.info("Not supported for values","a:",a,"b:",b);
     throw new Error("Invalid operation");
