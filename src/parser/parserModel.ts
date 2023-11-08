@@ -435,19 +435,19 @@ class MapExpr implements Expression {
   }
 }
 
-class ListAccessExpr implements Expression {
+class IndexedAccessExpr implements Expression {
   constructor(public accessTarget: Expression, public indexExpr: Expression, private fullLocation: SrcLocation) {}
   location(): SrcLocation {
     return this.fullLocation;
   }
 
   description(): string {
-    return "List Access";
+    return "Indexed Access";
   }
 
   toJson(): object {
     return {
-      "ListAccessExpr": {
+      "IndexedAccessExpr": {
         "accessTarget": this.accessTarget.toJson(),
         "indexExpr": this.indexExpr.toJson()
       }
@@ -456,7 +456,7 @@ class ListAccessExpr implements Expression {
 }
 
 class ListSlicingExpr implements Expression {
-  constructor(public accessTarget: Expression, public start: OptExpression, public stop: OptExpression, private fullLocation: SrcLocation) {}
+  constructor(public listTarget: Expression, public start: OptExpression, public stop: OptExpression, private fullLocation: SrcLocation) {}
   location(): SrcLocation {
     return this.fullLocation;
   }
@@ -466,7 +466,7 @@ class ListSlicingExpr implements Expression {
   toJson(): object {
     return {
       "ListSlicingExpr": {
-        "accessTarget": this.accessTarget.toJson(),
+        "listTarget": this.listTarget.toJson(),
         "start": this.start ? this.start.toJson() : undefined,
         "stop": this.stop ? this.stop.toJson() : undefined
       }

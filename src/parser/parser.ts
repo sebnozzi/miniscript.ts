@@ -413,7 +413,7 @@ class Parser {
 
     const value = this.functionBodyOrExpr(context)
 
-    if(target instanceof IdentifierExpr || target instanceof PropertyAccessExpr || target instanceof ListAccessExpr) {
+    if(target instanceof IdentifierExpr || target instanceof PropertyAccessExpr || target instanceof IndexedAccessExpr) {
       return new AssignmentStatement(target, value)
     } else {
       throw this.failParsing("Invalid assignment target")
@@ -429,7 +429,7 @@ class Parser {
 
     const value = this.functionBodyOrExpr(context)
 
-    if(target instanceof IdentifierExpr || target instanceof PropertyAccessExpr || target instanceof ListAccessExpr) {
+    if(target instanceof IdentifierExpr || target instanceof PropertyAccessExpr || target instanceof IndexedAccessExpr) {
       return new MathAssignmentStatement(target, tokenType, value)
     } else {
       throw this.failParsing("Invalid math-assignment target")
@@ -600,7 +600,7 @@ class Parser {
     const refTarget: Expression = this.call(context)
     if (refTarget instanceof IdentifierExpr 
       || refTarget instanceof PropertyAccessExpr
-      || refTarget instanceof ListAccessExpr) {
+      || refTarget instanceof IndexedAccessExpr) {
         const fullLocation = openingToken.location.upTo(refTarget.location());
         return new FunctionRefExpr(refTarget, fullLocation);
     } else {
@@ -616,7 +616,7 @@ class Parser {
       if (this.matchesNonAfterSpaces(TokenType.OPEN_ROUND)) {
         expr = this.finishCall(expr, context)
       } else if (this.matchesNonAfterSpaces(TokenType.OPEN_SQUARE)) {
-        expr = this.listAccessOrSlicing(expr, context)
+        expr = this.indexedAccessOrSlicing(expr, context)
       } else if (this.matchesNonAfterSpaces(TokenType.DOT)) {
         const propertyName = this.consume(TokenType.IDENTIFIER_TK,
           "Expected property name after '.'") as Identifier
@@ -659,7 +659,7 @@ class Parser {
     }
   }
 
-  private listAccessOrSlicing(listTarget: Expression, context: ParsingContext): Expression {
+  private indexedAccessOrSlicing(targetObj: Expression, context: ParsingContext): Expression {
     const openingToken = this.previous();
 
     let slicing = false
@@ -692,15 +692,15 @@ class Parser {
       }
     }
 
-    this.consume(TokenType.CLOSE_SQUARE, "Expected closing ']' for list access. Found: " + this.peek().tokenType)
+    this.consume(TokenType.CLOSE_SQUARE, "Expected closing ']' for indexed access. Found: " + this.peek().tokenType)
 
     const closingToken = this.previous();
     const fullRange = SrcLocation.forTokenRange(openingToken, closingToken);
 
     if (slicing) {
-      return new ListSlicingExpr(listTarget, startExpr, stopExpr, fullRange);
+      return new ListSlicingExpr(targetObj, startExpr, stopExpr, fullRange);
     } else {
-      return new ListAccessExpr(listTarget, indexExpr as Expression, fullRange);
+      return new IndexedAccessExpr(targetObj, indexExpr as Expression, fullRange);
     }
   }
 

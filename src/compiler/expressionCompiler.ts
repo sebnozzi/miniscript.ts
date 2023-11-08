@@ -18,6 +18,8 @@ class ExpressionCompiler {
       this.compileExpression(e.expr);
     } else if (e instanceof ListExpr) {
       this.compileListExpression(e);
+    } else if (e instanceof IndexedAccessExpr) {
+      this.compileListAccessExpression(e);
     } else if (e instanceof FunctionCallExpr) {
       this.compileFuncCall(e.callTarget, e.args)
     } else if (e instanceof FunctionBodyExpr) {
@@ -124,6 +126,12 @@ class ExpressionCompiler {
     } else {
       throw new Error("Mixed lists not yet implemented");
     }
+  }
+
+  private compileListAccessExpression(e: IndexedAccessExpr) {
+    this.compileExpression(e.indexExpr);
+    this.compileExpression(e.accessTarget);
+    this.builder.push(BC.INDEXED_ACCESS);
   }
 
   private compileFunctionBodyExpression(e: FunctionBodyExpr) {
