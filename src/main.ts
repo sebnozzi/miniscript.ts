@@ -1,5 +1,5 @@
 /// <reference path="./vm/processor.ts"/>
-/// <reference path="./implicits.ts"/>
+/// <reference path="./implicits/implicits.ts"/>
 
 const sampleCode = [
   "fib = function(n)",
@@ -75,6 +75,7 @@ function runCode(prgCode: Code) {
   let p = new Processor(prgCode);
 
   addImplicits(p);
+  addGraphicImplicits(p);
   addPrintImplicit(p, (line: string) => {
     console.log(line);
   });
@@ -128,6 +129,7 @@ function debugCode(prgCode: Code) {
   let p = new Processor(prgCode);
 
   addImplicits(p);
+  addGraphicImplicits(p);
   addPrintImplicit(p, (line: string) => {
     console.log(line);
   });
