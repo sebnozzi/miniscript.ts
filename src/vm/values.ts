@@ -84,9 +84,30 @@ function divide(a: any, b: any): number {
   }
 }
 
-function multiply(a: any, b: any): number {
+function multiply(a: any, b: any): any {
   if (typeof a === "number" && typeof b === "number") {
-    return a * b
+    return a * b;
+  } else if (a instanceof Array) {
+    if (typeof b === "number") {
+      let result = new Array();
+      if (b > 0) {
+        // Add whole repetitions
+        const repetitionCount = Math.floor(b);
+        for (let i = 0; i < repetitionCount; i++) {
+          result = result.concat(a);
+        }
+        // Take the part after "comma" with (%1) (e.g. 7.25 -> 0.25)
+        // and use it to know how many more elements of the collection
+        // to take. For this, multiply by the total length and take first
+        // N elements.
+        const additionalElementsSliceEnd = Math.floor((b % 1) * a.length);
+        const additionalElements = a.slice(0, additionalElementsSliceEnd);
+        result = result.concat(additionalElements);
+      }
+      return result;
+    } else {
+      throw new Error(`Number required for list replication. Got ${b} instead.`);
+    }
   } else {
     console.info("Not supported for values","a:",a,"b:",b);
     throw new Error("Invalid operation");
