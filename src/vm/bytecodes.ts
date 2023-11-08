@@ -6,6 +6,9 @@ enum BC {
   // Resolve variable and push value to stack
   EVAL_ID,
 
+  // Perform indexed access (on map/list) using brackets, lile myCollection[23]
+  INDEXED_ACCESS,
+
   // Assign value to local variable
   ASSIGN_LOCAL,
   

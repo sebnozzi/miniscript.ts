@@ -191,6 +191,30 @@ class Processor {
           }
           break;
         }
+        case BC.INDEXED_ACCESS: {
+          const accessTarget = this.opStack.pop();
+          const index = this.opStack.pop();
+          // Check access target type
+            // TODO: implement also Maps
+          const validTarget = accessTarget instanceof Array;
+          if (!validTarget) {
+            throw new Error("Access target must be a List");
+          }
+          // Check index type
+          checkInt(index, "Index must be integer");
+          // Compute effective index
+          const effectiveIndex = (index < 0) ? index + accessTarget.length : index;
+          // Check bounds
+          if (effectiveIndex < 0 || effectiveIndex >= accessTarget.length) {
+            throw new Error(`Index Error (index ${index} out of range)`);
+          }
+          // Access element
+          const element = accessTarget[effectiveIndex];
+          // Push it
+          this.opStack.push(element);
+          this.ip += 1;
+          break;
+        }
         case BC.PUSH: {
           let value: any = this.code.arg1[this.ip];
           // If it's a FuncDef, store as bound-function with the current context
