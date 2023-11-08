@@ -1,5 +1,72 @@
 ======================================================================
-==== Simple array assignment
+==== Spaces before parameters
+==== The parser should parse "func (1,2,3)" as "func(1,2,3)"
+foo = function(x)
+    return x
+end function
+print foo (3)
+print range (0, 3)
+----------------------------------------------------------------------
+3
+[0, 1, 2, 3]
+======================================================================
+==== List slicing
+list1 = [0, 10, 20, 30, 40]
+print list1[:3]
+print list1[3:]
+print list1[1:-1]
+print [10,20,30,40,50][2:4]
+----------------------------------------------------------------------
+[0, 10, 20]
+[30, 40]
+[10, 20, 30]
+[30, 40]
+======================================================================
+==== List concatenation
+==== Lists can be concatenated one to the other. The result is a new
+==== list with the elements of both.
+list1 = [0, 10, 20, 30, 40]
+list2 = [100, -200, 300]
+print list1 + list2
+----------------------------------------------------------------------
+[0, 10, 20, 30, 40, 100, -200, 300]
+======================================================================
+==== List replication
+==== The "*" operator (followed by a number) produces a new list by 
+==== replicating the elements in the given list. Floating point and 
+==== negative numbers are also allowed. For floating points the length
+==== of the list and the factor are multiplied and then "floored", then
+==== normal replication is applied. For 0 or negative numbers the result
+==== is an empty list.
+print [1,2,3] * 2
+print [1,2,3] * 2.5
+print [1,2,3] * 0.4
+print [1,2,3] * -2.5
+print [1,2,3] * 0
+----------------------------------------------------------------------
+[1, 2, 3, 1, 2, 3]
+[1, 2, 3, 1, 2, 3, 1]
+[1]
+[]
+[]
+======================================================================
+==== "In range" expression (a <= b <= c)
+for x in range (0,5)
+	if 0 <= x <= 3 then
+		print x + " is in range"
+	else 
+		print x + " is outside of range"
+	end if
+end for
+----------------------------------------------------------------------
+0 is in range
+1 is in range
+2 is in range
+3 is in range
+4 is outside of range
+5 is outside of range
+======================================================================
+==== Simple list assignment
 a = [1,2,3]
 a[1] = 4
 a[-1] = 5
@@ -7,7 +74,7 @@ print a
 ----------------------------------------------------------------------
 [1, 4, 5]
 ======================================================================
-==== Simple array access
+==== Simple list access
 a = [1,2,3]
 print a[1]
 print a[-1]

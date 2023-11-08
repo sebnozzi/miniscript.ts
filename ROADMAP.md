@@ -1,6 +1,5 @@
 
 Next steps:
-- indexed-assignment (x[idx] = expr) for arrays
 - List slicing (a[1:-1], a[:])
 - "List operations." in official suite
 - function invocation on objects (foo.method(1,2,3)) 
