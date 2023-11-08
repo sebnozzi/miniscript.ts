@@ -6,7 +6,22 @@ type IndexedCollection = {
 
 function equals(a: any, b: any): boolean {
   if (typeof a === "number" && typeof b === "number") {
-    return a == b
+    return a == b;
+  } else if (a instanceof Array) {
+    if (b instanceof Array) {
+      if (a.length !== b.length) {
+        return false;
+      } else {
+        for (let i = 0; i < a.length; i++) {
+          if (a[i] !== b[i]) {
+            return false;
+          }
+        }
+        return true;
+      }
+    } else {
+      return false;
+    }
   } else {
     console.info("Not supported for values","a:",a,"b:",b);
     throw new Error("Invalid operation");

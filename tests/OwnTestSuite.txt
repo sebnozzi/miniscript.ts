@@ -1,14 +1,16 @@
 ======================================================================
-==== Spaces before parameters
-==== The parser should parse "func (1,2,3)" as "func(1,2,3)"
-foo = function(x)
-    return x
-end function
-print foo (3)
-print range (0, 3)
+==== List equality
+list1 = [0, 10, 20, 30, 40]
+list2 = [100, -200, 300]
+print "Equality 1: " + (list1 == list2)
+listA = list2
+print "Equality A: " + (listA == list2)
+listB = [100, -200] + [300]
+print "Equality B: " + (listB == list2)
 ----------------------------------------------------------------------
-3
-[0, 1, 2, 3]
+Equality 1: 0
+Equality A: 1
+Equality B: 1
 ======================================================================
 ==== List slicing
 list1 = [0, 10, 20, 30, 40]
@@ -50,21 +52,32 @@ print [1,2,3] * 0
 []
 []
 ======================================================================
-==== "In range" expression (a <= b <= c)
+==== Comparison-chain expression (e.g. a <= b <= c)
 for x in range (0,5)
 	if 0 <= x <= 3 then
-		print x + " is in range"
+		print x + " is in range(0,3)"
 	else 
-		print x + " is outside of range"
+		print x + " is outside of range(0,3)"
 	end if
 end for
 ----------------------------------------------------------------------
-0 is in range
-1 is in range
-2 is in range
-3 is in range
-4 is outside of range
-5 is outside of range
+0 is in range(0,3)
+1 is in range(0,3)
+2 is in range(0,3)
+3 is in range(0,3)
+4 is outside of range(0,3)
+5 is outside of range(0,3)
+======================================================================
+==== Spaces before parameters
+==== The parser should parse "func (1,2,3)" as "func(1,2,3)"
+foo = function(x)
+    return x
+end function
+print foo (3)
+print range (0, 3)
+----------------------------------------------------------------------
+3
+[0, 1, 2, 3]
 ======================================================================
 ==== Simple list assignment
 a = [1,2,3]
