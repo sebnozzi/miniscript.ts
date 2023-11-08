@@ -145,7 +145,7 @@ class StatementCompiler {
       this.compileExpression(target.accessTarget);
       this.builder.push(BC.ASSIGN_INDEXED);
     } else {
-      throw new Error("Only assignment to identifier implemented for now");
+      throw new Error("Assignment target not yet supported: " + s.target.description());
     }
   }
 
