@@ -1,21 +1,24 @@
 
 Next steps:
 - Implement implicits:
-  - val()
+  - round
+  - floor
+  - ceil
+  - sign
   - abs
+  - val()
+  - log
+  - sqrt
+  - lower
+  - upper
   - pop
   - pull
   - push
   - shuffle
-  - sign
   - slice
   - sort
-  - log
   - split
-  - sqrt
   - sum
-  - lower
-  - upper
   - insert
   - remove
   - replace
@@ -24,9 +27,6 @@ Next steps:
   - code
   - values
   - indexes
-  - round
-  - floor
-  - ceil
   - acos
   - asin
   - pi
@@ -51,6 +51,8 @@ Next steps:
   - string
   - number
   - map
+- Scientific notation (big?) numbers 
+  - How is this done?
 - function invocation on objects (foo.method(1,2,3)) 
   - test instrinsic methods
 - map literals / map expressions
