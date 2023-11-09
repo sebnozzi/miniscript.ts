@@ -1,17 +1,16 @@
 
 Next steps:
-- Implement string subtraction
-- Invalid relative comparisons return null 
-- 
 - String check for immutability (string index assignment should fail at runtime)
 - Implement "not equals" (OP_NOT_EQUALS) for all types
 - Implement comparison chains, e.g. 0 <= x < 10
-- `(null)[1] = 1` should throw error
 - function invocation on objects (foo.method(1,2,3)) 
   - test instrinsic methods
 - map literals / map expressions
 - indexed-assignment (x[idx] = expr) for maps
 - field-assignment (expr.fieldName = expr)
+- `(null)[1] = 1` should throw error
+- Invalid relative comparisons return null
+  - At least they do in the official miniScript ... seems not to be intentional
 
 ===
 

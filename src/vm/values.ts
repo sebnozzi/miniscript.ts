@@ -97,9 +97,18 @@ function add(a: any, b: any): any {
   }
 }
 
-function subtract(a: any, b: any): number {
+function subtract(a: any, b: any): any {
   if (typeof a === "number" && typeof b === "number") {
-    return a - b
+    return a - b;
+  } else if (typeof a === "string" && typeof b === "string") {
+    const suffixIdx = a.lastIndexOf(b);
+    // Force match at the end
+    const matchIdx = a.length - b.length;
+    if (suffixIdx >= 0 && suffixIdx == matchIdx) {
+      return a.substring(0, suffixIdx); 
+    } else {
+      return a;
+    }
   } else {
     console.info("Not supported for values","a:",a,"b:",b);
     throw new Error(`Cannot subtract ${formatValue(a,true)} - ${formatValue(b,true)}`);

@@ -1,4 +1,17 @@
 ======================================================================
+==== String Subtraction
+print "banana.txt" - ".txt"
+print "banana" - "na" * 2
+// Don't subtract anything ... it only subtracts suffixes (at the end)
+print "banana" - "ban"
+// Test subtracting more than first string
+print "123" - "1234567"
+----------------------------------------------------------------------
+banana
+ba
+banana
+123
+======================================================================
 ==== String Comparison
 print "ABC" < "EFG"
 print "ABC" >= "EFG"
