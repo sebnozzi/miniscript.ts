@@ -66,8 +66,10 @@ function lessThan(a: any, b: any): boolean {
 
 function add(a: any, b: any): any {
   if (typeof a === "number" && typeof b === "number") {
+    // Perform arithmetic addition
     return a + b
   } else if (typeof a === "string" || typeof b === "string") {
+    // Convert both values to String and concatenate
     return toString(a) + toString(b);
   } else if (a instanceof Array) {
     if (b instanceof Array) {
@@ -200,8 +202,10 @@ function toBooleanNr(value: any): number {
 function toString(a: any): string {
   if (typeof a === "number") {
     return "" + a;
-  } else if (typeof a === "string" ) {
+  } else if (typeof a === "string") {
     return a;
+  } else if (a instanceof Array) {
+    return formatValue(a);
   } else {
     throw new Error("Don't know how to make a string out of: " + a);
   }

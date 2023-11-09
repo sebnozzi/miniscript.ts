@@ -1,4 +1,20 @@
 ======================================================================
+==== String concatenation (between two strings)
+print "Hello " + "World!"
+----------------------------------------------------------------------
+Hello World!
+======================================================================
+==== String concatenation (between String and other types)
+print "Hello " + 123
+print 120 + 3 + "-45" + 6
+print "numbers: " + [1,2,3]
+print [4,5,6] + " are my numbers"
+----------------------------------------------------------------------
+Hello 123
+123-456
+numbers: [1, 2, 3]
+[4,5,6] are my numbers
+======================================================================
 ==== Simple string indexed access
 s = "HELLO"
 print s[3]
