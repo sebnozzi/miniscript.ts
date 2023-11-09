@@ -412,14 +412,6 @@ class Processor {
           this.ip += 1;
           break;
         }
-        case BC.ADD_N: {
-          let valueToAdd = this.code.arg1[this.ip];
-          let valueInStack = this.opStack.pop()
-          let result = add(valueInStack, valueToAdd)
-          this.opStack.push(result)
-          this.ip += 1;
-          break;
-        }
         case BC.SUBTR_N: {
           let valueToSubtract = this.code.arg1[this.ip];
           let valueInStack = this.opStack.pop()

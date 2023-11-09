@@ -18,8 +18,6 @@ enum BC {
 
   // Adds two stack values, leaving result in the stack
   ADD_VALUES,
-  // Adds a value to a stack value; result is in the stack
-  ADD_N,
 
   // Subtract two stack values, leaving result in the stack
   SUBTRACT_VALUES,
