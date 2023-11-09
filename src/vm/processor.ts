@@ -315,31 +315,33 @@ class Processor {
           this.ip += 1
           break;
         }
-        case BC.JUMP_GE: {
-          let jumpAddr = this.code.arg1[this.ip]
-          let valueB = this.opStack.pop()
-          let valueA = this.opStack.pop()
-          if (greaterEquals(valueA, valueB)) {
-            this.ip = jumpAddr
-          } else {
-            this.ip += 1
-          }
-          break;
-        }
-        case BC.JUMP_GT: {
-          let jumpAddr = this.code.arg1[this.ip]
-          let valueB = this.opStack.pop()
-          let valueA = this.opStack.pop()
-          if (greaterThan(valueA, valueB)) {
-            this.ip = jumpAddr
-          } else {
-            this.ip += 1
-          }
-          break;
-        }
-        case BC.JUMP_FALSE: {
+        case BC.POP_JUMP_FALSE: {
           let jumpAddr = this.code.arg1[this.ip]
           let value = this.opStack.pop();
+          value = toBooleanNr(value);
+          if (value == 0) {
+            this.ip = jumpAddr
+          } else {
+            this.ip += 1
+          }
+          break;
+        }
+        case BC.JUMP_IF_TRUE: {
+          let jumpAddr = this.code.arg1[this.ip];
+          // Leave value on the stack
+          let value = this.opStack.peek();
+          value = toBooleanNr(value);
+          if (value == 1) {
+            this.ip = jumpAddr
+          } else {
+            this.ip += 1
+          }
+          break;
+        }
+        case BC.JUMP_IF_FALSE: {
+          let jumpAddr = this.code.arg1[this.ip];
+          // Leave value on the stack
+          let value = this.opStack.peek();
           value = toBooleanNr(value);
           if (value == 0) {
             this.ip = jumpAddr

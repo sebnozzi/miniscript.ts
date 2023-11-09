@@ -1,4 +1,17 @@
 ======================================================================
+==== Short-circuit boolean operations
+idem = function(x,operation)
+	print "idem("+x+","+operation+")"
+	return x
+end function
+// Short circuit OR ... should only call first one
+idem(true,"OR") or idem(false,"OR")
+// Short circuit AND ... should only call first one
+idem(false,"AND") and idem(true,"AND") 
+----------------------------------------------------------------------
+idem(1,OR)
+idem(0,AND)
+======================================================================
 ==== Implicit: rnd
 print rnd >= 0
 print rnd < 1

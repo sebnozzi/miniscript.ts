@@ -174,7 +174,7 @@ class StatementCompiler {
     this.builder.startMapEntry();
     
     this.compileExpression(s.ifBranch.condition);
-    this.builder.push_unresolved(BC.JUMP_FALSE, endIfThenLabel);
+    this.builder.push_unresolved(BC.POP_JUMP_FALSE, endIfThenLabel);
 
     this.builder.endMapEntry(s.ifBranch.condition.location());
 
@@ -187,7 +187,7 @@ class StatementCompiler {
       this.builder.startMapEntry();
       this.compileExpression(elseIf.condition)
       const elseIfIpEnd = this.builder.ip;
-      this.builder.push_unresolved(BC.JUMP_FALSE, elseIfLabel)
+      this.builder.push_unresolved(BC.POP_JUMP_FALSE, elseIfLabel)
       this.builder.endMapEntry(elseIf.condition.location());
 
       this.compileStatements(elseIf.statements, context);
@@ -210,7 +210,7 @@ class StatementCompiler {
     this.builder.startMapEntry();
     this.builder.define_address(startWhileLabel);
     this.compileExpression(s.condition);
-    this.builder.push_unresolved(BC.JUMP_FALSE, endWhileLabel);
+    this.builder.push_unresolved(BC.POP_JUMP_FALSE, endWhileLabel);
     this.builder.endMapEntry(s.condition.location());
 
     // Statements

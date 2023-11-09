@@ -101,20 +101,41 @@ class ExpressionCompiler {
   }
 
   private compileLogicExpression(e: LogicExpr) {
-    this.compileExpression(e.left)
-    this.compileExpression(e.right)
-    switch (e.operator.tokenType) {
-      case TokenType.OP_AND: {
-        this.builder.push(BC.LOGIC_AND_VALUES)
-        break;
-      }
-      case TokenType.OP_OR: {
-        this.builder.push(BC.LOGIC_OR_VALUES)
-        break;
-      }
-      default:
-        throw new Error("Operator not implemented: " + TokenType[e.operator.tokenType])
+    // Determine type
+    const isAnd = e.operator.tokenType == TokenType.OP_AND;
+    const isOr = e.operator.tokenType == TokenType.OP_OR;
+    if (!(isAnd || isOr)) {
+      throw new Error("Invalid logic operator: must be either AND or OR");
     }
+    // Used to short-circuit when further evaluation is not needed.
+    // For example "true or something-else" or "false and something-else".
+    // This is not only an optimization but expected behaviour.
+    const shortCircuitAddr = this.builder.newLabel();
+
+    // Compile expression of the left
+    this.compileExpression(e.left);
+    
+    // Insert short-circuit conditional jump
+    if (isAnd) {
+      this.builder.push_unresolved(BC.JUMP_IF_FALSE, shortCircuitAddr);
+    } else {
+      this.builder.push_unresolved(BC.JUMP_IF_TRUE, shortCircuitAddr);
+    }
+
+    // The following only executes in case of no short-circuit
+
+    // Compile expression on the right
+    this.compileExpression(e.right);
+
+    if (isAnd) {
+      this.builder.push(BC.LOGIC_AND_VALUES)
+    } else {
+      this.builder.push(BC.LOGIC_OR_VALUES)
+    }
+
+    // Address to jump to in case of short-circuiting (skipping evaluating the
+    // right expression)
+    this.builder.define_address(shortCircuitAddr);
   }
 
   private compileListExpression(e: ListExpr) {

@@ -25,6 +25,16 @@ class Stack<T> {
     }
   }
 
+  // Return top-most value without removing it
+  peek(): T {
+    if (this.elements.length == 0) {
+      throw new Error("Stack is empty")
+    } else {
+      // Return last element
+      return this.elements[this.elements.length - 1];
+    }
+  }
+
   count(): number {
     return this.elements.length;
   }
