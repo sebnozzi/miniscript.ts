@@ -284,6 +284,17 @@ class Processor {
           this.ip += 1
           break;
         }
+        case BC.COMPARE_NE: {
+          let valueB = this.opStack.pop();
+          let valueA = this.opStack.pop();
+          if (!equals(valueA, valueB)) {
+            this.opStack.push(1)
+          } else {
+            this.opStack.push(0)
+          }
+          this.ip += 1
+          break;
+        }
         case BC.COMPARE_GE: {
           let valueB = this.opStack.pop()
           let valueA = this.opStack.pop()

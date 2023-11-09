@@ -1,16 +1,60 @@
 
 Next steps:
-- Implement "not equals" (OP_NOT_EQUALS) for all types
 - Implement implicits:
   - val()
-  - len()
+  - abs
+  - pop
+  - pull
+  - push
+  - shuffle
+  - sign
+  - slice
+  - sort
+  - log
+  - split
+  - sqrt
+  - sum
+  - lower
+  - upper
+  - insert
+  - remove
+  - replace
+  - hasIndex
+  - char
+  - code
+  - values
+  - indexes
+  - round
+  - floor
+  - ceil
+  - acos
+  - asin
+  - pi
+  - atan
+  - sin
+  - cos
+  - bitAnd
+  - bitOr
+  - bitXor
+  - len() for strings / lists
 - String check for immutability (string index assignment should fail at runtime)
 - Implement implicits:
   - time
   - wait
+  - hash
+  - globals
+  - locals
+  - version
+  Types (maps)
+  - funcRef
+  - list
+  - string
+  - number
+  - map
 - function invocation on objects (foo.method(1,2,3)) 
   - test instrinsic methods
 - map literals / map expressions
+- len() for maps
 - indexed-assignment (x[idx] = expr) for maps
 - field-assignment (expr.fieldName = expr)
 - `(null)[1] = 1` should throw error

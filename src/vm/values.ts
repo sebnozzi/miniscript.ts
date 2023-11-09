@@ -13,24 +13,19 @@ function equals(a: any, b: any): boolean {
     return a == b;
   } else if (typeof a === "string" && typeof b === "string") {
     return a === b;
-  } else if (a instanceof Array) {
-    if (b instanceof Array) {
-      if (a.length !== b.length) {
-        return false;
-      } else {
-        for (let i = 0; i < a.length; i++) {
-          if (a[i] !== b[i]) {
-            return false;
-          }
-        }
-        return true;
-      }
-    } else {
+  } else if (a instanceof Array && b instanceof Array) {
+    if (a.length !== b.length) {
       return false;
+    } else {
+      for (let i = 0; i < a.length; i++) {
+        if (a[i] !== b[i]) {
+          return false;
+        }
+      }
+      return true;
     }
   } else {
-    console.info("Not supported for values","a:",a,"b:",b);
-    throw new Error(`Cannot compare ${formatValue(a,true)} == ${formatValue(b,true)}`);
+    return false;
   }
 }
 

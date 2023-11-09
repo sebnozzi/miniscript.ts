@@ -57,6 +57,10 @@ class ExpressionCompiler {
         this.builder.push(BC.COMPARE_EQ)
         break;
       }
+      case TokenType.OP_NOT_EQUALS: {
+        this.builder.push(BC.COMPARE_NE)
+        break;
+      }
       case TokenType.OP_PLUS: {
         this.builder.push(BC.ADD_VALUES)
         break;
