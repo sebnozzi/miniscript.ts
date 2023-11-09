@@ -1,6 +1,5 @@
 
 Next steps:
-- String replication ("*")
 - Implement comparison operators for strings (>, >=, <, <=, ==)
 - String check for immutability (string index assignment should fail at runtime)
 - Implement "not equals" (OP_NOT_EQUALS)

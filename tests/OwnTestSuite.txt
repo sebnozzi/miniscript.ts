@@ -1,4 +1,19 @@
 ======================================================================
+==== String replication
+print "MINI" * 1
+print "MINI" * 2
+print "MINI" * 2.5
+print "MINI" * 2.75
+print "MINI" * 0
+print "MINI" * -1.5
+----------------------------------------------------------------------
+MINI
+MINIMINI
+MINIMINIMI
+MINIMINIMIN
+
+
+======================================================================
 ==== String concatenation (between two strings)
 print "Hello " + "World!"
 ----------------------------------------------------------------------
@@ -13,7 +28,7 @@ print [4,5,6] + " are my numbers"
 Hello 123
 123-456
 numbers: [1, 2, 3]
-[4,5,6] are my numbers
+[4, 5, 6] are my numbers
 ======================================================================
 ==== Simple string indexed access
 s = "HELLO"

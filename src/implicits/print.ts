@@ -6,7 +6,7 @@ function addPrintImplicit(p: Processor, fnAcceptingLine: (txt:string) => any) {
   });
 }
 
-function formatValue(value: any, inCollection: boolean = false): string {
+function formatValue(value: any, quoteStrings: boolean = false): string {
   let text = "";
   if (value instanceof Array) {
     const formattedValues = [];
@@ -14,7 +14,7 @@ function formatValue(value: any, inCollection: boolean = false): string {
       formattedValues.push(formatValue(e, true));
     }
     text = "[" + formattedValues.join(", ") + "]";
-  } else if (typeof(value) === "string" && inCollection) {
+  } else if (typeof(value) === "string" && quoteStrings) {
     text = "\"" + value + "\"";
   } else {
     text = "" + value;

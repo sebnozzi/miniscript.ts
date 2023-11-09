@@ -4,6 +4,10 @@ type IndexedCollection = {
   length: number;
 }
 
+type Concatenable = {
+  concat(a: any): any;
+}
+
 function equals(a: any, b: any): boolean {
   if (typeof a === "number" && typeof b === "number") {
     return a == b;
@@ -104,9 +108,9 @@ function divide(a: any, b: any): number {
 function multiply(a: any, b: any): any {
   if (typeof a === "number" && typeof b === "number") {
     return a * b;
-  } else if (a instanceof Array) {
+  } else if (a instanceof Array || typeof a === "string") {
     if (typeof b === "number") {
-      let result = new Array();
+      let result: Concatenable = (typeof a === "string") ? "" : new Array();
       if (b > 0) {
         // Add whole repetitions
         const repetitionCount = Math.floor(b);
@@ -123,11 +127,11 @@ function multiply(a: any, b: any): any {
       }
       return result;
     } else {
-      throw new Error(`Number required for list replication. Got ${b} instead.`);
+      throw new Error(`Number required for replication. Got ${b} instead.`);
     }
   } else {
-    console.info("Not supported for values","a:",a,"b:",b);
-    throw new Error("Invalid operation");
+    console.error("Not supported for values","a:",a,"b:",b);
+    throw new Error(`Cannot multiply ${formatValue(a,true)} with ${formatValue(b,true)}`);
   }
 }
 
