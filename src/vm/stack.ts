@@ -25,6 +25,15 @@ class Stack<T> {
     }
   }
 
+  // Pop N values. Return them in original order (as they were pushed).
+  popN(count: number): any[] {
+    const result = [];
+    for (let i = 0; i < count; i++) {
+      result.unshift(this.pop());
+    }
+    return result;
+  }
+
   // Return top-most value without removing it
   peek(): T {
     if (this.elements.length == 0) {

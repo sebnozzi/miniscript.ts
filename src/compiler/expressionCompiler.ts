@@ -12,6 +12,8 @@ class ExpressionCompiler {
       b.push(BC.EVAL_ID, e.identifier.value)
     } else if (e instanceof BinaryExpr) {
       this.compileBinaryExpression(e);
+    } else if (e instanceof ChainedComparisonExpr) {
+      this.compileChainedComparisonExpression(e);
     } else if (e instanceof LogicExpr) {
       this.compileLogicExpression(e);
     } else if (e instanceof GroupingExpr) {
@@ -98,6 +100,42 @@ class ExpressionCompiler {
       default:
         throw new Error("Operator not implemented: " + TokenType[e.operator.tokenType])
     }
+  }
+
+
+  private compileChainedComparisonExpression(e: ChainedComparisonExpr) {
+    // Compile and push expressions
+    for (let operandExpression of e.operands) {
+      this.compileExpression(operandExpression);
+    }
+    // Push operators
+    for (let operator of e.operators) {
+      switch (operator.tokenType) {
+        case TokenType.OP_GREATER: {
+          this.builder.push(BC.PUSH, ">");
+          break;
+        }        
+        case TokenType.OP_GREATER_EQUALS: {
+          this.builder.push(BC.PUSH, ">=");
+          break;
+        }        
+        case TokenType.OP_LESS: {
+          this.builder.push(BC.PUSH, "<");
+          break;
+        }        
+        case TokenType.OP_LESS_EQUALS: {
+          this.builder.push(BC.PUSH, "<=");
+          break;
+        }        
+        default: {
+          throw new Error("Invalid operator found");
+        }
+      }
+    }
+    // Push special opcode
+    const pairCount = e.operators.length;
+    this.builder.push(BC.CHAINED_COMPARISON, pairCount);
+
   }
 
   private compileLogicExpression(e: LogicExpr) {

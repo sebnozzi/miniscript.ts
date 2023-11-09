@@ -40,6 +40,9 @@ enum BC {
   COMPARE_LE,
   COMPARE_LT,
 
+  // Perform a "chained comparison"
+  CHAINED_COMPARISON,
+
   JUMP,
   POP_JUMP_FALSE,
   JUMP_IF_FALSE,

@@ -78,6 +78,32 @@ function lessThan(a: any, b: any): boolean {
   }
 }
 
+function chainedComparison(values: any[], operators: string[]): number {
+  const pairCount = operators.length;
+  // Evaluate in pairs
+  for (let i = 0; i < pairCount; i++) {
+    const operator = operators[i];
+    const left = values[i];
+    const right = values[i+1];
+    let result: boolean;
+    if (operator === ">") {
+      result = greaterThan(left, right);
+    } else if (operator === ">=") {
+      result = greaterEquals(left, right);
+    } else if (operator === "<") {
+      result = lessThan(left, right);
+    } else if (operator === "<=") {
+      result = lessEquals(left, right);
+    } else {
+      throw new Error("Invalid operator");
+    }
+    if (!result) {
+      return 0;
+    }
+  }
+  return 1;
+}
+
 function add(a: any, b: any): any {
   if (typeof a === "number" && typeof b === "number") {
     // Perform arithmetic addition

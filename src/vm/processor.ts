@@ -248,6 +248,19 @@ class Processor {
           this.ip += 1;
           break;
         }
+        case BC.CHAINED_COMPARISON: {
+          let pairCount: number = this.code.arg1[this.ip];
+          // Pop operators
+          const operators: string[] = this.opStack.popN(pairCount);
+          // Pop values
+          const values: any[] = this.opStack.popN(pairCount + 1);
+          // Calculate result
+          const result = chainedComparison(values, operators);
+          // Push result
+          this.opStack.push(result);
+          this.ip += 1;
+          break;
+        }
         case BC.PUSH: {
           let value: any = this.code.arg1[this.ip];
           // If it's a FuncDef, store as bound-function with the current context

@@ -1,11 +1,11 @@
 
 Next steps:
-- Implement comparison chains, e.g. 0 <= x < 10
-- String check for immutability (string index assignment should fail at runtime)
 - Implement "not equals" (OP_NOT_EQUALS) for all types
 - Implement implicits:
   - val()
   - len()
+- String check for immutability (string index assignment should fail at runtime)
+- Implement implicits:
   - time
   - wait
 - function invocation on objects (foo.method(1,2,3)) 

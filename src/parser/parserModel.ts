@@ -27,6 +27,15 @@ function toJsonArray(elements: jsonCapable[]): object[] {
   return result
 }
 
+function tokensToJsonArray(tokens: Token[]): any[] {
+  let result = [];
+  for (let token of tokens) {
+    const tokenType = token.tokenType;
+    result.push(TokenType[tokenType].toString());
+  }
+  return result;
+}
+
 // == Statements
 
 // An expression found at the level of a statement
@@ -255,10 +264,49 @@ class BinaryExpr implements Expression {
   }
 }
 
+class ChainedComparisonExpr {
+  constructor(public operands: Expression[], public operators: Token[]) {
+    if (operands.length < 3) {
+      throw new Error("Amount of operands must be at least 3");
+    }
+    if (operands.length - 1 != operators.length) {
+      throw new Error("Amount of operands/operators mismatch");
+    }
+    for (let tk of operators) {
+      const ttype = tk.tokenType;
+      if (ttype != TokenType.OP_GREATER 
+          && ttype != TokenType.OP_GREATER_EQUALS 
+          && ttype != TokenType.OP_LESS
+          && ttype != TokenType.OP_LESS_EQUALS){
+        throw new Error("Invalid token type");
+      }
+    }
+  }
+  
+  location(): SrcLocation {
+    const firstOperand = this.operands[0];
+    const lastOperand = this.operands[this.operands.length - 1];
+    return firstOperand.location().upTo(lastOperand.location());
+  }
+
+  description(): string {
+    return "Binary Expression";
+  }
+  
+  toJson(): object {
+    return {
+      "ChainedComparison": {
+        "operands": toJsonArray(this.operands),
+        "operators": tokensToJsonArray(this.operators)
+      }
+    }
+  }
+}
+
 class LogicExpr implements Expression {
   constructor(public left: Expression, public operator: Token, public right: Expression) {}
   
-  location() {
+  location(): SrcLocation {
     return this.left.location().upTo(this.right.location());
   }
 
@@ -280,7 +328,7 @@ class LogicExpr implements Expression {
 class UnaryExpr implements Expression {
   constructor(public operator: Token, public expr: Expression) {}
 
-  location() {
+  location(): SrcLocation {
     return this.operator.location.upTo(this.expr.location());
   }
 
@@ -341,7 +389,7 @@ class GroupingExpr implements Expression {
 class IdentifierExpr implements Expression {
   constructor(public identifier: Identifier) {}
   
-  location() {
+  location(): SrcLocation {
     return this.identifier.location;
   }
 
@@ -362,7 +410,7 @@ class FunctionCallExpr implements Expression {
   
   constructor(public callTarget: Expression, public args: Expression[], private fullLocation: SrcLocation) {}
 
-  location() {
+  location(): SrcLocation {
     return this.fullLocation;
   }
 
@@ -384,7 +432,7 @@ class ListExpr implements Expression {
   
   constructor(public elements: Expression[], private fullLocation: SrcLocation) {}
 
-  location() {
+  location(): SrcLocation {
     return this.fullLocation;
   }
 
@@ -414,7 +462,7 @@ class MapExpr implements Expression {
   
   constructor(public elements: Map<Expression, Expression>, private fullLocation: SrcLocation) {}
 
-  location() {
+  location(): SrcLocation {
     return this.fullLocation;
   }
 
@@ -437,6 +485,7 @@ class MapExpr implements Expression {
 
 class IndexedAccessExpr implements Expression {
   constructor(public accessTarget: Expression, public indexExpr: Expression, private fullLocation: SrcLocation) {}
+  
   location(): SrcLocation {
     return this.fullLocation;
   }
@@ -457,6 +506,7 @@ class IndexedAccessExpr implements Expression {
 
 class ListSlicingExpr implements Expression {
   constructor(public listTarget: Expression, public start: OptExpression, public stop: OptExpression, private fullLocation: SrcLocation) {}
+  
   location(): SrcLocation {
     return this.fullLocation;
   }
@@ -498,7 +548,7 @@ class PropertyAccessExpr implements Expression {
 class Argument {
   constructor(public name: string, public defaultValue: OptLiteral, private fullLocation: SrcLocation) {}
   
-  location() {
+  location(): SrcLocation {
     return this.fullLocation;
   }
 
@@ -516,7 +566,7 @@ class FunctionBodyExpr implements Expression {
   
   constructor(public args: Argument[], public statements: Statement[], private fullLocation: SrcLocation) {}
 
-  location() {
+  location(): SrcLocation {
     return this.fullLocation;
   }
 
@@ -536,7 +586,8 @@ class FunctionBodyExpr implements Expression {
 
 class FunctionRefExpr implements Expression {
   constructor(public refTarget: Expression, private fullLocation: SrcLocation)  {}
-  location() {
+  
+  location(): SrcLocation {
     return this.fullLocation;
   }
   description(): string {
@@ -553,7 +604,7 @@ class FunctionRefExpr implements Expression {
 
 class SelfExpr implements Expression {
   constructor(private fullLocation: SrcLocation) {}
-  location() {
+  location(): SrcLocation {
     return this.fullLocation;
   }
   description(): string {
@@ -568,7 +619,7 @@ class SelfExpr implements Expression {
 
 class SuperExpr implements Expression {
   constructor(private fullLocation: SrcLocation) {}
-  location() {
+  location(): SrcLocation {
     return this.fullLocation;
   }
   description(): string {

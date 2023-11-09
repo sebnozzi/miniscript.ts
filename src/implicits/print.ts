@@ -16,6 +16,8 @@ function formatValue(value: any, quoteStrings: boolean = false): string {
     text = "[" + formattedValues.join(", ") + "]";
   } else if (typeof(value) === "string" && quoteStrings) {
     text = "\"" + value + "\"";
+  } else if (typeof(value) === "boolean") {
+    return value ? "1" : "0";
   } else {
     text = "" + value;
   }

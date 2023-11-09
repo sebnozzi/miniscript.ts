@@ -495,15 +495,28 @@ class Parser {
   }
 
   private relativeComparison(context: ParsingContext): Expression {
-    let expr = this.nonEqualityComparison(context)
+    const expr = this.nonEqualityComparison(context);
+
+    const operands: Expression[] = [expr];
+    const operators: Token[] = [];
 
     while (this.tokenMatch(TokenType.OP_GREATER, TokenType.OP_GREATER_EQUALS, TokenType.OP_LESS, TokenType.OP_LESS_EQUALS)) {
-      const operator = this.previous()
-      const right = this.nonEqualityComparison(context)
-      expr = new BinaryExpr(expr, operator, right)
+      const operator = this.previous();
+      const right = this.nonEqualityComparison(context);
+      operators.push(operator);
+      operands.push(right);
     }
 
-    return expr
+    if (operators.length == 0) {
+      // A single expression was parsed
+      return expr;
+    } else if (operators.length == 1) {
+      // A single comparison was parsed
+      return new BinaryExpr(operands[0], operators[0], operands[1]);
+    } else {
+      // A chained comparison was parsed
+      return new ChainedComparisonExpr(operands, operators);
+    }
   }
 
   private nonEqualityComparison(context: ParsingContext): Expression {
