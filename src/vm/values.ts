@@ -11,6 +11,8 @@ type Concatenable = {
 function equals(a: any, b: any): boolean {
   if (typeof a === "number" && typeof b === "number") {
     return a == b;
+  } else if (typeof a === "string" && typeof b === "string") {
+    return a === b;
   } else if (a instanceof Array) {
     if (b instanceof Array) {
       if (a.length !== b.length) {
@@ -28,43 +30,51 @@ function equals(a: any, b: any): boolean {
     }
   } else {
     console.info("Not supported for values","a:",a,"b:",b);
-    throw new Error("Invalid operation");
+    throw new Error(`Cannot compare ${formatValue(a,true)} == ${formatValue(b,true)}`);
   }
 }
 
 function greaterEquals(a: any, b: any): boolean {
   if (typeof a === "number" && typeof b === "number") {
-    return a >= b
+    return a >= b;
+  } else if (typeof a === "string" && typeof b === "string") {
+    return a >= b;
   } else {
     console.info("Not supported for values","a:",a,"b:",b);
-    throw new Error("Invalid operation");
+    throw new Error(`Cannot compare ${formatValue(a,true)} >= ${formatValue(b,true)}`);
   }
 }
 
 function greaterThan(a: any, b: any): boolean {
   if (typeof a === "number" && typeof b === "number") {
-    return a > b
+    return a > b;
+  } else if (typeof a === "string" && typeof b === "string") {
+    return a > b;
   } else {
     console.info("Not supported for values","a:",a,"b:",b);
-    throw new Error("Invalid operation");
+    throw new Error(`Cannot compare ${formatValue(a,true)} > ${formatValue(b,true)}`);
   }
 }
 
 function lessEquals(a: any, b: any): boolean {
   if (typeof a === "number" && typeof b === "number") {
-    return a <= b
+    return a <= b;
+  } else if (typeof a === "string" && typeof b === "string") {
+    return a <= b;
   } else {
     console.info("Not supported for values","a:",a,"b:",b);
-    throw new Error("Invalid operation");
+    throw new Error(`Cannot compare ${formatValue(a,true)} <= ${formatValue(b,true)}`);
   }
 }
 
 function lessThan(a: any, b: any): boolean {
   if (typeof a === "number" && typeof b === "number") {
-    return a < b
+    return a < b;
+  } else if (typeof a === "string" && typeof b === "string") {
+    return a < b;
   } else {
     console.info("Not supported for values","a:",a,"b:",b);
-    throw new Error("Invalid operation");
+    throw new Error(`Cannot compare ${formatValue(a,true)} < ${formatValue(b,true)}`);
   }
 }
 
@@ -83,7 +93,7 @@ function add(a: any, b: any): any {
     }
   } else {
     console.info("Not supported for values","a:",a,"b:",b);
-    throw new Error("Invalid operation");
+    throw new Error(`Cannot add ${formatValue(a,true)} + ${formatValue(b,true)}`);
   }
 }
 
@@ -92,7 +102,7 @@ function subtract(a: any, b: any): number {
     return a - b
   } else {
     console.info("Not supported for values","a:",a,"b:",b);
-    throw new Error("Invalid operation");
+    throw new Error(`Cannot subtract ${formatValue(a,true)} - ${formatValue(b,true)}`);
   }
 }
 
@@ -101,7 +111,7 @@ function divide(a: any, b: any): number {
     return a / b
   } else {
     console.info("Not supported for values","a:",a,"b:",b);
-    throw new Error("Invalid operation");
+    throw new Error(`Cannot divide ${formatValue(a,true)} / ${formatValue(b,true)}`);
   }
 }
 
@@ -131,7 +141,7 @@ function multiply(a: any, b: any): any {
     }
   } else {
     console.error("Not supported for values","a:",a,"b:",b);
-    throw new Error(`Cannot multiply ${formatValue(a,true)} with ${formatValue(b,true)}`);
+    throw new Error(`Cannot multiply ${formatValue(a,true)} * ${formatValue(b,true)}`);
   }
 }
 
@@ -140,7 +150,7 @@ function power(a: any, b: any): number {
     return Math.pow(a, b);
   } else {
     console.info("Not supported for values","a:",a,"b:",b);
-    throw new Error("Invalid operation");
+    throw new Error(`Cannot raise to the power ${formatValue(a,true)} ^ ${formatValue(b,true)}`);
   }
 }
 
@@ -149,7 +159,7 @@ function modulus(a: any, b: any): number {
     return a % b;
   } else {
     console.info("Not supported for values","a:",a,"b:",b);
-    throw new Error("Invalid operation");
+    throw new Error(`Cannot perform modulus ${formatValue(a,true)} % ${formatValue(b,true)}`);
   }
 }
 
@@ -160,7 +170,7 @@ function logic_and(a: any, b: any): number {
     return absClamp01(a * b);
   } else {
     console.info("Not supported for values","a:",a,"b:",b);
-    throw new Error("Invalid operation");
+    throw new Error(`Cannot perform ${formatValue(a,true)} && ${formatValue(b,true)}`);
   }
 }
 
@@ -171,7 +181,7 @@ function logic_or(a: any, b: any): number {
     return absClamp01(a + b - a * b);
   } else {
     console.info("Not supported for values","a:",a,"b:",b);
-    throw new Error("Invalid operation");
+    throw new Error(`Cannot perform ${formatValue(a,true)} || ${formatValue(b,true)}`);
   }
 }
 
