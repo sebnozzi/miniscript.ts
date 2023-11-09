@@ -7,6 +7,11 @@ function addImplicits(p: Processor) {
     return result;
   });
 
+  // rnd
+  p.addNative("rnd", 0, function(): number {
+    return Math.random();
+  });
+
   // range(start,stop[,step])
   p.addNativeWithDefaults("range", 3, [undefined, undefined, null], function(start: number, stop: number, step: number) {
     checkInt(start, "Argument 'start' should be integer");

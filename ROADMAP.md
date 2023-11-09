@@ -5,7 +5,6 @@ Next steps:
 - Implement implicits:
   - val()
   - len()
-  - rnd
   - time
   - wait
 
