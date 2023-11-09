@@ -2,6 +2,13 @@
 Next steps:
 - String check for immutability (string index assignment should fail at runtime)
 - Implement "not equals" (OP_NOT_EQUALS) for all types
+- Implement implicits:
+  - val()
+  - len()
+  - rnd
+  - time
+  - wait
+
 - Implement comparison chains, e.g. 0 <= x < 10
 - function invocation on objects (foo.method(1,2,3)) 
   - test instrinsic methods

@@ -1,6 +1,12 @@
 
 function addImplicits(p: Processor) {
 
+  // str(value)
+  p.addNative("str", 1, function(value: any): string {
+    const result: string = formatValue(value);
+    return result;
+  });
+
   // range(start,stop[,step])
   p.addNativeWithDefaults("range", 3, [undefined, undefined, null], function(start: number, stop: number, step: number) {
     checkInt(start, "Argument 'start' should be integer");
