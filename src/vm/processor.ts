@@ -217,34 +217,34 @@ class Processor {
           this.ip += 1;
           break;
         }
-        case BC.SLICE_LIST: {
+        case BC.SLICE_SEQUENCE: {
           // Pop parameters
-          const listTarget = this.opStack.pop();
+          const sliceTarget = this.opStack.pop();
           let endIdx = this.opStack.pop();
           let startIdx = this.opStack.pop();
           // Check list-target
-          if (!(listTarget instanceof Array)) {
-            throw new Error("Slice target must be a List");
+          if (!(sliceTarget instanceof Array || typeof sliceTarget === "string")) {
+            throw new Error("Slice target must be List or String");
           }
           // Check / compute indexes
           if (startIdx) {
             checkInt(startIdx, "Slice-start should be an integer value");
-            startIdx = computeEffectiveIndex(listTarget, startIdx);
+            startIdx = computeEffectiveIndex(sliceTarget, startIdx);
           } else {
             // Take slice from the beginning
             startIdx = 0;
           }
           if (endIdx) {
             checkInt(endIdx, "Slice-end should be an integer value");
-            endIdx = computeEffectiveIndex(listTarget, endIdx);
+            endIdx = computeEffectiveIndex(sliceTarget, endIdx);
           } else {
             // Take slice to the end
-            endIdx = listTarget.length;
+            endIdx = sliceTarget.length;
           }
           // Compute slice
-          const newList = listTarget.slice(startIdx, endIdx);
+          const newCollection = sliceTarget.slice(startIdx, endIdx);
           // Push result
-          this.opStack.push(newList);
+          this.opStack.push(newCollection);
           this.ip += 1;
           break;
         }

@@ -152,7 +152,7 @@ class ExpressionCompiler {
     // Push list expression
     this.compileExpression(e.listTarget);
     // Push opcode
-    this.builder.push(BC.SLICE_LIST);
+    this.builder.push(BC.SLICE_SEQUENCE);
   }
 
   private compileFunctionBodyExpression(e: FunctionBodyExpr) {

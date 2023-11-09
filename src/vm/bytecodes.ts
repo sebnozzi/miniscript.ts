@@ -8,8 +8,8 @@ enum BC {
 
   // Perform indexed access (on map/list) using brackets, lile myCollection[23]
   INDEXED_ACCESS,
-  // Perform a list-slice
-  SLICE_LIST,
+  // Perform a slice on a sequence (List or String, NOT Map)
+  SLICE_SEQUENCE,
 
   // Assign value to local variable
   ASSIGN_LOCAL,

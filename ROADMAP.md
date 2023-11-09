@@ -1,10 +1,12 @@
 
 Next steps:
-- String indexing
+- String concatenation ("+")
+- String replication ("*")
+- Implement comparison operators for strings (>, >=, <, <=, ==)
 - String check for immutability (string index assignment should fail at runtime)
-- String slicing
-- "List operations." in official suite
+- Implement "not equals" (OP_NOT_EQUALS)
 - Implement comparison chains, e.g. 0 <= x < 10
+- `(null)[1] = 1` should throw error
 - function invocation on objects (foo.method(1,2,3)) 
   - test instrinsic methods
 - map literals / map expressions
