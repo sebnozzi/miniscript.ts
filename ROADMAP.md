@@ -1,8 +1,5 @@
 
 Next steps:
-- unary "new" for Maps (with "__isa" pointing)
-- property access for Map (with "__isa" resolution)
-- len() for maps
 - simple (?) (one level, no nesting?) property access for maps
   - Although, if it's done for ONE level it's done for ANY depth
 - Scientific notation (big?) numbers 
@@ -48,7 +45,7 @@ Next steps:
   - bitOr
   - bitXor
   - refEquals(a, b)
-  - len() for strings / lists
+  - len()
 - String check for immutability (string index assignment should fail at runtime)
 - Implement implicits:
   - globals

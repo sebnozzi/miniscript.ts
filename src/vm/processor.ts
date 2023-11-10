@@ -233,12 +233,8 @@ class Processor {
             const element = accessTarget[effectiveIndex];
             this.opStack.push(element);
           } else if(isMap) {
-            if (accessTarget.has(index)) {
-              const element = accessTarget.get(index);
-              this.opStack.push(element);
-            } else {
-              throw new Error(`Key ${index} not found in Map`);
-            }
+            const element = mapAccess(accessTarget, index);
+            this.opStack.push(element);
           } else {
             throw new Error("Cannot perform indexed access on this type");
           }
@@ -321,6 +317,17 @@ class Processor {
             newMap.set(mapKey, mapValue);
           }
           this.opStack.push(newMap);
+          this.ip += 1;
+          break;
+        }
+        case BC.NEW_MAP: {
+          const parentMap = this.opStack.pop();
+          if (!(parentMap instanceof Map)) {
+            throw new Error("Operator `new` can only be used with Maps");
+          }
+          const newMap = new Map<any, any>();
+          newMap.set("__isa", parentMap);
+          this.opStack.push(newMap);                
           this.ip += 1;
           break;
         }

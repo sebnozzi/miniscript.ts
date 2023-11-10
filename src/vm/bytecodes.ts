@@ -50,6 +50,8 @@ enum BC {
   // Build a Map from values on the stack
   // Push resulting Map back
   BUILD_MAP,
+  // Instantiate new Map using `new``
+  NEW_MAP,
 
   // Perform a "chained comparison"
   CHAINED_COMPARISON,

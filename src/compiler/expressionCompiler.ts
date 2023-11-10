@@ -124,7 +124,8 @@ class ExpressionCompiler {
         break;
       }
       case TokenType.KW_NEW: {
-        throw new Error("Map instantiation with `new` not yet implemented");
+        this.builder.push(BC.NEW_MAP);
+        break;
       }
       default: {
         throw new Error("Invalid unary operator. Token type: " + e.operator.tokenType);
