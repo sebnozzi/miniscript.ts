@@ -10,7 +10,6 @@ function runCode(srcCode, testName, onDone) {
 
   addImplicits(vm);
   addPrintImplicit(vm, (line) => {
-    console.log(""+line);
     outLines.push(""+line);
   });
 
