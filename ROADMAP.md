@@ -1,9 +1,12 @@
 
 Next steps:
-- unary expressions (not X, -(3*5))
-- len() for maps
 - indexed-assignment (x[idx] = expr) for maps
-- simple (?) (one level, no nesting) property access for maps
+- unary expressions (not X, -(3*5))
+- unary "new" for Maps (with "__isa" pointing)
+- property access for Map (with "__isa" resolution)
+- len() for maps
+- simple (?) (one level, no nesting?) property access for maps
+  - Although, if it's done for ONE level it's done for ANY depth
 - Scientific notation (big?) numbers 
   - How is this done?
   - Parsed and stored as doubles
@@ -48,12 +51,12 @@ Next steps:
   - len() for strings / lists
 - String check for immutability (string index assignment should fail at runtime)
 - Implement implicits:
+  - globals
+  - locals
   - time
   - wait
   - yield
   - hash
-  - globals
-  - locals
   - version
   - stackTrace
   Types (maps)
@@ -70,6 +73,14 @@ Next steps:
 - self-functions (functions with first parameter "self" which
   can be added to maps and work as methods).
 - `(null)[1] = 1` should throw error
+- Partial parsing ... useful in interactive environments
+  - The parser should know if input is "pending" and return
+    signalling that it can wait for more input (as in a co-routine)
+    When the parser considers that the input is complete then the
+    whole process continues.
+    This should be easily doable because these cases are of the type
+    "expected X found EOF". Not so simple - counter-example:
+    print a["name",
 - Invalid relative comparisons return null
   - At least they do in the official miniScript ... seems not to be intentional
 - Static lists / maps can be further optimized, all expressions could be potentially
