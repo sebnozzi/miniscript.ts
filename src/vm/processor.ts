@@ -273,6 +273,13 @@ class Processor {
           this.ip += 1;
           break;
         }
+        case BC.BUILD_LIST: {
+          const elementCount: any = this.code.arg1[this.ip];
+          const elements: any[] = this.opStack.popN(elementCount);
+          this.opStack.push(elements);
+          this.ip += 1;
+          break;
+        }
         case BC.COMPARE_EQ: {
           let valueB = this.opStack.pop()
           let valueA = this.opStack.pop()

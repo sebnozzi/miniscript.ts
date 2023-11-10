@@ -1,5 +1,13 @@
 
 Next steps:
+- static map literals
+- dynamic map literals (with elements that are resolved at runtime)
+- len() for maps
+- indexed-assignment (x[idx] = expr) for maps
+- Scientific notation (big?) numbers 
+  - How is this done?
+  - Parsed and stored as doubles
+  - Formatted accordingly for numbers with lots of digits
 - Implement implicits:
   - round
   - floor
@@ -36,29 +44,31 @@ Next steps:
   - bitAnd
   - bitOr
   - bitXor
+  - refEquals(a, b)
   - len() for strings / lists
 - String check for immutability (string index assignment should fail at runtime)
 - Implement implicits:
   - time
   - wait
+  - yield
   - hash
   - globals
   - locals
   - version
+  - stackTrace
   Types (maps)
   - funcRef
   - list
   - string
   - number
   - map
-- Scientific notation (big?) numbers 
-  - How is this done?
+- Optional delimiter for print (print "Hello", "")
+  - Difficult to test because we output "per line"
 - function invocation on objects (foo.method(1,2,3)) 
   - test instrinsic methods
-- map literals / map expressions
-- len() for maps
-- indexed-assignment (x[idx] = expr) for maps
 - field-assignment (expr.fieldName = expr)
+- self-functions (functions with first parameter "self" which
+  can be added to maps and work as methods).
 - `(null)[1] = 1` should throw error
 - Invalid relative comparisons return null
   - At least they do in the official miniScript ... seems not to be intentional

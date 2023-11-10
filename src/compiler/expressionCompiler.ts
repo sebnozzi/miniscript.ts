@@ -189,7 +189,14 @@ class ExpressionCompiler {
       }
       this.builder.push(BC.PUSH, resultList);
     } else {
-      throw new Error("Mixed lists not yet implemented");
+      // Compile runtime list
+      const elementCount = e.elements.length;
+      // Compile all elements
+      for (let elementExpr of e.elements) {
+        this.compileExpression(elementExpr);
+      }
+      // Issue opcode to build list
+      this.builder.push(BC.BUILD_LIST, elementCount);
     }
   }
 

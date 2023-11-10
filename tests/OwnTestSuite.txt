@@ -1,4 +1,18 @@
 ======================================================================
+==== Runtime list expressions
+==== When a list consists of only literal values it can be resolved 
+==== and generated at compile-time. But when things are unknown until
+==== runtime it involves other opcodes.
+a = [1,2,3]
+b = "Hello"
+c = function
+	return "BLAH"
+end function
+d = [a,b,c]
+print d
+----------------------------------------------------------------------
+[[1, 2, 3], "Hello", "BLAH"]
+======================================================================
 ==== Not equals
 print 42 != [42]
 ----------------------------------------------------------------------
