@@ -3,14 +3,27 @@
 x = [1,2,3]
 x[0] = function; end function
 x[1] = function(a); end function
-x[2] = function(a,b=0); end function
-print x[0]
-print x[1]
-print x[2]
+x[2] = function(a, b=123); end function
+print x
 ----------------------------------------------------------------------
-FUNCTION()
-FUNCTION(a)
-FUNCTION(a, b=0)
+[FUNCTION(), FUNCTION(a), FUNCTION(a, b=123)]
+======================================================================
+==== Instant evaluation of functions
+==== Functions should be immediately called when gotten out of a 
+==== collection
+aList = [1,2,3]
+aMap = {}
+aList[0] = function
+  print "Function 1 executed"
+end function
+aMap["key"] = function
+  print "Function 2 executed"
+end function
+aList[0]
+aMap["key"]
+----------------------------------------------------------------------
+Function 1 executed
+Function 2 executed
 ======================================================================
 ==== Map instantiation with `new`
 ==== Also test property resolution up the inheritance chain

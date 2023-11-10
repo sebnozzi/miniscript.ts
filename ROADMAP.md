@@ -1,5 +1,7 @@
 
 Next steps:
+- function called with less arguments than declared should be called 
+  with null parameters ...?
 - simple (?) (one level, no nesting?) property access for maps
   - Although, if it's done for ONE level it's done for ANY depth
 - Support for "self" in method bodies

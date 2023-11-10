@@ -177,46 +177,7 @@ class Processor {
         case BC.EVAL_ID: {
           const identifier = this.code.arg1[this.ip];
           const value = this.context.get(identifier);
-
-          if (value instanceof BoundFunction) {
-            // If it's a function, it should be called.
-            // The resulting value will be put in the stack instead.
-            const funcDef: FuncDef = value.funcDef;
-
-            if (funcDef.requiredArgCount > 0) {
-              throw new Error(`Not enough parameters calling ${identifier}. Required at least: ${funcDef.requiredArgCount}`);
-            }
-
-            // Decide how to call function
-            if (funcDef.isNative()) {
-              let params = [];
-              // Use default values, if any
-              if (funcDef.argNames.length > 0) {
-                params = funcDef.defaultValues;
-              }
-              const func = funcDef.getFunction();
-              const retVal = func.apply(this, params);
-              this.opStack.push(retVal);
-              this.ip += 1;
-            } else {
-              // Let it return to the next bytecode after the call
-              this.ip += 1;
-              this.pushFrame();
-              // Set the new code to run
-              this.code = funcDef.getCode();
-              this.context = new Context(value.context);
-              // Populate default values, if any
-              for (let idx = 0; idx < funcDef.argNames.length; idx++) {
-                this.context.setLocal(funcDef.argNames[idx], funcDef.defaultValues[idx]);
-              }
-              // Set initial ip
-              this.ip = 0;  
-            }
-          } else {
-            // If it's not a function, use the value as-is
-            this.opStack.push(value)
-            this.ip += 1;
-          }
+          this.callOrPushValue(value);
           break;
         }
         case BC.INDEXED_ACCESS: {
@@ -227,19 +188,19 @@ class Processor {
           const isList = accessTarget instanceof Array;
           const isMap = accessTarget instanceof Map;
 
+          let value: any;
+
           if (isList || isString) {
             checkInt(index, "Index must be an integer");
             const effectiveIndex = computeEffectiveIndex(accessTarget, index);
-            const element = accessTarget[effectiveIndex];
-            this.opStack.push(element);
+            value = accessTarget[effectiveIndex];
           } else if(isMap) {
-            const element = mapAccess(accessTarget, index);
-            this.opStack.push(element);
+            value = mapAccess(accessTarget, index);
           } else {
             throw new Error("Cannot perform indexed access on this type");
           }
 
-          this.ip += 1;
+          this.callOrPushValue(value);
           break;
         }
         case BC.SLICE_SEQUENCE: {
@@ -629,6 +590,52 @@ class Processor {
     this.ip = frame.ip;
     this.context = frame.context;
     this.code = frame.code;
+  }
+
+  private callOrPushValue(value: any) {
+    if (value instanceof BoundFunction) {
+      // If it's a function, it should be called.
+      // The resulting value will be put in the stack instead.
+      this.immediatelyCallFunction(value);
+    } else {
+      // If it's not a function, use the value as-is
+      this.opStack.push(value)
+      this.ip += 1;
+    }
+  }
+
+  private immediatelyCallFunction(value: BoundFunction) {
+    const funcDef: FuncDef = value.funcDef;
+
+    if (funcDef.requiredArgCount > 0) {
+      throw new Error(`Not enough parameters. Required at least: ${funcDef.requiredArgCount}`);
+    }
+
+    // Decide how to call function
+    if (funcDef.isNative()) {
+      let params = [];
+      // Use default values, if any
+      if (funcDef.argNames.length > 0) {
+        params = funcDef.defaultValues;
+      }
+      const func = funcDef.getFunction();
+      const retVal = func.apply(this, params);
+      this.opStack.push(retVal);
+      this.ip += 1;
+    } else {
+      // Let it return to the next bytecode after the call
+      this.ip += 1;
+      this.pushFrame();
+      // Set the new code to run
+      this.code = funcDef.getCode();
+      this.context = new Context(value.context);
+      // Populate default values, if any
+      for (let idx = 0; idx < funcDef.argNames.length; idx++) {
+        this.context.setLocal(funcDef.argNames[idx], funcDef.defaultValues[idx]);
+      }
+      // Set initial ip
+      this.ip = 0;  
+    }
   }
 
 }
