@@ -8,7 +8,7 @@ interface Expression {
 }
 
 type OptExpression = Expression | undefined
-type OptLiteral = Literal | undefined;
+type DefaultArgValue = Literal | undefined;
 
 interface Statement {
   description(): string;
@@ -555,7 +555,7 @@ class PropertyAccessExpr implements Expression {
 }
 
 class Argument {
-  constructor(public name: string, public defaultValue: OptLiteral, private fullLocation: SrcLocation) {}
+  constructor(public name: string, public defaultValue: DefaultArgValue, private fullLocation: SrcLocation) {}
   
   location(): SrcLocation {
     return this.fullLocation;
@@ -565,7 +565,7 @@ class Argument {
     return {
       "Argument": {
         "name": this.name,
-        "defaultValue": this.defaultValue ? this.defaultValue.toJson() : undefined
+        "defaultValue": this.defaultValue ? this.defaultValue.toJson() : "(undefined)"
       }
     }
   }

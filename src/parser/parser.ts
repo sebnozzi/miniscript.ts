@@ -881,8 +881,6 @@ class Parser {
       } while (this.tokenMatch(TokenType.COMMA))
       this.consume(TokenType.CLOSE_ROUND, "Expected closing ')' after argument list")
     }
-    // Check that default arguments are contiguous
-    this.checkContiguousDefaultValues(args);
 
     // Parse statements
     const bodyStatements = this.parseUntil([TokenType.KW_END_FUNCTION], functionContext)
@@ -899,18 +897,6 @@ class Parser {
       return expr as Literal;
     } else {
       throw this.failParsing("Default value should be literal");
-    }
-  }
-
-  private checkContiguousDefaultValues(args: Argument[]) {
-    let checkDefaultValueFlag = false;
-    for(let arg of args) {
-      if (!checkDefaultValueFlag && arg.defaultValue !== undefined) {
-        checkDefaultValueFlag = true
-      }
-      if (checkDefaultValueFlag && arg.defaultValue === undefined) {
-        throw this.failParsing("Default arguments should be contiguous");
-      }
     }
   }
 

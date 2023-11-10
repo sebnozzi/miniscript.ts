@@ -16,9 +16,7 @@ class FuncDef {
 
   readonly argNames: string[];
   readonly reversedArgNames: string[];
-  readonly defaultValues: any[];
-  // Takes into account arguments with default values (which can be omitted).
-  readonly requiredArgCount: number;
+  readonly effectiveDefaultValues: any[];
 
   private readonly code: Code | Function;
 
@@ -29,14 +27,12 @@ class FuncDef {
 
     this.argNames = args.map((a) => a.name);
     this.reversedArgNames = this.argNames.slice().reverse();
-    this.defaultValues = args.map((a) => a.defaultValue);
-    // Count arguments without default values
-    this.requiredArgCount = this.defaultValues.filter((v) => v === undefined).length;
+    this.effectiveDefaultValues = args.map((a) => a.defaultValue === undefined ? null : a.defaultValue);
     this.code = code;
   }
 
-  getLastNDefaultValues(amount: number): any[] {
-    return this.defaultValues.slice(-amount);
+  getLastNEffectiveDefaultValues(amount: number): any[] {
+    return this.effectiveDefaultValues.slice(-amount);
   }
 
   isNative(): boolean {

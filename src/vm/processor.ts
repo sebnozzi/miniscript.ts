@@ -86,17 +86,14 @@ class Processor {
             const funcDef = boundFunc.funcDef;
 
             const funcArgCount = funcDef.argNames.length;
-            const minArgCount = funcDef.requiredArgCount;
 
             if (argCount > funcArgCount) {
               throw new Error(`Too many parameters in call to ${funcName}. Expected at most ${funcArgCount}, found ${argCount}.`)
             } else if (argCount < funcDef.argNames.length) {
-              if (argCount < minArgCount) {
-                throw new Error(`Too few parameters in call to ${funcName}. Expected at least ${minArgCount} found ${argCount}.`)
-              }
+
               // Push the missing default argument values
               const missingArgCount = funcArgCount - argCount;
-              const defaultValues = funcDef.getLastNDefaultValues(missingArgCount);
+              const defaultValues = funcDef.getLastNEffectiveDefaultValues(missingArgCount);
               for (let value of defaultValues) {
                 this.opStack.push(value);
               }
@@ -607,16 +604,12 @@ class Processor {
   private immediatelyCallFunction(value: BoundFunction) {
     const funcDef: FuncDef = value.funcDef;
 
-    if (funcDef.requiredArgCount > 0) {
-      throw new Error(`Not enough parameters. Required at least: ${funcDef.requiredArgCount}`);
-    }
-
     // Decide how to call function
     if (funcDef.isNative()) {
       let params = [];
       // Use default values, if any
       if (funcDef.argNames.length > 0) {
-        params = funcDef.defaultValues;
+        params = funcDef.effectiveDefaultValues;
       }
       const func = funcDef.getFunction();
       const retVal = func.apply(this, params);
@@ -631,7 +624,7 @@ class Processor {
       this.context = new Context(value.context);
       // Populate default values, if any
       for (let idx = 0; idx < funcDef.argNames.length; idx++) {
-        this.context.setLocal(funcDef.argNames[idx], funcDef.defaultValues[idx]);
+        this.context.setLocal(funcDef.argNames[idx], funcDef.effectiveDefaultValues[idx]);
       }
       // Set initial ip
       this.ip = 0;  

@@ -1,4 +1,30 @@
 ======================================================================
+==== Calling with fewer arguments
+==== Arguments not passed are filled with null or default values.
+==== Note also that default values don't need to be contiguous.
+f = function(a,b="B",c)
+	print a
+	print b
+	print c
+	print ""
+end function
+f
+f "A"
+f "X","Y"
+----------------------------------------------------------------------
+null
+B
+null
+
+A
+B
+null
+
+X
+Y
+null
+
+======================================================================
 ==== Printing function object
 x = [1,2,3]
 x[0] = function; end function
