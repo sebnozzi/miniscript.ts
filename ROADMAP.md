@@ -2,6 +2,8 @@
 Next steps:
 - simple (?) (one level, no nesting?) property access for maps
   - Although, if it's done for ONE level it's done for ANY depth
+- Support for "self" in method bodies
+- Support for magic functions with self as first parameter
 - Scientific notation (big?) numbers 
   - How is this done?
   - Parsed and stored as doubles

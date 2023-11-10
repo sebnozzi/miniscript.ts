@@ -1,12 +1,29 @@
 ======================================================================
+==== Printing function object
+x = [1,2,3]
+x[0] = function; end function
+x[1] = function(a); end function
+x[2] = function(a,b=0); end function
+print x[0]
+print x[1]
+print x[2]
+----------------------------------------------------------------------
+FUNCTION()
+FUNCTION(a)
+FUNCTION(a, b=0)
+======================================================================
 ==== Map instantiation with `new`
+==== Also test property resolution up the inheritance chain
+==== Setting property on sub-object should not modify upper object
 m1 = {"one": 1, "two": 2}
 m2 = new m1
-m1["two"] = "TWO"
+m2["two"] = "TWO"
 print m2["one"]
+print m1["two"]
 print m2["two"]
 ----------------------------------------------------------------------
 1
+2
 TWO
 ======================================================================
 ==== Unary minus

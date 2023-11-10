@@ -27,6 +27,17 @@ function formatValue(value: any, quoteStrings: boolean = false): string {
     text = "\"" + value + "\"";
   } else if (typeof(value) === "boolean") {
     return value ? "1" : "0";
+  } else if (value instanceof BoundFunction) {
+    const formattedArgs: string[] = [];
+    for (let arg of value.funcDef.arguments) {
+      if (arg.defaultValue !== undefined) {
+        formattedArgs.push(`${arg.name}=${arg.defaultValue}`);
+      } else {
+        formattedArgs.push(`${arg.name}`);
+      }
+    }
+    const joinedArgs = formattedArgs.join(", ");
+    return `FUNCTION(${joinedArgs})`;
   } else {
     text = "" + value;
   }
