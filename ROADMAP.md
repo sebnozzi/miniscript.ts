@@ -1,6 +1,5 @@
 
 Next steps:
-- static map literals
 - dynamic map literals (with elements that are resolved at runtime)
 - len() for maps
 - indexed-assignment (x[idx] = expr) for maps

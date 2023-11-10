@@ -1,4 +1,11 @@
 ======================================================================
+==== Static map expressions
+==== When a map consists of only literal values it can be resolved 
+==== and generated at compile-time. 
+print {"key": "value", 2: "two", "3": false}
+----------------------------------------------------------------------
+{"key": "value", 2: "two", "3": 0}
+======================================================================
 ==== Runtime list expressions
 ==== When a list consists of only literal values it can be resolved 
 ==== and generated at compile-time. But when things are unknown until

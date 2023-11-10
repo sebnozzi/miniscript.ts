@@ -20,6 +20,8 @@ class ExpressionCompiler {
       this.compileExpression(e.expr);
     } else if (e instanceof ListExpr) {
       this.compileListExpression(e);
+    } else if (e instanceof MapExpr) {
+      this.compileMapExpression(e);
     } else if (e instanceof IndexedAccessExpr) {
       this.compileListAccessExpression(e);
     } else if (e instanceof ListSlicingExpr) {
@@ -197,6 +199,20 @@ class ExpressionCompiler {
       }
       // Issue opcode to build list
       this.builder.push(BC.BUILD_LIST, elementCount);
+    }
+  }
+
+  private compileMapExpression(e: MapExpr) {
+    if (e.hasAllLiteralElements()) {
+      const resultMap = new Map<any, any>();
+      for (let [key, value] of e.elements) {
+        const literalKey = key as Literal;
+        const literalValue = value as Literal;
+        resultMap.set(literalKey.value, literalValue.value);
+      }
+      this.builder.push(BC.PUSH, resultMap);
+    } else {
+      throw new Error("Dynamic map expressions not yet supported");
     }
   }
 

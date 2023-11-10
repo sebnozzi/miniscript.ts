@@ -14,6 +14,15 @@ function formatValue(value: any, quoteStrings: boolean = false): string {
       formattedValues.push(formatValue(e, true));
     }
     text = "[" + formattedValues.join(", ") + "]";
+  } else if (value instanceof Map) {
+    const formattedPairs = [];
+    for (let [key, mapValue] of value.entries()) {
+      const formattedKey = formatValue(key, true);
+      const formattedValue = formatValue(mapValue, true);
+      const formattedPair = formattedKey + ": " + formattedValue;
+      formattedPairs.push(formattedPair);
+    }
+    text = "{" + formattedPairs.join(", ") + "}";
   } else if (typeof(value) === "string" && quoteStrings) {
     text = "\"" + value + "\"";
   } else if (typeof(value) === "boolean") {
