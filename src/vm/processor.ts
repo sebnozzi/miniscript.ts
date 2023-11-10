@@ -164,8 +164,7 @@ class Processor {
             const effectiveIndex = computeEffectiveIndex(accessTarget, index);
             accessTarget[effectiveIndex] = valueToAssign;
           } else if(isMap) {
-            // ...
-            throw new Error("Indexed setting not implemented for Map");
+            accessTarget.set(index, valueToAssign);
           } else if(isString) {
             throw new Error("Cannot assign to String (immutable)");
           } else {

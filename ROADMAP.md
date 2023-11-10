@@ -1,6 +1,5 @@
 
 Next steps:
-- indexed-assignment (x[idx] = expr) for maps
 - unary expressions (not X, -(3*5))
 - unary "new" for Maps (with "__isa" pointing)
 - property access for Map (with "__isa" resolution)
