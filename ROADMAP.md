@@ -1,6 +1,5 @@
 
 Next steps:
-- unary expressions (not X, -(3*5))
 - unary "new" for Maps (with "__isa" pointing)
 - property access for Map (with "__isa" resolution)
 - len() for maps
@@ -10,6 +9,8 @@ Next steps:
   - How is this done?
   - Parsed and stored as doubles
   - Formatted accordingly for numbers with lots of digits
+- Write tests for operator precedence ... could be that the parser has bugs
+  https://miniscript.org/wiki/Operators
 - Implement implicits:
   - round
   - floor

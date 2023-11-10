@@ -505,6 +505,25 @@ class Processor {
           this.ip += 1;
           break;
         }
+        case BC.NEGATE_BOOLEAN: {
+          const valueInStack = this.opStack.pop();
+          const booleanNr = toBooleanNr(valueInStack);
+          const result = booleanNr == 0 ? 1 : 0;
+          this.opStack.push(result);
+          this.ip += 1;
+          break;
+        }
+        case BC.NEGATE_NUMBER: {
+          const valueInStack = this.opStack.pop();
+          if (typeof valueInStack !== "number") {
+            throw new Error("Value must be a number");
+          } else {
+            const result = -1 * valueInStack;
+            this.opStack.push(result);
+            this.ip += 1;
+            break;
+          }
+        }
         case BC.JUMP: {
           this.ip = this.code.arg1[this.ip]
           break;

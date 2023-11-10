@@ -472,12 +472,34 @@ class Parser {
   }
 
   private logicAnd(context: ParsingContext): Expression {
-    let expr = this.equalityComparison(context)
+    let expr = this.unaryNot(context)
 
     while (this.tokenMatch(TokenType.OP_AND)) {
       const operator = this.previous()
       const right = this.equalityComparison(context)
       expr = new LogicExpr(expr, operator, right)
+    }
+
+    return expr
+  }
+
+  private unaryNot(context: ParsingContext): Expression {
+    if (this.tokenMatch(TokenType.OP_NOT)) {
+      const operator = this.previous()
+      const right = this.isaComparison(context)
+      return new UnaryExpr(operator, right);
+    } else {
+      return this.isaComparison(context);
+    }
+  }
+
+  private isaComparison(context: ParsingContext): Expression {
+    let expr = this.equalityComparison(context)
+
+    while (this.tokenMatch(TokenType.OP_ISA)) {
+      const operator = this.previous()
+      const right = this.term(context)
+      expr = new BinaryExpr(expr, operator, right)
     }
 
     return expr
@@ -522,7 +544,7 @@ class Parser {
   private nonEqualityComparison(context: ParsingContext): Expression {
     let expr = this.term(context)
 
-    while (this.tokenMatch(TokenType.OP_ISA, TokenType.OP_IN)) {
+    while (this.tokenMatch(TokenType.OP_IN)) {
       const operator = this.previous()
       const right = this.term(context)
       expr = new BinaryExpr(expr, operator, right)
@@ -590,7 +612,7 @@ class Parser {
   }
 
   private unary(context: ParsingContext): Expression {
-    if (this.tokenMatch(TokenType.OP_NOT, TokenType.OP_MINUS, TokenType.KW_NEW)) {
+    if (this.tokenMatch(TokenType.OP_MINUS, TokenType.KW_NEW)) {
       const operator = this.previous()
       const right = this.call(context)
       // Try to convert a negated number to a literal expression

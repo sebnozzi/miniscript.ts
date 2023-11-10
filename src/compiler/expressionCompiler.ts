@@ -12,6 +12,8 @@ class ExpressionCompiler {
       b.push(BC.EVAL_ID, e.identifier.value)
     } else if (e instanceof BinaryExpr) {
       this.compileBinaryExpression(e);
+    } else if (e instanceof UnaryExpr) {
+      this.compileUnaryExpression(e);
     } else if (e instanceof ChainedComparisonExpr) {
       this.compileChainedComparisonExpression(e);
     } else if (e instanceof LogicExpr) {
@@ -108,6 +110,28 @@ class ExpressionCompiler {
     }
   }
 
+  private compileUnaryExpression(e: UnaryExpr) {
+    // Compile expression
+    this.compileExpression(e.expr);
+    // Push operator
+    switch (e.operator.tokenType) {
+      case TokenType.OP_NOT: {
+        this.builder.push(BC.NEGATE_BOOLEAN);
+        break;
+      }
+      case TokenType.OP_MINUS: {
+        this.builder.push(BC.NEGATE_NUMBER);
+        break;
+      }
+      case TokenType.KW_NEW: {
+        throw new Error("Map instantiation with `new` not yet implemented");
+        break;
+      }
+      default: {
+        throw new Error("Invalid unary operator. Token type: " + e.operator.tokenType);
+      }
+    }
+  }
 
   private compileChainedComparisonExpression(e: ChainedComparisonExpr) {
     // Compile and push expressions
