@@ -38,12 +38,14 @@ TWO
 3
 ======================================================================
 ==== Map indexed access
-m = {"key": "value", 2: "two", "3": "three"}
+m = {"key": "value", 2: "two", "3": "three", null: "123"}
 print m[2]
 print m["3"]
+print m[null]
 ----------------------------------------------------------------------
 two
 three
+123
 ======================================================================
 ==== Dynamic map expressions
 ==== A map which consists of elements that can not be resolved at 
