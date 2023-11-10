@@ -1,4 +1,16 @@
 ======================================================================
+==== Dynamic map expressions
+==== A map which consists of elements that can not be resolved at 
+==== compile-time. The elements of this map need to be evaluated at
+==== runtime. 
+a = [1,2,3]
+f = function(p)
+	return p * 2
+end function
+print {"key": a, 2: f("blah"), "3": a[2]}
+----------------------------------------------------------------------
+{"key": [1, 2, 3], 2: "blahblah", "3": 3}
+======================================================================
 ==== Static map expressions
 ==== When a map consists of only literal values it can be resolved 
 ==== and generated at compile-time. 

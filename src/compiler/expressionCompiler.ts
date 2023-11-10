@@ -212,8 +212,15 @@ class ExpressionCompiler {
       }
       this.builder.push(BC.PUSH, resultMap);
     } else {
-      throw new Error("Dynamic map expressions not yet supported");
-    }
+      // Compile runtime map
+      const elementCount = e.elements.size;
+      // Compile all key-value pairs
+      for (let [keyExpr, valueExpr] of e.elements) {
+        this.compileExpression(valueExpr);
+        this.compileExpression(keyExpr);
+      }
+      // Issue opcode to build map
+      this.builder.push(BC.BUILD_MAP, elementCount);    }
   }
 
   private compileListAccessExpression(e: IndexedAccessExpr) {

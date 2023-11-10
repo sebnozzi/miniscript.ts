@@ -1,6 +1,6 @@
 
 Next steps:
-- dynamic map literals (with elements that are resolved at runtime)
+- unary expressions (not X, -(3*5))
 - len() for maps
 - indexed-assignment (x[idx] = expr) for maps
 - Scientific notation (big?) numbers 

@@ -280,6 +280,21 @@ class Processor {
           this.ip += 1;
           break;
         }
+        case BC.BUILD_MAP: {
+          const elementCount: any = this.code.arg1[this.ip];
+          const elements: any[] = this.opStack.popN(elementCount * 2);
+          const newMap = new Map<any, any>();
+          // Iterate over elements and process key/value
+          // Advance by 2, processing in pairs
+          for (let i = 0; i < elements.length; i += 2) {
+            const mapValue = elements[i];
+            const mapKey = elements[i+1];
+            newMap.set(mapKey, mapValue);
+          }
+          this.opStack.push(newMap);
+          this.ip += 1;
+          break;
+        }
         case BC.COMPARE_EQ: {
           let valueB = this.opStack.pop()
           let valueA = this.opStack.pop()

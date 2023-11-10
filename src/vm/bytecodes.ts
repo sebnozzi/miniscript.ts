@@ -41,9 +41,12 @@ enum BC {
   COMPARE_LE,
   COMPARE_LT,
 
-  // Build a list from values on the stack
-  // Push resulting list back
+  // Build a List from values on the stack
+  // Push resulting List back
   BUILD_LIST,
+  // Build a Map from values on the stack
+  // Push resulting Map back
+  BUILD_MAP,
 
   // Perform a "chained comparison"
   CHAINED_COMPARISON,
