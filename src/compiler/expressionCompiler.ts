@@ -125,7 +125,6 @@ class ExpressionCompiler {
       }
       case TokenType.KW_NEW: {
         throw new Error("Map instantiation with `new` not yet implemented");
-        break;
       }
       default: {
         throw new Error("Invalid unary operator. Token type: " + e.operator.tokenType);
@@ -165,7 +164,6 @@ class ExpressionCompiler {
     // Push special opcode
     const pairCount = e.operators.length;
     this.builder.push(BC.CHAINED_COMPARISON, pairCount);
-
   }
 
   private compileLogicExpression(e: LogicExpr) {

@@ -74,8 +74,8 @@ class Processor {
     while(this.cycleCount < maxCount) {
       switch (this.code.opCodes[this.ip]) {
         case BC.CALL: {
-          let funcName: string = this.code.arg1[this.ip] as string;
-          let argCount: number = this.code.arg2[this.ip] as number;
+          const funcName: string = this.code.arg1[this.ip] as string;
+          const argCount: number = this.code.arg2[this.ip] as number;
 
           const resolved: any = this.context.get(funcName);
 
@@ -105,7 +105,7 @@ class Processor {
             if (funcDef.isNative()) {
               const func = funcDef.getFunction();
               // Build parameter list
-              let paramValues = [];
+              const paramValues = [];
               // Pop param values from stack (even default ones)
               for (let {} of funcDef.argNames) {
                 const paramValue = this.opStack.pop();
@@ -278,7 +278,7 @@ class Processor {
           break;
         }
         case BC.CHAINED_COMPARISON: {
-          let pairCount: number = this.code.arg1[this.ip];
+          const pairCount: number = this.code.arg1[this.ip];
           // Pop operators
           const operators: string[] = this.opStack.popN(pairCount);
           // Pop values
@@ -291,7 +291,7 @@ class Processor {
           break;
         }
         case BC.PUSH: {
-          let value: any = this.code.arg1[this.ip];
+          const value: any = this.code.arg1[this.ip];
           // If it's a FuncDef, store as bound-function with the current context
           if (value instanceof FuncDef) {
             const boundFunction = new BoundFunction(value, this.context);
@@ -325,8 +325,8 @@ class Processor {
           break;
         }
         case BC.COMPARE_EQ: {
-          let valueB = this.opStack.pop()
-          let valueA = this.opStack.pop()
+          const valueB = this.opStack.pop()
+          const valueA = this.opStack.pop()
           if (equals(valueA, valueB)) {
             this.opStack.push(1)
           } else {
@@ -336,8 +336,8 @@ class Processor {
           break;
         }
         case BC.COMPARE_NE: {
-          let valueB = this.opStack.pop();
-          let valueA = this.opStack.pop();
+          const valueB = this.opStack.pop();
+          const valueA = this.opStack.pop();
           if (!equals(valueA, valueB)) {
             this.opStack.push(1)
           } else {
@@ -347,8 +347,8 @@ class Processor {
           break;
         }
         case BC.COMPARE_GE: {
-          let valueB = this.opStack.pop()
-          let valueA = this.opStack.pop()
+          const valueB = this.opStack.pop()
+          const valueA = this.opStack.pop()
           if (greaterEquals(valueA, valueB)) {
             this.opStack.push(1)
           } else {
@@ -358,8 +358,8 @@ class Processor {
           break;
         }
         case BC.COMPARE_GT: {
-          let valueB = this.opStack.pop()
-          let valueA = this.opStack.pop()
+          const valueB = this.opStack.pop()
+          const valueA = this.opStack.pop()
           if (greaterThan(valueA, valueB)) {
             this.opStack.push(1)
           } else {
@@ -369,8 +369,8 @@ class Processor {
           break;
         }
         case BC.COMPARE_LE: {
-          let valueB = this.opStack.pop()
-          let valueA = this.opStack.pop()
+          const valueB = this.opStack.pop()
+          const valueA = this.opStack.pop()
           if (lessEquals(valueA, valueB)) {
             this.opStack.push(1)
           } else {
@@ -380,8 +380,8 @@ class Processor {
           break;
         }
         case BC.COMPARE_LT: {
-          let valueB = this.opStack.pop()
-          let valueA = this.opStack.pop()
+          const valueB = this.opStack.pop()
+          const valueA = this.opStack.pop()
           if (lessThan(valueA, valueB)) {
             this.opStack.push(1)
           } else {
@@ -391,7 +391,7 @@ class Processor {
           break;
         }
         case BC.POP_JUMP_FALSE: {
-          let jumpAddr = this.code.arg1[this.ip]
+          const jumpAddr = this.code.arg1[this.ip]
           let value = this.opStack.pop();
           value = toBooleanNr(value);
           if (value == 0) {
@@ -402,7 +402,7 @@ class Processor {
           break;
         }
         case BC.JUMP_IF_TRUE: {
-          let jumpAddr = this.code.arg1[this.ip];
+          const jumpAddr = this.code.arg1[this.ip];
           // Leave value on the stack
           let value = this.opStack.peek();
           value = toBooleanNr(value);
@@ -414,7 +414,7 @@ class Processor {
           break;
         }
         case BC.JUMP_IF_FALSE: {
-          let jumpAddr = this.code.arg1[this.ip];
+          const jumpAddr = this.code.arg1[this.ip];
           // Leave value on the stack
           let value = this.opStack.peek();
           value = toBooleanNr(value);
@@ -426,81 +426,81 @@ class Processor {
           break;
         }
         case BC.ADD_VALUES: {
-          let valueInStack_2 = this.opStack.pop()
-          let valueInStack_1 = this.opStack.pop()
-          let result = add(valueInStack_1, valueInStack_2)
+          const valueInStack_2 = this.opStack.pop()
+          const valueInStack_1 = this.opStack.pop()
+          const result = add(valueInStack_1, valueInStack_2)
           this.opStack.push(result)
           this.ip += 1;
           break;
         }
         case BC.SUBTRACT_VALUES: {
-          let valueInStack_2 = this.opStack.pop()
-          let valueInStack_1 = this.opStack.pop()
-          let result = subtract(valueInStack_1, valueInStack_2)
+          const valueInStack_2 = this.opStack.pop()
+          const valueInStack_1 = this.opStack.pop()
+          const result = subtract(valueInStack_1, valueInStack_2)
           this.opStack.push(result)
           this.ip += 1;
           break;
         }
         case BC.MULTIPLY_VALUES: {
-          let valueInStack_2 = this.opStack.pop()
-          let valueInStack_1 = this.opStack.pop()
-          let result = multiply(valueInStack_1, valueInStack_2)
+          const valueInStack_2 = this.opStack.pop()
+          const valueInStack_1 = this.opStack.pop()
+          const result = multiply(valueInStack_1, valueInStack_2)
           this.opStack.push(result)
           this.ip += 1;
           break;
         }
         case BC.DIVIDE_VALUES: {
-          let valueInStack_2 = this.opStack.pop()
-          let valueInStack_1 = this.opStack.pop()
-          let result = divide(valueInStack_1, valueInStack_2)
+          const valueInStack_2 = this.opStack.pop()
+          const valueInStack_1 = this.opStack.pop()
+          const result = divide(valueInStack_1, valueInStack_2)
           this.opStack.push(result)
           this.ip += 1;
           break;
         }
         case BC.POWER_VALUES: {
-          let valueInStack_2 = this.opStack.pop()
-          let valueInStack_1 = this.opStack.pop()
-          let result = power(valueInStack_1, valueInStack_2)
+          const valueInStack_2 = this.opStack.pop()
+          const valueInStack_1 = this.opStack.pop()
+          const result = power(valueInStack_1, valueInStack_2)
           this.opStack.push(result)
           this.ip += 1;
           break;
         }
         case BC.MOD_VALUES: {
-          let valueInStack_2 = this.opStack.pop()
-          let valueInStack_1 = this.opStack.pop()
-          let result = modulus(valueInStack_1, valueInStack_2)
+          const valueInStack_2 = this.opStack.pop()
+          const valueInStack_1 = this.opStack.pop()
+          const result = modulus(valueInStack_1, valueInStack_2)
           this.opStack.push(result)
           this.ip += 1;
           break;
         }
         case BC.LOGIC_AND_VALUES: {
-          let valueInStack_2 = this.opStack.pop()
-          let valueInStack_1 = this.opStack.pop()
-          let result = logic_and(valueInStack_1, valueInStack_2)
+          const valueInStack_2 = this.opStack.pop()
+          const valueInStack_1 = this.opStack.pop()
+          const result = logic_and(valueInStack_1, valueInStack_2)
           this.opStack.push(result)
           this.ip += 1;
           break;
         }
         case BC.LOGIC_OR_VALUES: {
-          let valueInStack_2 = this.opStack.pop()
-          let valueInStack_1 = this.opStack.pop()
-          let result = logic_or(valueInStack_1, valueInStack_2)
+          const valueInStack_2 = this.opStack.pop()
+          const valueInStack_1 = this.opStack.pop()
+          const result = logic_or(valueInStack_1, valueInStack_2)
           this.opStack.push(result)
           this.ip += 1;
           break;
         }
         case BC.SUBTR_N: {
-          let valueToSubtract = this.code.arg1[this.ip];
-          let valueInStack = this.opStack.pop()
-          let result = subtract(valueInStack, valueToSubtract)
+          const valueToSubtract = this.code.arg1[this.ip];
+          const valueInStack = this.opStack.pop()
+          const result = subtract(valueInStack, valueToSubtract)
           this.opStack.push(result)
           this.ip += 1;
           break;
         }
         case BC.DIVIDE_N: {
-          let dividend = this.code.arg1[this.ip];
-          let valueInStack = this.opStack.pop()
-          let result = divide(valueInStack, dividend)
+          const dividend = this.code.arg1[this.ip];
+          const valueInStack = this.opStack.pop()
+          const result = divide(valueInStack, dividend)
           this.opStack.push(result)
           this.ip += 1;
           break;
@@ -581,7 +581,7 @@ class Processor {
           break;
         }
         case BC.PRINT_TOP: {
-          let value = this.opStack.pop()
+          const value = this.opStack.pop()
           console.log("Value: " + value)
           this.ip += 1;
           break;
