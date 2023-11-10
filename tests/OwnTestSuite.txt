@@ -1,4 +1,12 @@
 ======================================================================
+==== Map indexed access
+m = {"key": "value", 2: "two", "3": "three"}
+print m[2]
+print m["3"]
+----------------------------------------------------------------------
+two
+three
+======================================================================
 ==== Dynamic map expressions
 ==== A map which consists of elements that can not be resolved at 
 ==== compile-time. The elements of this map need to be evaluated at

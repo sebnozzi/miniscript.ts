@@ -153,10 +153,25 @@ class Processor {
           const index = this.opStack.pop();
           // pop value
           const valueToAssign = this.opStack.pop();
-          // Check and compute index
-          const effectiveIndex = checkAccessTarget(accessTarget, index);
-          // Assign
-          accessTarget[effectiveIndex] = valueToAssign;
+
+          const isString = typeof accessTarget === "string";
+          const isList = accessTarget instanceof Array;
+          const isMap = accessTarget instanceof Map;
+
+          if (isList) {
+            // Check and compute index
+            checkInt(index, "Index must be an integer");
+            const effectiveIndex = computeEffectiveIndex(accessTarget, index);
+            accessTarget[effectiveIndex] = valueToAssign;
+          } else if(isMap) {
+            // ...
+            throw new Error("Indexed setting not implemented for Map");
+          } else if(isString) {
+            throw new Error("Cannot assign to String (immutable)");
+          } else {
+            throw new Error("Cannot set to element of this type");
+          }
+
           this.ip += 1;
           break;
         }
@@ -208,12 +223,27 @@ class Processor {
         case BC.INDEXED_ACCESS: {
           const accessTarget = this.opStack.pop();
           const index = this.opStack.pop();
-          // Check and compute index
-          const effectiveIndex = checkAccessTarget(accessTarget, index);
-          // Access element
-          const element = accessTarget[effectiveIndex];
-          // Push it
-          this.opStack.push(element);
+
+          const isString = typeof accessTarget === "string";
+          const isList = accessTarget instanceof Array;
+          const isMap = accessTarget instanceof Map;
+
+          if (isList || isString) {
+            checkInt(index, "Index must be an integer");
+            const effectiveIndex = computeEffectiveIndex(accessTarget, index);
+            const element = accessTarget[effectiveIndex];
+            this.opStack.push(element);
+          } else if(isMap) {
+            if (accessTarget.has(index)) {
+              const element = accessTarget.get(index);
+              this.opStack.push(element);
+            } else {
+              throw new Error(`Key ${index} not found in Map`);
+            }
+          } else {
+            throw new Error("Cannot perform indexed access on this type");
+          }
+
           this.ip += 1;
           break;
         }
