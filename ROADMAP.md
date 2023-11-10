@@ -3,6 +3,7 @@ Next steps:
 - unary expressions (not X, -(3*5))
 - len() for maps
 - indexed-assignment (x[idx] = expr) for maps
+- simple (?) (one level, no nesting) property access for maps
 - Scientific notation (big?) numbers 
   - How is this done?
   - Parsed and stored as doubles
@@ -71,6 +72,10 @@ Next steps:
 - `(null)[1] = 1` should throw error
 - Invalid relative comparisons return null
   - At least they do in the official miniScript ... seems not to be intentional
+- Static lists / maps can be further optimized, all expressions could be potentially
+  known at compile-time if the leaves of the tree consist of literals
+  This can be played a step further ... for all expressions known at compile-time
+  they could be generated at compile time ... even things like 300 + 200 / 2
 
 ===
 
