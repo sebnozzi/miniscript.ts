@@ -1,4 +1,39 @@
 ======================================================================
+==== Calls on indexed access
+a = {}
+a.sayTimes = function(word, times)
+  s = (word + " ")
+	print s * times
+end function
+a["sayTimes"]("hello",3)
+----------------------------------------------------------------------
+hello hello hello 
+======================================================================
+==== Self calls
+m2 = {}
+m2.fff = function(a,b)
+	self.hello
+	self["there"](3)
+	return a * b
+end function
+m2.hello = function
+	print "Hello"
+end function
+m2.there = function(x)
+	print "there " * x
+end function
+
+m1 = {}
+m1.f = function
+	return m2
+end function
+
+print m1.f.fff(2,3)
+----------------------------------------------------------------------
+Hello
+there there there 
+6
+======================================================================
 ==== Simple dot-call
 m = {}
 m.addNr = function(a=1,b=1)
@@ -341,6 +376,8 @@ print [1,2,3] * 0
 foo = function(x)
     return x
 end function
+foo (3)
+range (0, 3)
 print foo (3)
 print range (0, 3)
 ----------------------------------------------------------------------

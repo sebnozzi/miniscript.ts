@@ -1,5 +1,8 @@
 
 Next steps:
+- Issue: 
+  print ("Hello" + " ") * 3
+  Evaluates to "null" * 3
 - Support for "self" in method bodies
 - Rename property-access to "dotted-access", or see how it is referred
   to in the official docs
@@ -84,6 +87,9 @@ Next steps:
     This should be easily doable because these cases are of the type
     "expected X found EOF". Not so simple - counter-example:
     print a["name",
+- Debugger: willExecuteCall is incomplete ... many more opcodes could
+  result in a call
+- Evaluate if we can use only dynamic dot-calls
 
 ===
 

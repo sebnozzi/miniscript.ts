@@ -83,8 +83,8 @@ class Processor {
           break;
         }
         case BC.DOT_CALL: {
-          const methodName: string = this.code.arg1[this.ip] as string;
-          const paramCount: number = this.code.arg2[this.ip] as number;
+          const paramCount: number = this.code.arg1[this.ip] as number;
+          const methodName: string = this.opStack.pop();
           const callTarget = this.opStack.pop();
 
           if(!(callTarget instanceof Map)) {

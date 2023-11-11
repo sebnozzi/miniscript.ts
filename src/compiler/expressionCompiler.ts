@@ -10,6 +10,8 @@ class ExpressionCompiler {
       b.push(BC.PUSH, e.value)
     } else if (e instanceof IdentifierExpr) {
       b.push(BC.EVAL_ID, e.identifier.value)
+    } else if (e instanceof SelfExpr) {
+      b.push(BC.EVAL_ID, "self")
     } else if (e instanceof BinaryExpr) {
       this.compileBinaryExpression(e);
     } else if (e instanceof UnaryExpr) {
@@ -52,7 +54,12 @@ class ExpressionCompiler {
     } else if(callTarget instanceof PropertyAccessExpr) {
       this.compileExpression(callTarget.accessTarget);
       const identifier = callTarget.property.value;
-      this.builder.push(BC.DOT_CALL, identifier, paramCount);
+      this.builder.push(BC.PUSH, identifier);
+      this.builder.push(BC.DOT_CALL, paramCount);
+    } else if(callTarget instanceof IndexedAccessExpr) {
+      this.compileExpression(callTarget.accessTarget);
+      this.compileExpression(callTarget.indexExpr);
+      this.builder.push(BC.DOT_CALL, paramCount);    
     } else {
       throw new Error(`Invalid call target: ${callTarget.toJson()}`)
     }
