@@ -9,12 +9,11 @@ Next steps:
 - field-assignment (expr.fieldName = expr)
 - self-functions (functions with first parameter "self" which
   can be added to maps and work as methods).
-- Scientific notation (big?) numbers 
-  - How is this done?
-  - Parsed and stored as doubles
-  - Formatted accordingly for numbers with lots of digits
-- Write tests for operator precedence ... could be that the parser has bugs
+- Write tests for operator precedence ... could be that the parser has bugs!
   https://miniscript.org/wiki/Operators
+- Implement implicits:
+  - globals
+  - locals
 - Implement implicits:
   - round
   - floor
@@ -54,8 +53,6 @@ Next steps:
   - refEquals(a, b)
   - len()
 - Implement implicits:
-  - globals
-  - locals
   - time
   - wait
   - yield
@@ -68,6 +65,10 @@ Next steps:
   - string
   - number
   - map
+- Scientific notation (big?) numbers 
+  - How is this done?
+  - Parsed and stored as doubles
+  - Formatted accordingly for numbers with lots of digits
 - Optional delimiter for print (print "Hello", "")
   - Difficult to test because we output "per line"
 - `(null)[1] = 1` should throw error
@@ -91,36 +92,11 @@ Optimization ideas:
 
 ===
 
-More types?
-- Maps / objects
-
-First implement miniScript completely?
-Then introduce graphic capabilities?
-
-Do a spike with assembler => bytecode?
-Or even miniScript => bytecode?
-(but this should not be scope of this project?)
-
-First graphic intrinsitcs?
-
-Sourcemaps? (this makes sense when we compile code)
-
----
-1) Make it work (cover all of MiniScript)
-
-2) Make it debuggable
-
-3) THEN make it fast(er)
-
-
 Possible performance optimizations:
 - From microScript:
   - avoid pop/push by manipulating stack in-place
   - avoid de-referencing by moving important variables locally and moving back to objects when done
-  - use primitive types wherever possible (done for numbers)
   - pre-allocate local variable slots? (access them by number instead of resolving each time)
-  - use only one stack for locals with a moving "offset"?
-    - only possible if the amount of local variables is fixed
   - the compiler now emits sub-optimal bytecode sequences
     - one can re-combine some bytecodes into more compact ones ()
 - Multi-pass: (advanced!)
@@ -129,6 +105,3 @@ Possible performance optimizations:
     - Then instead of doing a switch/jump one runs JS snippets
   - Combine JS-snippets in a source-map boundary (debug-step boundary, typically a line) into one JS-snippet
   - If one does not do debugging, combine al JS-snippets into one within a "jump" boundary (while / for / function-call).
-
-Done:
-  - use parallel arrays for opcodes / args (use ref / arg like microScript?)
