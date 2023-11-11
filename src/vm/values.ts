@@ -29,47 +29,43 @@ function equals(a: any, b: any): boolean {
   }
 }
 
-function greaterEquals(a: any, b: any): boolean {
+function greaterEquals(a: any, b: any): number | null {
   if (typeof a === "number" && typeof b === "number") {
-    return a >= b;
+    return a >= b ? 1 : 0;
   } else if (typeof a === "string" && typeof b === "string") {
-    return a >= b;
+    return a >= b ? 1 : 0;
   } else {
-    console.info("Not supported for values","a:",a,"b:",b);
-    throw new Error(`Cannot compare ${formatValue(a,true)} >= ${formatValue(b,true)}`);
+    return null;
   }
 }
 
-function greaterThan(a: any, b: any): boolean {
+function greaterThan(a: any, b: any): number | null {
   if (typeof a === "number" && typeof b === "number") {
-    return a > b;
+    return a > b ? 1 : 0;
   } else if (typeof a === "string" && typeof b === "string") {
-    return a > b;
+    return a > b ? 1 : 0;
   } else {
-    console.info("Not supported for values","a:",a,"b:",b);
-    throw new Error(`Cannot compare ${formatValue(a,true)} > ${formatValue(b,true)}`);
+    return null;
   }
 }
 
-function lessEquals(a: any, b: any): boolean {
+function lessEquals(a: any, b: any): number | null {
   if (typeof a === "number" && typeof b === "number") {
-    return a <= b;
+    return a <= b ? 1 : 0;
   } else if (typeof a === "string" && typeof b === "string") {
-    return a <= b;
+    return a <= b ? 1 : 0;
   } else {
-    console.info("Not supported for values","a:",a,"b:",b);
-    throw new Error(`Cannot compare ${formatValue(a,true)} <= ${formatValue(b,true)}`);
+    return null;
   }
 }
 
-function lessThan(a: any, b: any): boolean {
+function lessThan(a: any, b: any): number | null {
   if (typeof a === "number" && typeof b === "number") {
-    return a < b;
+    return a < b ? 1 : 0;
   } else if (typeof a === "string" && typeof b === "string") {
-    return a < b;
+    return a < b ? 1 : 0;
   } else {
-    console.info("Not supported for values","a:",a,"b:",b);
-    throw new Error(`Cannot compare ${formatValue(a,true)} < ${formatValue(b,true)}`);
+    return null;
   }
 }
 
@@ -80,7 +76,7 @@ function chainedComparison(values: any[], operators: string[]): number {
     const operator = operators[i];
     const left = values[i];
     const right = values[i+1];
-    let result: boolean;
+    let result: number | null;
     if (operator === ">") {
       result = greaterThan(left, right);
     } else if (operator === ">=") {
@@ -249,6 +245,10 @@ function toBooleanNr(value: any): number {
     return value;
   } else if (value instanceof Array) {
     return value.length;
+  } else if (typeof value === "string") {
+    return value.length > 0 ? 1 : 0;
+  } else if (value instanceof Map) {
+    return value.size > 0 ? 1 : 0;
   } else {
     throw new Error("Type not supported: " + value);
   }

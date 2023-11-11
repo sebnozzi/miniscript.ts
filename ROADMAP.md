@@ -4,6 +4,11 @@ Next steps:
   - Although, if it's done for ONE level it's done for ANY depth
 - Support for "self" in method bodies
 - Support for magic functions with self as first parameter
+- function invocation on objects (foo.method(1,2,3)) 
+  - test instrinsic methods
+- field-assignment (expr.fieldName = expr)
+- self-functions (functions with first parameter "self" which
+  can be added to maps and work as methods).
 - Scientific notation (big?) numbers 
   - How is this done?
   - Parsed and stored as doubles
@@ -48,7 +53,6 @@ Next steps:
   - bitXor
   - refEquals(a, b)
   - len()
-- String check for immutability (string index assignment should fail at runtime)
 - Implement implicits:
   - globals
   - locals
@@ -66,11 +70,6 @@ Next steps:
   - map
 - Optional delimiter for print (print "Hello", "")
   - Difficult to test because we output "per line"
-- function invocation on objects (foo.method(1,2,3)) 
-  - test instrinsic methods
-- field-assignment (expr.fieldName = expr)
-- self-functions (functions with first parameter "self" which
-  can be added to maps and work as methods).
 - `(null)[1] = 1` should throw error
 - Partial parsing ... useful in interactive environments
   - The parser should know if input is "pending" and return
@@ -80,8 +79,6 @@ Next steps:
     This should be easily doable because these cases are of the type
     "expected X found EOF". Not so simple - counter-example:
     print a["name",
-- Invalid relative comparisons return null
-  - At least they do in the official miniScript ... seems not to be intentional
 - Static lists / maps can be further optimized, all expressions could be potentially
   known at compile-time if the leaves of the tree consist of literals
   This can be played a step further ... for all expressions known at compile-time

@@ -314,44 +314,32 @@ class Processor {
         case BC.COMPARE_GE: {
           const valueB = this.opStack.pop()
           const valueA = this.opStack.pop()
-          if (greaterEquals(valueA, valueB)) {
-            this.opStack.push(1)
-          } else {
-            this.opStack.push(0)
-          }
+          const result = greaterEquals(valueA, valueB)
+          this.opStack.push(result)
           this.ip += 1
           break;
         }
         case BC.COMPARE_GT: {
           const valueB = this.opStack.pop()
           const valueA = this.opStack.pop()
-          if (greaterThan(valueA, valueB)) {
-            this.opStack.push(1)
-          } else {
-            this.opStack.push(0)
-          }
+          const result = greaterThan(valueA, valueB)
+          this.opStack.push(result)
           this.ip += 1
           break;
         }
         case BC.COMPARE_LE: {
           const valueB = this.opStack.pop()
           const valueA = this.opStack.pop()
-          if (lessEquals(valueA, valueB)) {
-            this.opStack.push(1)
-          } else {
-            this.opStack.push(0)
-          }
+          const result = lessEquals(valueA, valueB)
+          this.opStack.push(result)
           this.ip += 1
           break;
         }
         case BC.COMPARE_LT: {
           const valueB = this.opStack.pop()
           const valueA = this.opStack.pop()
-          if (lessThan(valueA, valueB)) {
-            this.opStack.push(1)
-          } else {
-            this.opStack.push(0)
-          }
+          const result = lessThan(valueA, valueB)
+          this.opStack.push(result)
           this.ip += 1
           break;
         }
