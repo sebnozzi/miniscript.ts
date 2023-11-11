@@ -440,15 +440,6 @@ class ListExpr implements Expression {
     return "List Expression";
   }
 
-  hasAllLiteralElements(): boolean {
-    for (let e of this.elements) {
-      if (!(e instanceof Literal)) {
-        return false;
-      }
-    }
-    return true;
-  }
-
   toJson(): object {
     return {
       "ListExpr": {
@@ -461,15 +452,6 @@ class ListExpr implements Expression {
 class MapExpr implements Expression {
   
   constructor(public elements: Map<Expression, Expression>, private fullLocation: SrcLocation) {}
-
-  hasAllLiteralElements(): boolean {
-    for (let [key, value] of this.elements) {
-      if (!(key instanceof Literal && value instanceof Literal)) {
-        return false;
-      }
-    }
-    return true;
-  }
 
   location(): SrcLocation {
     return this.fullLocation;

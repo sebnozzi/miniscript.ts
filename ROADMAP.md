@@ -79,10 +79,6 @@ Next steps:
     This should be easily doable because these cases are of the type
     "expected X found EOF". Not so simple - counter-example:
     print a["name",
-- Static lists / maps can be further optimized, all expressions could be potentially
-  known at compile-time if the leaves of the tree consist of literals
-  This can be played a step further ... for all expressions known at compile-time
-  they could be generated at compile time ... even things like 300 + 200 / 2
 
 ===
 

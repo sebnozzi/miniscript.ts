@@ -206,44 +206,24 @@ class ExpressionCompiler {
   }
 
   private compileListExpression(e: ListExpr) {
-    if (e.hasAllLiteralElements()) {
-      const resultList = [];
-      for (let element of e.elements) {
-        const literal = element as Literal;
-        resultList.push(literal.value);
-      }
-      this.builder.push(BC.PUSH, resultList);
-    } else {
-      // Compile runtime list
-      const elementCount = e.elements.length;
-      // Compile all elements
-      for (let elementExpr of e.elements) {
-        this.compileExpression(elementExpr);
-      }
-      // Issue opcode to build list
-      this.builder.push(BC.BUILD_LIST, elementCount);
+    const elementCount = e.elements.length;
+    // Compile all elements
+    for (let elementExpr of e.elements) {
+      this.compileExpression(elementExpr);
     }
+    // Issue opcode to build list
+    this.builder.push(BC.BUILD_LIST, elementCount);
   }
 
-  private compileMapExpression(e: MapExpr) {
-    if (e.hasAllLiteralElements()) {
-      const resultMap = new Map<any, any>();
-      for (let [key, value] of e.elements) {
-        const literalKey = key as Literal;
-        const literalValue = value as Literal;
-        resultMap.set(literalKey.value, literalValue.value);
-      }
-      this.builder.push(BC.PUSH, resultMap);
-    } else {
-      // Compile runtime map
-      const elementCount = e.elements.size;
-      // Compile all key-value pairs
-      for (let [keyExpr, valueExpr] of e.elements) {
-        this.compileExpression(valueExpr);
-        this.compileExpression(keyExpr);
-      }
-      // Issue opcode to build map
-      this.builder.push(BC.BUILD_MAP, elementCount);    }
+  private compileMapExpression(e: MapExpr) {    
+    const elementCount = e.elements.size;
+    // Compile all key-value pairs
+    for (let [keyExpr, valueExpr] of e.elements) {
+      this.compileExpression(valueExpr);
+      this.compileExpression(keyExpr);
+    }
+    // Issue opcode to build map
+    this.builder.push(BC.BUILD_MAP, elementCount);
   }
 
   private compileListAccessExpression(e: IndexedAccessExpr) {

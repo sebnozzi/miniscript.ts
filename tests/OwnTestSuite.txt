@@ -1,4 +1,17 @@
 ======================================================================
+==== Simple dot-access (without self-reference)
+m = {"x": 12, "y": 24}
+m["foo"] = function(a,b)
+	return a + b
+end function
+print m.x
+print m.y
+print m.foo(3,2)
+----------------------------------------------------------------------
+12
+24
+5
+======================================================================
 ==== Calling with fewer arguments
 ==== Arguments not passed are filled with null or default values.
 ==== Note also that default values don't need to be contiguous.
@@ -103,29 +116,18 @@ two
 three
 123
 ======================================================================
-==== Dynamic map expressions
-==== A map which consists of elements that can not be resolved at 
-==== compile-time. The elements of this map need to be evaluated at
-==== runtime. 
+==== Map expressions
 a = [1,2,3]
 f = function(p)
 	return p * 2
 end function
+print {"key": "value", 2: "two", "3": false}
 print {"key": a, 2: f("blah"), "3": a[2]}
 ----------------------------------------------------------------------
+{"key": "value", 2: "two", "3": 0}
 {"key": [1, 2, 3], 2: "blahblah", "3": 3}
 ======================================================================
-==== Static map expressions
-==== When a map consists of only literal values it can be resolved 
-==== and generated at compile-time. 
-print {"key": "value", 2: "two", "3": false}
-----------------------------------------------------------------------
-{"key": "value", 2: "two", "3": 0}
-======================================================================
-==== Runtime list expressions
-==== When a list consists of only literal values it can be resolved 
-==== and generated at compile-time. But when things are unknown until
-==== runtime it involves other opcodes.
+==== List expressions
 a = [1,2,3]
 b = "Hello"
 c = function
