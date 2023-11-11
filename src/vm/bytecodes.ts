@@ -66,6 +66,7 @@ enum BC {
   JUMP_IF_TRUE,
 
   CALL,
+  DOT_CALL,
   RETURN,
   EXIT,
   

@@ -75,61 +75,29 @@ class Processor {
       switch (this.code.opCodes[this.ip]) {
         case BC.CALL: {
           const funcName: string = this.code.arg1[this.ip] as string;
-          const argCount: number = this.code.arg2[this.ip] as number;
+          const paramCount: number = this.code.arg2[this.ip] as number;
 
-          const resolved: any = this.context.get(funcName);
+          const resolvedFunc: any = this.context.get(funcName);
 
-          if (!(resolved instanceof BoundFunction)) {
-            throw new Error(`Identifier ${funcName} should be a function`);
-          } else {
-            const boundFunc = resolved as BoundFunction;
-            const funcDef = boundFunc.funcDef;
+          this.performCall(funcName, paramCount, resolvedFunc, null);
+          break;
+        }
+        case BC.DOT_CALL: {
+          const methodName: string = this.code.arg1[this.ip] as string;
+          const paramCount: number = this.code.arg2[this.ip] as number;
+          const callTarget = this.opStack.pop();
 
-            const funcArgCount = funcDef.argNames.length;
-
-            if (argCount > funcArgCount) {
-              throw new Error(`Too many parameters in call to ${funcName}. Expected at most ${funcArgCount}, found ${argCount}.`)
-            } else if (argCount < funcDef.argNames.length) {
-
-              // Push the missing default argument values
-              const missingArgCount = funcArgCount - argCount;
-              const defaultValues = funcDef.getLastNEffectiveDefaultValues(missingArgCount);
-              for (let value of defaultValues) {
-                this.opStack.push(value);
-              }
-            }
-
-            if (funcDef.isNative()) {
-              const func = funcDef.getFunction();
-              // Build parameter list
-              const paramValues = [];
-              // Pop param values from stack (even default ones)
-              for (let {} of funcDef.argNames) {
-                const paramValue = this.opStack.pop();
-                paramValues.unshift(paramValue);
-              }
-              // Call with parameters
-              const retVal = func.apply(this, paramValues);
-              // Push return value to stack
-              this.opStack.push(retVal);
-              // Advance IP
-              this.ip += 1;
-            } else {
-              // Let it return to the next bytecode after the call
-              this.ip += 1;
-              this.pushFrame();
-    
-              this.code = funcDef.getCode();
-              this.context = new Context(boundFunc.context);
-              this.ip = 0;
-    
-              // Pop and set parameters as variables
-              for (let argName of funcDef.reversedArgNames) {
-                const paramValue = this.opStack.pop();
-                this.context.setLocal(argName, paramValue);
-              }
-            }
+          if(!(callTarget instanceof Map)) {
+            throw new Error("Can call methods only on Maps");
           }
+
+          if(!(callTarget.has(methodName))) {
+            throw new Error(`Map has no property "${methodName}"`);
+          }
+
+          const resolvedMethod: any = callTarget.get(methodName);
+
+          this.performCall(methodName, paramCount, resolvedMethod, callTarget);
           break;
         }
         case BC.RETURN: {
@@ -576,7 +544,9 @@ class Processor {
 
   willExecuteCall(): boolean {
     const op = this.code.opCodes[this.ip];
-    const isCall = op == BC.CALL;
+    // TODO: one could also perform a call when evaluating an identifier
+    // that results in a function!
+    const isCall = op == BC.CALL || op == BC.DOT_CALL;
     return isCall;
   }
 
@@ -608,6 +578,69 @@ class Processor {
       this.opStack.push(value)
       this.ip += 1;
     }
+  }
+
+  private performCall(funcName: string, paramCount: number, maybeFunction: any, dotCallTarget: any | null) {
+    if (!(maybeFunction instanceof BoundFunction)) {
+      throw new Error(`Identifier ${funcName} should be a function`);
+    }
+
+    const boundFunc = maybeFunction as BoundFunction;
+    const funcDef = boundFunc.funcDef;
+
+    const funcArgCount = funcDef.argNames.length;
+
+    if (paramCount > funcArgCount) {
+      throw new Error(`Too many parameters in call to ${funcName}. Expected at most ${funcArgCount}, found ${paramCount}.`)
+    } else if (paramCount < funcDef.argNames.length) {
+      // Push the missing default argument values
+      const missingArgCount = funcArgCount - paramCount;
+      const defaultValues = funcDef.getLastNEffectiveDefaultValues(missingArgCount);
+      for (let value of defaultValues) {
+        this.opStack.push(value);
+      }
+    }
+
+    if (funcDef.isNative()) {
+      const func = funcDef.getFunction();
+      // Build parameter list
+      const paramValues = [];
+      // Pop param values from stack (even default ones)
+      for (let {} of funcDef.argNames) {
+        const paramValue = this.opStack.pop();
+        paramValues.unshift(paramValue);
+      }
+      // Add dot-call target if any
+      if (dotCallTarget) {
+        // The "self" parameter
+        paramValues.unshift(dotCallTarget);
+      }
+      // Call with parameters
+      const retVal = func.apply(this, paramValues);
+      // Push return value to stack
+      this.opStack.push(retVal);
+      // Advance IP
+      this.ip += 1;
+    } else {
+      // Let it return to the next bytecode after the call
+      this.ip += 1;
+      this.pushFrame();
+
+      this.code = funcDef.getCode();
+      this.context = new Context(boundFunc.context);
+      this.ip = 0;
+
+      // Pop and set parameters as variables
+      for (let argName of funcDef.reversedArgNames) {
+        const paramValue = this.opStack.pop();
+        this.context.setLocal(argName, paramValue);
+      }
+      // Add dot-call target if any
+      if (dotCallTarget) {
+        // The "self" value
+        this.context.setLocal("self", dotCallTarget);
+      }
+    }    
   }
 
   private immediatelyCallFunction(value: BoundFunction) {

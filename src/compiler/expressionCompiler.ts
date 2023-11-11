@@ -39,19 +39,22 @@ class ExpressionCompiler {
     }
   }
 
-  compileFuncCall(callTarget: Expression, args: Expression[]) {
+  compileFuncCall(callTarget: Expression, params: Expression[]) {
     // Push parameters
-     for (let arg of args) {
-      this.compileExpression(arg)
+     for (let param of params) {
+      this.compileExpression(param)
     }
-    const argCount = args.length;
+    const paramCount = params.length;
     // Resolve and call target
     if (callTarget instanceof IdentifierExpr) {
       const identifier = callTarget.identifier.value;
-      this.builder.push(BC.CALL, identifier, argCount);
+      this.builder.push(BC.CALL, identifier, paramCount);
+    } else if(callTarget instanceof PropertyAccessExpr) {
+      this.compileExpression(callTarget.accessTarget);
+      const identifier = callTarget.property.value;
+      this.builder.push(BC.DOT_CALL, identifier, paramCount);
     } else {
-      // TODO
-      throw new Error("Calling anything other than identifiers not supported")
+      throw new Error(`Invalid call target: ${callTarget.toJson()}`)
     }
   }
 
