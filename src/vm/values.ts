@@ -232,7 +232,7 @@ function mapAccess(mapObj: Map<any, any>, key: any): any {
     const parentMap = mapObj.get("__isa");
     return mapAccess(parentMap, key); 
   } else {
-    throw new Error(`Key ${key} not found in Map`);
+    throw new Error(`Map has no property "${key}".`);
   }
 }
 

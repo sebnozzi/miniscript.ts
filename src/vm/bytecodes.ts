@@ -8,6 +8,8 @@ enum BC {
 
   // Perform indexed access (on map/list) using brackets, lile myCollection[23]
   INDEXED_ACCESS,
+  // Access property using "dot-notation", as in myMap.myProperty
+  DOT_ACCESS,
   // Perform a slice on a sequence (List or String, NOT Map)
   SLICE_SEQUENCE,
 
@@ -15,6 +17,8 @@ enum BC {
   ASSIGN_LOCAL,
   // Assign value using indexed access, like myFoo[key] = value
   ASSIGN_INDEXED,
+  // Assign property using dot-notation, like myMap.property = value
+  DOT_ASSIGN,
 
   // Adds two stack values, leaving result in the stack
   ADD_VALUES,

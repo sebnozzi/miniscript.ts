@@ -144,6 +144,10 @@ class StatementCompiler {
       this.compileExpression(target.indexExpr);
       this.compileExpression(target.accessTarget);
       this.builder.push(BC.ASSIGN_INDEXED);
+    } else if (target instanceof PropertyAccessExpr) {
+      this.compileExpression(s.value);
+      this.compileExpression(target.accessTarget);
+      this.builder.push(BC.DOT_ASSIGN, target.property.value);   
     } else {
       throw new Error("Assignment target not yet supported: " + s.target.description());
     }

@@ -25,7 +25,9 @@ class ExpressionCompiler {
     } else if (e instanceof MapExpr) {
       this.compileMapExpression(e);
     } else if (e instanceof IndexedAccessExpr) {
-      this.compileListAccessExpression(e);
+      this.compileIndexedAccessExpression(e);
+    } else if (e instanceof PropertyAccessExpr) {
+      this.compilePropertyAccessExpression(e);
     } else if (e instanceof ListSlicingExpr) {
       this.compileListSlicingExpression(e);
     } else if (e instanceof FunctionCallExpr) {
@@ -226,10 +228,15 @@ class ExpressionCompiler {
     this.builder.push(BC.BUILD_MAP, elementCount);
   }
 
-  private compileListAccessExpression(e: IndexedAccessExpr) {
+  private compileIndexedAccessExpression(e: IndexedAccessExpr) {
     this.compileExpression(e.indexExpr);
     this.compileExpression(e.accessTarget);
     this.builder.push(BC.INDEXED_ACCESS);
+  }
+
+  private compilePropertyAccessExpression(e: PropertyAccessExpr) {
+    this.compileExpression(e.accessTarget);
+    this.builder.push(BC.DOT_ACCESS, e.property.value);
   }
 
   private compileListSlicingExpression(e: ListSlicingExpr) {

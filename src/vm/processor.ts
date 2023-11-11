@@ -145,23 +145,23 @@ class Processor {
         }
         case BC.ASSIGN_INDEXED: {
           // pop target
-          const accessTarget = this.opStack.pop();
+          const assignTarget = this.opStack.pop();
           // pop index
           const index = this.opStack.pop();
           // pop value
           const valueToAssign = this.opStack.pop();
 
-          const isString = typeof accessTarget === "string";
-          const isList = accessTarget instanceof Array;
-          const isMap = accessTarget instanceof Map;
+          const isString = typeof assignTarget === "string";
+          const isList = assignTarget instanceof Array;
+          const isMap = assignTarget instanceof Map;
 
           if (isList) {
             // Check and compute index
             checkInt(index, "Index must be an integer");
-            const effectiveIndex = computeEffectiveIndex(accessTarget, index);
-            accessTarget[effectiveIndex] = valueToAssign;
+            const effectiveIndex = computeEffectiveIndex(assignTarget, index);
+            assignTarget[effectiveIndex] = valueToAssign;
           } else if(isMap) {
-            accessTarget.set(index, valueToAssign);
+            assignTarget.set(index, valueToAssign);
           } else if(isString) {
             throw new Error("Cannot assign to String (immutable)");
           } else {
@@ -170,6 +170,19 @@ class Processor {
 
           this.ip += 1;
           break;
+        }
+        case BC.DOT_ASSIGN : {
+          const propertyName: string = this.code.arg1[this.ip];
+          const assignTarget = this.opStack.pop();
+          const valueToAssign = this.opStack.pop();
+
+          if (!(assignTarget instanceof Map)) {
+            throw new Error("Assignment target must be a Map");
+          }
+
+          assignTarget.set(propertyName, valueToAssign);
+          this.ip += 1;
+          break;         
         }
         case BC.EVAL_ID: {
           const identifier = this.code.arg1[this.ip];
@@ -199,6 +212,17 @@ class Processor {
 
           this.callOrPushValue(value);
           break;
+        }
+        case BC.DOT_ACCESS : {
+          const propertyName: string = this.code.arg1[this.ip];
+          const accessTarget = this.opStack.pop();
+
+          if (!(accessTarget instanceof Map)) {
+            throw new Error("Properties can be accessed only from Maps");
+          }
+          const value = mapAccess(accessTarget, propertyName);
+          this.callOrPushValue(value);
+          break;         
         }
         case BC.SLICE_SEQUENCE: {
           // Pop parameters
