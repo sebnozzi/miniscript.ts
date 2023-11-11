@@ -8,24 +8,22 @@ type Concatenable = {
   concat(a: any): any;
 }
 
-function equals(a: any, b: any): boolean {
-  if (typeof a === "number" && typeof b === "number") {
-    return a == b;
-  } else if (typeof a === "string" && typeof b === "string") {
-    return a === b;
-  } else if (a instanceof Array && b instanceof Array) {
+function equals(a: any, b: any): number {
+  // JavaScript does not compare Arrays the way we want
+  // so we have to implement our own version.
+  if (a instanceof Array && b instanceof Array) {
     if (a.length !== b.length) {
-      return false;
+      return 0;
     } else {
       for (let i = 0; i < a.length; i++) {
         if (a[i] !== b[i]) {
-          return false;
+          return 0;
         }
       }
-      return true;
+      return 1;
     }
   } else {
-    return false;
+    return a === b ? 1 : 0;
   }
 }
 

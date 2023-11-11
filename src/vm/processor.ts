@@ -292,11 +292,8 @@ class Processor {
         case BC.COMPARE_EQ: {
           const valueB = this.opStack.pop()
           const valueA = this.opStack.pop()
-          if (equals(valueA, valueB)) {
-            this.opStack.push(1)
-          } else {
-            this.opStack.push(0)
-          }
+          const result = equals(valueA, valueB)
+          this.opStack.push(result)
           this.ip += 1
           break;
         }
