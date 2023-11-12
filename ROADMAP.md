@@ -1,10 +1,14 @@
 
 Next steps:
+- Function references
+  - Declaring
+  - Using
+  - Assigning
+  - Printing
 - Support for magic functions with self as first parameter
 - self-functions (functions with first parameter "self" which
   can be added to maps and work as methods).
-- function invocation on objects (foo.method(1,2,3)) 
-  - test instrinsic methods
+  => Can be only added when function references are supported
 - Support built-in methods for String / List / Map / Number ...
   These are not shown when inspecting values ... are probably "found"
   when normal index-lookup fail. They can also be overridden for Maps.
@@ -84,7 +88,6 @@ Next steps:
     print a["name",
 - Debugger: willExecuteCall is incomplete ... many more opcodes could
   result in a call
-- Evaluate if we can use only dynamic dot-calls
 
 ===
 
