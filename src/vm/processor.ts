@@ -2,6 +2,8 @@
 /// <reference path="./code.ts"/>
 /// <reference path="./values.ts"/>
 
+type TxtCallback = (txt: string) => any;
+
 class Processor {
 
   // The instruction pointer. Points to the position in code.
@@ -21,7 +23,7 @@ class Processor {
   // Callback when processing done
   onFinished: Function;
 
-  constructor(programCode: Code) {
+  constructor(programCode: Code, public readonly stdoutCallback: TxtCallback, public readonly stderrCallback: TxtCallback) {
     this.code = programCode;
     this.ip = 0;
     this.globalContext = new Context();
@@ -60,7 +62,15 @@ class Processor {
 
   runUntilDone(maxCount: number = 73681) {
     if (!this.isFinished()) {
-      this.executeCycles(maxCount)
+      try {
+        this.executeCycles(maxCount);
+      } catch(e: any) {
+        if (e["message"]) {
+          this.stderrCallback(e.message);
+        }
+        console.error(e);
+        this.forceFinish(maxCount);
+      }
       window.setTimeout(() => {
         this.runUntilDone()
       }, 0)
@@ -477,8 +487,7 @@ class Processor {
           break;
         }
         case BC.EXIT: {
-          this.cycleCount = maxCount;
-          this.ip = this.code.opCodes.length;
+          this.forceFinish(maxCount);
           break;
         }
         case BC.POP: {
@@ -546,6 +555,12 @@ class Processor {
 
   isFinished(): boolean {
     return this.ip >= this.code.opCodes.length;
+  }
+
+  forceFinish(maxCount: number) {
+    this.opStack.clear();
+    this.cycleCount = maxCount;
+    this.ip = this.code.opCodes.length;
   }
 
   willExecuteCall(): boolean {

@@ -20,6 +20,7 @@ function testSuite(suiteFileName, description) {
                 const srcCode = test.code.join("\n");
                 const expectedOutput = test.output;
 
+                console.log(testName);
                 runCode(srcCode, testName, (lines) => {
                   try {
                     if (lines.length !== expectedOutput.length) {

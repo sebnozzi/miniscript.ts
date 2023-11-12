@@ -3,7 +3,11 @@ class Stack<T> {
   elements: T[];
 
   constructor() {
-    this.elements = []
+    this.elements = [];
+  }
+
+  clear() {
+    this.elements = [];
   }
 
   push(element: T) {

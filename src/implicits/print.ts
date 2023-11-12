@@ -1,8 +1,8 @@
 
-function addPrintImplicit(p: Processor, fnAcceptingLine: (txt:string) => any) {
-  p.addNative("print", 1, function(value: any) {
+function addPrintImplicit(p: Processor) {
+  p.addNative("print", 2, function(value: any) {
     const text = formatValue(value);
-    fnAcceptingLine(text);
+    p.stdoutCallback(text);
   });
 }
 

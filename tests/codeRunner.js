@@ -1,25 +1,17 @@
 function runCode(srcCode, testName, onDone) {
 
-  const parser = new Parser(srcCode);
-  const statements = parser.parse();
-  const compiler = new Compiler(statements);
-  const code = compiler.compile();
-
-  let vm = new Processor(code);
   let outLines = [];
-
-  addImplicits(vm);
-  addPrintImplicit(vm, (line) => {
+  let txtCallback = (line) => {
     outLines.push(""+line);
-  });
+  }
+  const interp = new Interpreter(txtCallback, txtCallback);
 
-  let t0 = performance.now();
-
-  vm.onFinished = function() {
-    let t1 = performance.now();
+  const t0 = performance.now();
+  interp.onFinished = function() {
+    const t1 = performance.now();
     console.log("Finished in", (t1 - t0), "ms: ", testName);
     onDone(outLines);
   }
   
-  vm.run();
+  interp.runSrcCode(srcCode);  
 }
