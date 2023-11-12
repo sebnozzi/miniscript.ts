@@ -1,5 +1,6 @@
 
 Next steps:
+- null arithmetic
 - Issue: 
   print ("Hello" + " ") * 3
   Evaluates to "null" * 3
