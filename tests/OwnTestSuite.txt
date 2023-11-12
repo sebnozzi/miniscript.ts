@@ -1,4 +1,33 @@
 ======================================================================
+==== Arithmetic with null
+// null on the left
+print null * 3
+print null + 2
+print null - 4
+print null / 4
+print null ^ 3
+print null % 2
+// null on the right
+print 2 + null
+print 3 * null
+print 5 - null
+print 7 / null
+print 3 ^ null
+print 3 % null
+----------------------------------------------------------------------
+null
+null
+null
+null
+null
+null
+2
+0
+5
+Infinity
+1
+NaN
+======================================================================
 ==== Calls on indexed access
 a = {}
 a.sayTimes = function(word, times)

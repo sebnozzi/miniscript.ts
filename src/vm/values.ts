@@ -106,6 +106,10 @@ function add(a: any, b: any): any {
     } else {
       throw new Error(`Got ${b} instead of another List`);
     }
+  } else if (a === null) {
+    return null;
+  } else if (typeof a === "number" && b === null) {
+    return a;
   } else {
     console.info("Not supported for values","a:",a,"b:",b);
     throw new Error(`Cannot add ${formatValue(a,true)} + ${formatValue(b,true)}`);
@@ -124,15 +128,23 @@ function subtract(a: any, b: any): any {
     } else {
       return a;
     }
+  } else if (a === null) {
+    return null;
+  } else if (typeof a === "number" && b === null) {
+    return a;
   } else {
     console.info("Not supported for values","a:",a,"b:",b);
     throw new Error(`Cannot subtract ${formatValue(a,true)} - ${formatValue(b,true)}`);
   }
 }
 
-function divide(a: any, b: any): number {
+function divide(a: any, b: any): number | null {
   if (typeof a === "number" && typeof b === "number") {
     return a / b
+  } else if (a === null) {
+    return null;
+  } else if (typeof a === "number" && b === null) {
+    return a / 0;
   } else {
     console.info("Not supported for values","a:",a,"b:",b);
     throw new Error(`Cannot divide ${formatValue(a,true)} / ${formatValue(b,true)}`);
@@ -163,24 +175,36 @@ function multiply(a: any, b: any): any {
     } else {
       throw new Error(`Number required for replication. Got ${b} instead.`);
     }
+  } else if (a === null) {
+    return null;
+  } else if (typeof a === "number" && b === null) {
+    return 0;
   } else {
     console.error("Not supported for values","a:",a,"b:",b);
     throw new Error(`Cannot multiply ${formatValue(a,true)} * ${formatValue(b,true)}`);
   }
 }
 
-function power(a: any, b: any): number {
+function power(a: any, b: any): number | null {
   if (typeof a === "number" && typeof b === "number") {
     return Math.pow(a, b);
+  } else if (a === null) {
+    return null;
+  } else if (typeof a === "number" && b === null) {
+    return 1;
   } else {
     console.info("Not supported for values","a:",a,"b:",b);
     throw new Error(`Cannot raise to the power ${formatValue(a,true)} ^ ${formatValue(b,true)}`);
   }
 }
 
-function modulus(a: any, b: any): number {
+function modulus(a: any, b: any): number | null {
   if (typeof a === "number" && typeof b === "number") {
     return a % b;
+  } else if (a === null) {
+    return null;
+  } else if (typeof a === "number" && b === null) {
+    return a % 0;
   } else {
     console.info("Not supported for values","a:",a,"b:",b);
     throw new Error(`Cannot perform modulus ${formatValue(a,true)} % ${formatValue(b,true)}`);
