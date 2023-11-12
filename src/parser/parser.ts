@@ -648,8 +648,17 @@ class Parser {
     let continueParsing = true
 
     while (continueParsing) {
-      if (this.tokenMatch(TokenType.OPEN_ROUND)) {
+      // When parsing a statement an opening "(" can have different meaning
+      // depending on whether it has a space before it or not. With a space
+      // before it, it should be treated as a grouping-expression. Without 
+      // a space it should be treated as a parameter-list.
+      if (context.parsingStatementExpr && this.matchesNonAfterSpaces(TokenType.OPEN_ROUND)) {
         expr = this.finishCall(expr, context)
+      // When outside of the statement-parsing level (parsing "pure" expressions)
+      // we can match opening "(" as parameter-lists, regardless of whether they
+      // have a space before them or not.
+      } else if(!context.parsingStatementExpr && this.tokenMatch(TokenType.OPEN_ROUND)){
+        expr = this.finishCall(expr, context)     
       } else if (this.matchesNonAfterSpaces(TokenType.OPEN_SQUARE)) {
         expr = this.indexedAccessOrSlicing(expr, context)
       } else if (this.matchesNonAfterSpaces(TokenType.DOT)) {

@@ -1,4 +1,45 @@
 ======================================================================
+==== Space before parameters
+// This is a statement-function call, consisting of a call to print 
+// and a silent (no output) multiplication of the resulting value
+// ("null", returned by print) with 3
+
+print("hello") * 3
+
+// Because this is a statement, the first space after the identifier 
+// marks the beginning of parameter-expressions. Thus it's interpreted
+// as a grouped expression consisting only of one string, and then
+// multipliying by 3.
+
+m = {}
+m.pr = function(txt)
+	print txt
+end function
+
+m[ "pr" ] ("hello") * 3
+
+// Because `range (0,3)` is within a statement no further statements
+// can occur. Therefor identifier followed by an opening parens must
+// be a function call.
+
+print range (0,3)
+
+// This looks like parameter list, but it's really a grouped value.
+// Adding a ",3" results in a parsing error.
+
+x = {}
+x.f = function(t,a)
+	print "Hi " * t
+end function
+
+x["f"] (2)
+
+----------------------------------------------------------------------
+hello
+hellohellohello
+[0, 1, 2, 3]
+Hi Hi 
+======================================================================
 ==== Arithmetic with null
 // null on the left
 print null * 3
@@ -406,7 +447,8 @@ foo = function(x)
     return x
 end function
 foo (3)
-range (0, 3)
+// range (0, 3) produces an error
+range(0, 3)
 print foo (3)
 print range (0, 3)
 ----------------------------------------------------------------------

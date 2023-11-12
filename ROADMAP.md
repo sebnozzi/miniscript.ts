@@ -1,9 +1,11 @@
 
 Next steps:
-- null arithmetic
-- Issue: 
-  print ("Hello" + " ") * 3
-  Evaluates to "null" * 3
+- Test that range (0, 3) produces a parsing error
+  - In general: support errors in tests
+  - Errors should be part of the output
+  - Separate streams. Also let the implementation pass
+    strings WITH newlines, so that we can test print
+    with other delimiters.
 - Support for "self" in method bodies
 - Rename property-access to "dotted-access", or see how it is referred
   to in the official docs
