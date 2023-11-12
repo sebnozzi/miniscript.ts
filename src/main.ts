@@ -44,8 +44,7 @@ function compileAndRun() {
   }
   interp.onFinished = () => {
     const t1 = performance.now();
-    console.log("Finished")
-    console.log(t1 - t0, " milliseconds");
+    console.log("Finished.", t1 - t0, "ms");
   }
   interp.onCompiled = (code: Code) => {
     console.log("Compiled code:", code);
