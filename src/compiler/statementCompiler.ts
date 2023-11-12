@@ -131,28 +131,25 @@ class StatementCompiler {
   }
 
   private compileAssignmentStatement(s: AssignmentStatement) {
-    // Compute the value to be assigned
     this.builder.startMapEntry();
+    // Compute the value to be assigned
     this.compileExpression(s.value);
-    // Push bytecode to complete the assignment
+    // Push bytecodes to complete the assignment
     const target = s.target;
     if (target instanceof IdentifierExpr) {
       this.builder.push(BC.ASSIGN_LOCAL, target.identifier.value);
-      this.builder.endMapEntry(s.location());
     } else if (target instanceof IndexedAccessExpr) {
-      this.compileExpression(s.value);
       this.compileExpression(target.indexExpr);
       this.compileExpression(target.accessTarget);
       this.builder.push(BC.ASSIGN_INDEXED);
     } else if (target instanceof PropertyAccessExpr) {
-      // Value to assign
-      this.compileExpression(s.value);
       // Map to assign into
       this.compileExpression(target.accessTarget);
       this.builder.push(BC.DOT_ASSIGN, target.property.value);   
     } else {
       throw new Error("Assignment target not yet supported: " + s.target.description());
     }
+    this.builder.endMapEntry(s.location());
   }
 
   private compileReturnStatement(s: ReturnStatement, context: CompilerContext) {

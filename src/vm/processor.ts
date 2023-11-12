@@ -65,6 +65,12 @@ class Processor {
         this.runUntilDone()
       }, 0)
     } else {
+      // Check that stack is balanced (empty)
+      if (this.opStack.count() > 0) {
+        console.info("Stack: ", this.opStack);
+        throw new Error("Stack was not empty!")
+      }
+      // Invoke callback
       this.onFinished();
     }
   }
