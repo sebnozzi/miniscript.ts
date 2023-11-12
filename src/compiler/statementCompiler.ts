@@ -142,7 +142,7 @@ class StatementCompiler {
       this.compileExpression(target.indexExpr);
       this.compileExpression(target.accessTarget);
       this.builder.push(BC.ASSIGN_INDEXED);
-    } else if (target instanceof PropertyAccessExpr) {
+    } else if (target instanceof DotAccessExpr) {
       // Map to assign into
       this.compileExpression(target.accessTarget);
       this.builder.push(BC.DOT_ASSIGN, target.property.value);   

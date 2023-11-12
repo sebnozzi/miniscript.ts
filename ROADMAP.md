@@ -1,13 +1,10 @@
 
 Next steps:
-- Support for "self" in method bodies
-- Rename property-access to "dotted-access", or see how it is referred
-  to in the official docs
 - Support for magic functions with self as first parameter
-- function invocation on objects (foo.method(1,2,3)) 
-  - test instrinsic methods
 - self-functions (functions with first parameter "self" which
   can be added to maps and work as methods).
+- function invocation on objects (foo.method(1,2,3)) 
+  - test instrinsic methods
 - Support built-in methods for String / List / Map / Number ...
   These are not shown when inspecting values ... are probably "found"
   when normal index-lookup fail. They can also be overridden for Maps.

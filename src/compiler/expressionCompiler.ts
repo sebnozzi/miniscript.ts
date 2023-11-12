@@ -28,8 +28,8 @@ class ExpressionCompiler {
       this.compileMapExpression(e);
     } else if (e instanceof IndexedAccessExpr) {
       this.compileIndexedAccessExpression(e);
-    } else if (e instanceof PropertyAccessExpr) {
-      this.compilePropertyAccessExpression(e);
+    } else if (e instanceof DotAccessExpr) {
+      this.compileDotAccessExpression(e);
     } else if (e instanceof ListSlicingExpr) {
       this.compileListSlicingExpression(e);
     } else if (e instanceof FunctionCallExpr) {
@@ -51,7 +51,7 @@ class ExpressionCompiler {
     if (callTarget instanceof IdentifierExpr) {
       const identifier = callTarget.identifier.value;
       this.builder.push(BC.CALL, identifier, paramCount);
-    } else if(callTarget instanceof PropertyAccessExpr) {
+    } else if(callTarget instanceof DotAccessExpr) {
       this.compileExpression(callTarget.accessTarget);
       const identifier = callTarget.property.value;
       this.builder.push(BC.PUSH, identifier);
@@ -244,7 +244,7 @@ class ExpressionCompiler {
     this.builder.push(BC.INDEXED_ACCESS);
   }
 
-  private compilePropertyAccessExpression(e: PropertyAccessExpr) {
+  private compileDotAccessExpression(e: DotAccessExpr) {
     this.compileExpression(e.accessTarget);
     this.builder.push(BC.DOT_ACCESS, e.property.value);
   }

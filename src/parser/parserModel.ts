@@ -515,7 +515,7 @@ class ListSlicingExpr implements Expression {
   }
 }
 
-class PropertyAccessExpr implements Expression {
+class DotAccessExpr implements Expression {
   constructor(public accessTarget: Expression, public property: Identifier) {}
   
   location(): SrcLocation {
@@ -528,7 +528,7 @@ class PropertyAccessExpr implements Expression {
   
   toJson(): object {
     return {
-      "PropertyAccessExpr": {
+      "DotAccessExpr": {
         "accessTarget": this.accessTarget.toJson(),
         "property": this.property.value
       }

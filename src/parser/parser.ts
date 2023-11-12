@@ -413,7 +413,7 @@ class Parser {
 
     const value = this.functionBodyOrExpr(context)
 
-    if(target instanceof IdentifierExpr || target instanceof PropertyAccessExpr || target instanceof IndexedAccessExpr) {
+    if(target instanceof IdentifierExpr || target instanceof DotAccessExpr || target instanceof IndexedAccessExpr) {
       return new AssignmentStatement(target, value)
     } else {
       throw this.failParsing("Invalid assignment target")
@@ -429,7 +429,7 @@ class Parser {
 
     const value = this.functionBodyOrExpr(context)
 
-    if(target instanceof IdentifierExpr || target instanceof PropertyAccessExpr || target instanceof IndexedAccessExpr) {
+    if(target instanceof IdentifierExpr || target instanceof DotAccessExpr || target instanceof IndexedAccessExpr) {
       return new MathAssignmentStatement(target, tokenType, value)
     } else {
       throw this.failParsing("Invalid math-assignment target")
@@ -634,7 +634,7 @@ class Parser {
 
     const refTarget: Expression = this.call(context)
     if (refTarget instanceof IdentifierExpr 
-      || refTarget instanceof PropertyAccessExpr
+      || refTarget instanceof DotAccessExpr
       || refTarget instanceof IndexedAccessExpr) {
         const fullLocation = openingToken.location.upTo(refTarget.location());
         return new FunctionRefExpr(refTarget, fullLocation);
@@ -664,7 +664,7 @@ class Parser {
       } else if (this.matchesNonAfterSpaces(TokenType.DOT)) {
         const propertyName = this.consume(TokenType.IDENTIFIER_TK,
           "Expected property name after '.'") as Identifier
-        expr = new PropertyAccessExpr(expr, propertyName)
+        expr = new DotAccessExpr(expr, propertyName)
         // If there is a space after the property name stop parsing
         // We might be in a statement call
         if (this.peek().afterSpace) {
