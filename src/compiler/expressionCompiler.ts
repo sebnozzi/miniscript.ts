@@ -1,47 +1,74 @@
 
+class ExpressionCompilerContext {
+  constructor(public readonly isFuncRef: boolean = false) {
+  }
+  enterFunctionReference(): ECContext {
+    const newContext = new ExpressionCompilerContext(true);
+    return newContext;
+  }
+}
+
+type ECContext = ExpressionCompilerContext;
+
 class ExpressionCompiler {
 
   constructor(private builder: CodeBuilder) { }
 
-  compileExpression(e: Expression) {
+  compileExpression(e: Expression, context: ECContext | null = null) {
     const b = this.builder;
+    context = context == null ? new ExpressionCompilerContext() : context;
 
     if (e instanceof Literal) {
       b.push(BC.PUSH, e.value)
     } else if (e instanceof IdentifierExpr) {
-      b.push(BC.EVAL_ID, e.identifier.value)
+      this.compileIdentifierExpr(e, context);
     } else if (e instanceof SelfExpr) {
-      b.push(BC.EVAL_ID, "self")
+      this.compileSelfExpr(context);
     } else if (e instanceof BinaryExpr) {
-      this.compileBinaryExpression(e);
+      this.compileBinaryExpression(e, context);
     } else if (e instanceof UnaryExpr) {
-      this.compileUnaryExpression(e);
+      this.compileUnaryExpression(e, context);
     } else if (e instanceof ChainedComparisonExpr) {
-      this.compileChainedComparisonExpression(e);
+      this.compileChainedComparisonExpression(e, context);
     } else if (e instanceof LogicExpr) {
-      this.compileLogicExpression(e);
+      this.compileLogicExpression(e, context);
     } else if (e instanceof GroupingExpr) {
-      this.compileExpression(e.expr);
+      this.compileExpression(e.expr, context);
     } else if (e instanceof ListExpr) {
-      this.compileListExpression(e);
+      this.compileListExpression(e, context);
     } else if (e instanceof MapExpr) {
-      this.compileMapExpression(e);
+      this.compileMapExpression(e, context);
     } else if (e instanceof IndexedAccessExpr) {
-      this.compileIndexedAccessExpression(e);
+      this.compileIndexedAccessExpression(e, context);
     } else if (e instanceof DotAccessExpr) {
-      this.compileDotAccessExpression(e);
+      this.compileDotAccessExpression(e, context);
     } else if (e instanceof ListSlicingExpr) {
-      this.compileListSlicingExpression(e);
+      this.compileListSlicingExpression(e, context);
     } else if (e instanceof FunctionCallExpr) {
-      this.compileFuncCall(e.callTarget, e.args)
+      this.compileFuncCallExpr(e.callTarget, e.args, context);
+    } else if (e instanceof FunctionRefExpr) {
+      this.compileFuncRefExpression(e, context);
     } else if (e instanceof FunctionBodyExpr) {
-      this.compileFunctionBodyExpression(e);
+      this.compileFunctionBodyExpression(e, context);
     } else {
       throw new NotImplemented("Expression type not yet supported: " + e.description())
     }
   }
 
-  compileFuncCall(callTarget: Expression, params: Expression[]) {
+  compileIdentifierExpr(e: IdentifierExpr, context: ECContext) {
+    this.builder.push(BC.EVAL_ID, e.identifier.value, context.isFuncRef);
+  }
+
+  compileSelfExpr(context: ECContext) {
+    this.builder.push(BC.EVAL_ID, "self");
+  }
+
+  compileFuncCall(callTarget: Expression, args: Expression[]) {
+    const context = new ExpressionCompilerContext();
+    this.compileFuncCallExpr(callTarget, args, context);
+  }
+
+  compileFuncCallExpr(callTarget: Expression, params: Expression[], context: ECContext) {
     // Push parameters
      for (let param of params) {
       this.compileExpression(param)
@@ -65,7 +92,7 @@ class ExpressionCompiler {
     }
   }
 
-  private compileBinaryExpression(e: BinaryExpr) {
+  private compileBinaryExpression(e: BinaryExpr, context: ECContext) {
     this.compileExpression(e.left)
     this.compileExpression(e.right)
     switch (e.operator.tokenType) {
@@ -122,7 +149,7 @@ class ExpressionCompiler {
     }
   }
 
-  private compileUnaryExpression(e: UnaryExpr) {
+  private compileUnaryExpression(e: UnaryExpr, context: ECContext) {
     // Compile expression
     this.compileExpression(e.expr);
     // Push operator
@@ -145,7 +172,7 @@ class ExpressionCompiler {
     }
   }
 
-  private compileChainedComparisonExpression(e: ChainedComparisonExpr) {
+  private compileChainedComparisonExpression(e: ChainedComparisonExpr, context: ECContext) {
     // Compile and push expressions
     for (let operandExpression of e.operands) {
       this.compileExpression(operandExpression);
@@ -179,7 +206,7 @@ class ExpressionCompiler {
     this.builder.push(BC.CHAINED_COMPARISON, pairCount);
   }
 
-  private compileLogicExpression(e: LogicExpr) {
+  private compileLogicExpression(e: LogicExpr, context: ECContext) {
     // Determine type
     const isAnd = e.operator.tokenType == TokenType.OP_AND;
     const isOr = e.operator.tokenType == TokenType.OP_OR;
@@ -217,7 +244,7 @@ class ExpressionCompiler {
     this.builder.define_address(shortCircuitAddr);
   }
 
-  private compileListExpression(e: ListExpr) {
+  private compileListExpression(e: ListExpr, context: ECContext) {
     const elementCount = e.elements.length;
     // Compile all elements
     for (let elementExpr of e.elements) {
@@ -227,7 +254,7 @@ class ExpressionCompiler {
     this.builder.push(BC.BUILD_LIST, elementCount);
   }
 
-  private compileMapExpression(e: MapExpr) {    
+  private compileMapExpression(e: MapExpr, context: ECContext) {    
     const elementCount = e.elements.size;
     // Compile all key-value pairs
     for (let [keyExpr, valueExpr] of e.elements) {
@@ -238,18 +265,29 @@ class ExpressionCompiler {
     this.builder.push(BC.BUILD_MAP, elementCount);
   }
 
-  private compileIndexedAccessExpression(e: IndexedAccessExpr) {
+  private compileIndexedAccessExpression(e: IndexedAccessExpr, context: ECContext) {
     this.compileExpression(e.indexExpr);
     this.compileExpression(e.accessTarget);
-    this.builder.push(BC.INDEXED_ACCESS);
+    this.builder.push(BC.INDEXED_ACCESS, context.isFuncRef);
   }
 
-  private compileDotAccessExpression(e: DotAccessExpr) {
+  private compileDotAccessExpression(e: DotAccessExpr, context: ECContext) {
     this.compileExpression(e.accessTarget);
-    this.builder.push(BC.DOT_ACCESS, e.property.value);
+    this.builder.push(BC.DOT_ACCESS, e.property.value, context.isFuncRef);
   }
 
-  private compileListSlicingExpression(e: ListSlicingExpr) {
+  private compileFuncRefExpression(e: FunctionRefExpr, context: ECContext) {
+    const functionReferenceContext = context.enterFunctionReference();
+    // Compile the reference-target expression, but in the context
+    // of a function reference.
+    // This should affect evaluation of single identifiers,
+    // indexed-access and dot-access. If the result of these operations
+    // is a bound-function, then it should be left in the stack as a value
+    // and not immediately evaluated. Anything else can be evaluated as is.
+    this.compileExpression(e.refTarget, functionReferenceContext);
+  }
+
+  private compileListSlicingExpression(e: ListSlicingExpr, context: ECContext) {
     // Push start value
     if (e.start) {
       this.compileExpression(e.start);
@@ -268,7 +306,7 @@ class ExpressionCompiler {
     this.builder.push(BC.SLICE_SEQUENCE);
   }
 
-  private compileFunctionBodyExpression(e: FunctionBodyExpr) {
+  private compileFunctionBodyExpression(e: FunctionBodyExpr, context: ECContext) {
     // Resolve arguments (names / default values)
     const args = [];
     for (let arg of e.args) {

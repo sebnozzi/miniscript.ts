@@ -1,10 +1,5 @@
 
 Next steps:
-- Function references
-  - Declaring
-  - Using
-  - Assigning
-  - Printing
 - Support for magic functions with self as first parameter
 - self-functions (functions with first parameter "self" which
   can be added to maps and work as methods).

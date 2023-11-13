@@ -1,4 +1,51 @@
 ======================================================================
+==== More advanced function reference
+f1 = function(a,b)
+	return a + b
+end function
+
+f2 = @f1
+
+m = {}
+m.f2 = @f1
+
+f3 = function(ignored)
+	return m
+end function
+
+print @m.f2
+print @f3(3)["f2"]
+
+// Substitute function with value
+// Referencing function now return value
+
+m.f2 = "value"
+
+print @m.f2
+print @f3(3)["f2"]
+----------------------------------------------------------------------
+FUNCTION(a, b)
+FUNCTION(a, b)
+value
+value
+======================================================================
+==== Simple function reference
+f1 = function(a,b)
+	return a + b
+end function
+
+f2 = @f1
+
+print f2(2,3)
+print @f2
+print @f1 == @f2
+----------------------------------------------------------------------
+5
+FUNCTION(a, b)
+1
+======================================================================
+==== Parameter-list after space in statement
+==== ... should produce a parse-error
 range (0,3)
 ----------------------------------------------------------------------
 Compiler Error: got Comma where RParen is required [line 1]

@@ -170,11 +170,13 @@ class Processor {
         }
         case BC.EVAL_ID: {
           const identifier = this.code.arg1[this.ip];
+          const isFuncRef: boolean = this.code.arg2[this.ip];
           const value = this.context.get(identifier);
-          this.callOrPushValue(value);
+          this.callOrPushValue(value, isFuncRef);
           break;
         }
         case BC.INDEXED_ACCESS: {
+          const isFuncRef: boolean = this.code.arg1[this.ip];
           const accessTarget = this.opStack.pop();
           const index = this.opStack.pop();
 
@@ -194,18 +196,19 @@ class Processor {
             throw new RuntimeError("Cannot perform indexed access on this type");
           }
 
-          this.callOrPushValue(value);
+          this.callOrPushValue(value, isFuncRef);
           break;
         }
         case BC.DOT_ACCESS : {
           const propertyName: string = this.code.arg1[this.ip];
+          const isFuncRef: boolean = this.code.arg2[this.ip];
           const accessTarget = this.opStack.pop();
 
           if (!(accessTarget instanceof Map)) {
             throw new RuntimeError("Properties can be accessed only from Maps");
           }
           const value = mapAccess(accessTarget, propertyName);
-          this.callOrPushValue(value);
+          this.callOrPushValue(value, isFuncRef);
           break;         
         }
         case BC.SLICE_SEQUENCE: {
@@ -589,13 +592,14 @@ class Processor {
     this.code = frame.code;
   }
 
-  private callOrPushValue(value: any) {
-    if (value instanceof BoundFunction) {
-      // If it's a function, it should be called.
-      // The resulting value will be put in the stack instead.
+  private callOrPushValue(value: any, isFuncRef: boolean) {
+    // If it's a function and we are not dealing with a function
+    // reference, the function should be called.
+    // The resulting value will be put in the stack instead.
+    if (value instanceof BoundFunction && !isFuncRef) {
       this.immediatelyCallFunction(value);
     } else {
-      // If it's not a function, use the value as-is
+      // Otherwise use the value as-is
       this.opStack.push(value)
       this.ip += 1;
     }
