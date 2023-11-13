@@ -127,7 +127,7 @@ class Tokenizer {
     } else if(this.isIdentifierStartChar(ch)) {
       this.processSymbol()
     } else {
-      throw new ParseError("Unhandled token: " + ch + " at " + this.pos)
+      throw new ParserError("Unhandled token: " + ch, this.pos)
     }
   }
 
@@ -231,7 +231,7 @@ class Tokenizer {
     } else if (ch == '\n' || ch == '\r') {
       this.advance()
     } else {
-      throw new ParseError("Expected newline character at: " + this.pos)
+      throw new ParserError("Expected newline character", this.pos)
     }
     this.addSimpleToken(TokenType.NEWLINE)
     this.pos.moveToNewLine()
@@ -354,7 +354,7 @@ class Tokenizer {
           tokenTypeToAdd = TokenType.OP_FUNCREF;
           break;
         default:
-          throw new ParseError("Unhandled operator: " + peek1 + " at " + this.startPos)
+          throw new ParserError("Unhandled operator: " + peek1, this.startPos)
       }
     }
 
@@ -395,7 +395,7 @@ class Tokenizer {
     }
 
     if (!closed) {
-      throw new ParseError("Unterminated string literal at " + this.startPos)
+      throw new ParserError("Unterminated string literal", this.startPos)
     }
 
     return chars
@@ -449,7 +449,7 @@ class Tokenizer {
         }
       } else if (ch == '.') {
         if (consumingFloatingPart) {
-          throw new ParseError("Unexpected repeated dot found: " + this.startPos)
+          throw new ParserError("Unexpected repeated dot", this.startPos)
         }
         consumingFloatingPart = true
         this.advance()
@@ -610,7 +610,7 @@ class Tokenizer {
           }
         }
         if (!secondTokenFound) {
-          throw new ParseError("Expected token of type if / for / while / function after 'end")
+          throw new ParserError("Expected token of type if / for / while / function after 'end", token.location.start);
         }
       // Combine "ELSE" + "IF" to "ELSE IF"
       } else if (token.tokenType == TokenType.KW_ELSE) {

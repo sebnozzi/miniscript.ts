@@ -57,6 +57,9 @@ Next steps:
   - bitXor
   - refEquals(a, b)
   - len()
+- Normalize errors
+  Compiler Error: 'for' without matching 'end for' [line 3]
+  Runtime Error: Too Many Arguments [line 2]
 - Re-introduce debugger
 - Implement implicits:
   - time

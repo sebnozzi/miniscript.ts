@@ -81,3 +81,16 @@ enum TokenType {
 
   EOF,
 }
+
+function toOfficialImplTokenName(tokenType: TokenType): string {
+  switch(tokenType) {
+    case TokenType.COMMA:
+      return "Comma"
+    case TokenType.OPEN_ROUND:
+      return "LParen"
+    case TokenType.CLOSE_ROUND:
+      return "RParen"
+    default:
+      return `TOKEN_TYPE(${tokenType})`
+  }
+}

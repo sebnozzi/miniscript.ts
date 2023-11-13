@@ -78,7 +78,7 @@ class Processor {
       // Check that stack is balanced (empty)
       if (this.opStack.count() > 0) {
         console.info("Stack: ", this.opStack);
-        throw new Error("Stack was not empty!")
+        throw new RuntimeError("Stack was not empty!")
       }
       // Invoke callback
       this.onFinished();
@@ -104,11 +104,11 @@ class Processor {
           const callTarget = this.opStack.pop();
 
           if(!(callTarget instanceof Map)) {
-            throw new Error("Can call methods only on Maps");
+            throw new RuntimeError("Can call methods only on Maps");
           }
 
           if(!(callTarget.has(methodName))) {
-            throw new Error(`Map has no property "${methodName}"`);
+            throw new RuntimeError(`Map has no property "${methodName}"`);
           }
 
           const resolvedMethod: any = callTarget.get(methodName);
@@ -147,9 +147,9 @@ class Processor {
           } else if(isMap) {
             assignTarget.set(index, valueToAssign);
           } else if(isString) {
-            throw new Error("Cannot assign to String (immutable)");
+            throw new RuntimeError("Cannot assign to String (immutable)");
           } else {
-            throw new Error("Cannot set to element of this type");
+            throw new RuntimeError("Cannot set to element of this type");
           }
 
           this.ip += 1;
@@ -161,7 +161,7 @@ class Processor {
           const valueToAssign = this.opStack.pop();
 
           if (!(assignTarget instanceof Map)) {
-            throw new Error("Assignment target must be a Map");
+            throw new RuntimeError("Assignment target must be a Map");
           }
 
           assignTarget.set(propertyName, valueToAssign);
@@ -191,7 +191,7 @@ class Processor {
           } else if(isMap) {
             value = mapAccess(accessTarget, index);
           } else {
-            throw new Error("Cannot perform indexed access on this type");
+            throw new RuntimeError("Cannot perform indexed access on this type");
           }
 
           this.callOrPushValue(value);
@@ -202,7 +202,7 @@ class Processor {
           const accessTarget = this.opStack.pop();
 
           if (!(accessTarget instanceof Map)) {
-            throw new Error("Properties can be accessed only from Maps");
+            throw new RuntimeError("Properties can be accessed only from Maps");
           }
           const value = mapAccess(accessTarget, propertyName);
           this.callOrPushValue(value);
@@ -215,7 +215,7 @@ class Processor {
           let startIdx = this.opStack.pop();
           // Check list-target
           if (!(sliceTarget instanceof Array || typeof sliceTarget === "string")) {
-            throw new Error("Slice target must be List or String");
+            throw new RuntimeError("Slice target must be List or String");
           }
           // Check / compute indexes
           if (startIdx) {
@@ -289,7 +289,7 @@ class Processor {
         case BC.NEW_MAP: {
           const parentMap = this.opStack.pop();
           if (!(parentMap instanceof Map)) {
-            throw new Error("Operator `new` can only be used with Maps");
+            throw new RuntimeError("Operator `new` can only be used with Maps");
           }
           const newMap = new Map<any, any>();
           newMap.set("__isa", parentMap);
@@ -474,7 +474,7 @@ class Processor {
         case BC.NEGATE_NUMBER: {
           const valueInStack = this.opStack.pop();
           if (typeof valueInStack !== "number") {
-            throw new Error("Value must be a number");
+            throw new RuntimeError("Value must be a number");
           } else {
             const result = -1 * valueInStack;
             this.opStack.push(result);
@@ -546,7 +546,7 @@ class Processor {
         default: {
           console.log("ip:", this.ip);
           console.error("Bytecode not supported: ", this.code.opCodes[this.ip]);
-          throw new Error("Bytecode not supported: " + this.code.opCodes[this.ip]);
+          throw new RuntimeError("Bytecode not supported: " + this.code.opCodes[this.ip]);
         }
       } // switch
       this.cycleCount++;
@@ -578,7 +578,7 @@ class Processor {
     this.savedFrames.push(frame);
     // Remove at some point?
     if (this.savedFrames.count() > 100) {
-      throw new Error("Too much recursion");
+      throw new RuntimeError("Too much recursion");
     }
   }
 
@@ -603,7 +603,7 @@ class Processor {
 
   private performCall(funcName: string, paramCount: number, maybeFunction: any, dotCallTarget: any | null) {
     if (!(maybeFunction instanceof BoundFunction)) {
-      throw new Error(`Identifier ${funcName} should be a function`);
+      throw new RuntimeError(`Identifier ${funcName} should be a function`);
     }
 
     const boundFunc = maybeFunction as BoundFunction;
@@ -612,7 +612,7 @@ class Processor {
     const funcArgCount = funcDef.argNames.length;
 
     if (paramCount > funcArgCount) {
-      throw new Error(`Too many parameters in call to ${funcName}. Expected at most ${funcArgCount}, found ${paramCount}.`)
+      throw new RuntimeError(`Too many parameters in call to ${funcName}. Expected at most ${funcArgCount}, found ${paramCount}.`)
     } else if (paramCount < funcDef.argNames.length) {
       // Push the missing default argument values
       const missingArgCount = funcArgCount - paramCount;

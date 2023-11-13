@@ -639,7 +639,7 @@ class Parser {
         const fullLocation = openingToken.location.upTo(refTarget.location());
         return new FunctionRefExpr(refTarget, fullLocation);
     } else {
-      throw new ParseError("Invalid reference target for '@': " + refTarget)
+      throw new ParserError("Invalid reference target for '@'", refTarget.location().start)
     }
   }
 
@@ -909,11 +909,17 @@ class Parser {
     }
   }
 
-  private consume(tokenType: TokenType, message: string): Token {
+  private consume(tokenType: TokenType, message: string | null): Token {
     if (this.check(tokenType)) {
       return this.advance()
+    //} else if (message != null) {
+    //  throw this.failParsing(message);
     } else {
-      throw this.failParsing(message)
+      const tokenFound = this.peek();
+      const msg = 
+        `got ${toOfficialImplTokenName(tokenFound.tokenType)} ` + 
+        `where ${toOfficialImplTokenName(tokenType)} is required`;
+      throw this.failParsing(msg);
     }
   }
 
@@ -941,13 +947,14 @@ class Parser {
     }
 
     if (tokensConsumed == 0) {
-      throw new ParseError(message)
+      const pos = this.peek().location.start;
+      throw new ParserError(message, pos);
     }
   }
 
-  private failParsing(message: string): Error {
+  private failParsing(message: string): ParserError {
     const pos = this.peek().location.start;
-    return new ParseError(`At line ${pos.row}, column ${pos.col}: ${message}`);
+    return new ParserError(message, pos);
   }
 
   private tokenMatch(...types: TokenType[]): boolean {

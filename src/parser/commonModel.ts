@@ -1,5 +1,12 @@
 
-class ParseError extends Error {}
+class ParserError extends Error {
+  constructor(
+    message: string, 
+    public readonly position: Pos) {
+      const msg = `Compiler Error: ${message} [line ${position.row}]`;
+      super(msg);
+    }
+}
 
 // Location in the source-code.
 class SrcLocation {

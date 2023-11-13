@@ -37,7 +37,7 @@ class ExpressionCompiler {
     } else if (e instanceof FunctionBodyExpr) {
       this.compileFunctionBodyExpression(e);
     } else {
-      throw new Error("Expression type not yet supported: " + e.description())
+      throw new NotImplemented("Expression type not yet supported: " + e.description())
     }
   }
 
@@ -61,7 +61,7 @@ class ExpressionCompiler {
       this.compileExpression(callTarget.indexExpr);
       this.builder.push(BC.DOT_CALL, paramCount);    
     } else {
-      throw new Error(`Invalid call target: ${callTarget.toJson()}`)
+      throw new CompileTimeError(`Invalid call target: ${callTarget.toJson()}`)
     }
   }
 
@@ -118,7 +118,7 @@ class ExpressionCompiler {
         break;
       }
       default:
-        throw new Error("Operator not implemented: " + TokenType[e.operator.tokenType])
+        throw new NotImplemented("Operator not implemented: " + TokenType[e.operator.tokenType])
     }
   }
 
@@ -140,7 +140,7 @@ class ExpressionCompiler {
         break;
       }
       default: {
-        throw new Error("Invalid unary operator. Token type: " + e.operator.tokenType);
+        throw new CompileTimeError("Invalid unary operator. Token type: " + e.operator.tokenType);
       }
     }
   }
@@ -170,7 +170,7 @@ class ExpressionCompiler {
           break;
         }        
         default: {
-          throw new Error("Invalid operator found");
+          throw new CompileTimeError("Invalid operator found");
         }
       }
     }
@@ -184,7 +184,7 @@ class ExpressionCompiler {
     const isAnd = e.operator.tokenType == TokenType.OP_AND;
     const isOr = e.operator.tokenType == TokenType.OP_OR;
     if (!(isAnd || isOr)) {
-      throw new Error("Invalid logic operator: must be either AND or OR");
+      throw new CompileTimeError("Invalid logic operator: must be either AND or OR");
     }
     // Used to short-circuit when further evaluation is not needed.
     // For example "true or something-else" or "false and something-else".

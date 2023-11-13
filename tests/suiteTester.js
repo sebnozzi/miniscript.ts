@@ -11,37 +11,34 @@ function testSuite(suiteFileName, description) {
           for (let test of tests) {
             const header = test.headers[1];
             const testName = header + ' (line ' + test.lineNr +')';
-            // TODO: skip these for now
-            if (test.output[0].startsWith("Compiler Error:")) {
-              it(testName);
-            } else {
-              it(testName, function(done) {
-                
-                const srcCode = test.code.join("\n");
-                const expectedOutput = test.output;
 
-                console.log(testName);
-                runCode(srcCode, testName, (lines) => {
-                  try {
-                    if (lines.length !== expectedOutput.length) {
-                      console.error("Expected: ", expectedOutput);
-                      console.error("Actual: ", lines);
-                      chai.assert.fail("Line lengths differ. Expected: " + expectedOutput.length + ". Found: " + lines.length);
-                    } else {
-                      for (let i = 0; i < lines.length; i++) {
-                        const actual = lines[i];
-                        const expected = expectedOutput[i];
-                        chai.assert.equal(actual, expected);
-                      }
+            it(testName, function(done) {
+              
+              const srcCode = test.code.join("\n");
+              const expectedOutput = test.output;
+
+              console.log(testName);
+              runCode(srcCode, testName, (lines) => {
+                try {
+                  if (lines.length !== expectedOutput.length) {
+                    console.error("Expected: ", expectedOutput);
+                    console.error("Actual: ", lines);
+                    chai.assert.fail("Line lengths differ. Expected: " + expectedOutput.length + ". Found: " + lines.length);
+                  } else {
+                    for (let i = 0; i < lines.length; i++) {
+                      const actual = lines[i];
+                      const expected = expectedOutput[i];
+                      chai.assert.equal(actual, expected);
                     }
-                    done();
-                  } catch(e) {
-                    throw e;
                   }
-                });
-
+                  done();
+                } catch(e) {
+                  throw e;
+                }
               });
-            }
+
+            });
+            
           }
         });
 
@@ -68,15 +65,16 @@ function testSuiteParsing(suiteFileName, description) {
           for (let test of tests) {
             const srcCode = test.code.join("\n");
             const header = test.headers[1];
-            // TODO: skip these for now
-            if (test.output[0].startsWith("Compiler Error:")) {
-              it(header + ' (line ' + test.lineNr +')');
-            } else {
-              it(header + ' (line ' + test.lineNr +')', function() {
-                const parser = new Parser(srcCode);
+            it(header + ' (line ' + test.lineNr +')', function() {
+              const parser = new Parser(srcCode);
+              try {
                 parser.parse();
-              });
-            }
+              } catch(e) {
+                if (e instanceof ParserError && !e.message.startsWith("Compiler Error:")) {                 
+                  throw e;
+                }
+              }
+            });
           }
         });
   

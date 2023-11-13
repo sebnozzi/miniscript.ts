@@ -29,8 +29,8 @@ function setupIde() {
 }
 
 function compileAndRun() {
-
-  let t0: number;
+  
+  const t0 = performance.now();
 
   const txtCallback = (txt: string) => {
     console.log(txt);
@@ -39,7 +39,6 @@ function compileAndRun() {
   const interp = new Interpreter(txtCallback, txtCallback);
   
   interp.onStarted = () => {
-    t0 = performance.now();
     console.log("Starting")
   }
   interp.onFinished = () => {

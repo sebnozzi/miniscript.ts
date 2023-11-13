@@ -1,9 +1,7 @@
 ======================================================================
-==== Parameter-list after space in statement
-==== ... should produce a parse-error
 range (0,3)
 ----------------------------------------------------------------------
-At line 1, column 9: Expected ')' after expression.
+Compiler Error: got Comma where RParen is required [line 1]
 ======================================================================
 ==== Space before parameters
 // This is a statement-function call, consisting of a call to print 
