@@ -1,4 +1,22 @@
 ======================================================================
+==== Parameter passing order
+==== This is how standard miniScript behaves
+
+// Note that repeated argument names are allowed
+f = function(a,b,a=123)
+	print a
+end function
+
+// First "a" gets assigned 33
+// But because the second "a" is not passed it gets assigned 123
+
+f 33
+// Same even if no parameters passed
+f
+----------------------------------------------------------------------
+123
+123
+======================================================================
 ==== More advanced function reference
 f1 = function(a,b)
 	return a + b

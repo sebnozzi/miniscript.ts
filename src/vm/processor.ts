@@ -656,8 +656,10 @@ class Processor {
       this.ip = 0;
 
       // Pop and set parameters as variables
-      for (let argName of funcDef.reversedArgNames) {
-        const paramValue = this.opStack.pop();
+      const parameterValues = this.opStack.popN(funcArgCount);
+      for (let i = 0; i < funcArgCount; i++) {
+        const paramValue = parameterValues[i];
+        const argName = funcDef.argNames[i];
         this.context.setLocal(argName, paramValue);
       }
       // Add dot-call target if any
