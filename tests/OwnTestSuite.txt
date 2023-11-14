@@ -1,4 +1,57 @@
 ======================================================================
+==== Self-function with "self" in non-first positions
+
+myList = {}
+myList.elements = [1,2,3,4,5,6,7,8]
+
+countMultiplesOfNr = function(value, initial, self)
+	count = initial
+	for x in self.elements
+		if x % value == 0 then count = count + 1
+	end for
+	return count
+end function
+
+// As standalone function
+print countMultiplesOfNr(2, 40, myList)
+
+// As self-method (the "self" parameter
+// gets populated with the object)
+myList.countMultiplesOfNr = @countMultiplesOfNr
+print myList.countMultiplesOfNr(2, 40)
+----------------------------------------------------------------------
+44
+44
+======================================================================
+==== Self-functions
+==== These are functions which can be called as stand-alone or added to 
+==== an object and called as methods. These functions have "self" as the 
+==== first parameter. When called stand-alone the relevant object is passed
+==== manually. When called as a method, miniScript fills the first parameter
+==== for you and you should not pass it.
+
+myList = {}
+myList.elements = [1,2,3,4,5,6,7,8]
+
+countMultiplesOfNr = function(self, value)
+	count = 0
+	for x in self.elements
+		if x % value == 0 then count = count + 1
+	end for
+	return count
+end function
+
+// As standalone function
+print countMultiplesOfNr(myList, 2)
+
+// As self-method (the "self" parameter
+// gets populated with the object)
+myList.countMultiplesOfNr = @countMultiplesOfNr
+print myList.countMultiplesOfNr(2)
+----------------------------------------------------------------------
+4
+4
+======================================================================
 ==== Parameter passing order
 ==== This is how standard miniScript behaves
 

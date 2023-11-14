@@ -54,7 +54,6 @@ enum TokenType {
   KW_TRUE,
   KW_FALSE,
   KW_NULL,
-  KW_SELF,
   KW_SUPER,
 
   KW_IF,
@@ -91,6 +90,7 @@ function toOfficialImplTokenName(tokenType: TokenType): string {
     case TokenType.CLOSE_ROUND:
       return "RParen"
     default:
-      return `TOKEN_TYPE(${tokenType})`
+      TokenType[tokenType]
+      return `${TokenType[tokenType]}`
   }
 }

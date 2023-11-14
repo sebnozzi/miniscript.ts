@@ -35,7 +35,6 @@ class Tokenizer {
     "continue": TokenType.KW_CONTINUE,
     "end": TokenType.KW_END,
     "return": TokenType.KW_RETURN,
-    "self": TokenType.KW_SELF,
     "super": TokenType.KW_SUPER,
     "true": TokenType.KW_TRUE,
     "false": TokenType.KW_FALSE,

@@ -657,9 +657,15 @@ class Processor {
 
       // Pop and set parameters as variables
       const parameterValues = this.opStack.popN(funcArgCount);
-      for (let i = 0; i < funcArgCount; i++) {
+      let argNames = funcDef.argNames;
+    
+      if (dotCallTarget) {
+        argNames = argNames.filter((n:string) => n !== "self");
+      }
+
+      for (let i = 0; i < argNames.length; i++) {
+        const argName = argNames[i];
         const paramValue = parameterValues[i];
-        const argName = funcDef.argNames[i];
         this.context.setLocal(argName, paramValue);
       }
       // Add dot-call target if any

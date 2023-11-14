@@ -757,8 +757,6 @@ class Parser {
       return new Literal(1, this.previous().location);
     } else if (this.tokenMatch(TokenType.KW_NULL)) {
       return new Literal(null, this.previous().location);
-    } else if (this.tokenMatch(TokenType.KW_SELF)) {
-      return this.selfExpr(context)
     } else if (this.tokenMatch(TokenType.KW_SUPER)) {
       return this.superExpr(context)
     } else if (this.tokenMatch(TokenType.INT_LITERAL, TokenType.FLOAT_LITERAL, TokenType.STRING_LITERAL)) {
@@ -789,15 +787,6 @@ class Parser {
   private identifier(): IdentifierExpr {
     const token = this.consume(TokenType.IDENTIFIER_TK, "Identifier expected") as Identifier
     return new IdentifierExpr(token)
-  }
-
-  private selfExpr(context: ParsingContext): SelfExpr {
-    if (context.insideFunction) {
-      const token = this.previous()
-      return new SelfExpr(token.location)
-    } else {
-      throw this.failParsing("Keyword 'self' only allowed inside a function")
-    }
   }
 
   private superExpr(context: ParsingContext): SuperExpr {

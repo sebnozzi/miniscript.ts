@@ -1,9 +1,5 @@
 
 Next steps:
-- Support for magic functions with self as first parameter
-- self-functions (functions with first parameter "self" which
-  can be added to maps and work as methods).
-  => Can be only added when function references are supported
 - Support built-in methods for String / List / Map / Number ...
   These are not shown when inspecting values ... are probably "found"
   when normal index-lookup fail. They can also be overridden for Maps.
@@ -20,7 +16,7 @@ Next steps:
   - ceil
   - sign
   - abs
-  - val()
+  - val
   - log
   - sqrt
   - lower
@@ -86,6 +82,11 @@ Next steps:
     print a["name",
 - Debugger: willExecuteCall is incomplete ... many more opcodes could
   result in a call
+- Introduce a "strict-mode". Don't allow:
+  - Repeated arguments of the same name
+  - Putting a "self" argument anywhere but in the first position
+  - Runtime errors for all operations that don't make sense
+    - No more things resulting to null
 
 ===
 
