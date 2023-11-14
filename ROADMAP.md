@@ -1,15 +1,20 @@
 
 Next steps:
-- Support built-in methods for String / List / Map / Number ...
-  These are not shown when inspecting values ... are probably "found"
-  when normal index-lookup fail. They can also be overridden for Maps.
-  This means supporting invoking methods on things different than Maps
-  (like strings, lists, etc.) because they are also "objects".
-- Write tests for operator precedence ... could be that the parser has bugs!
-  https://miniscript.org/wiki/Operators
+- Support adding a function to the type-prototypes.
+- Support printing of
+  - list
+  - map
+  - number
+  - string
 - Implement implicits:
   - globals
   - locals
+- Test isa-equality with base-maps:
+  - funcRef
+  - list
+  - string
+  - number
+  - map
 - Implement implicits:
   - round
   - floor
@@ -48,10 +53,12 @@ Next steps:
   - bitXor
   - refEquals(a, b)
   - len()
+- Write tests for operator precedence ... could be that the parser has bugs!
+  https://miniscript.org/wiki/Operators
 - Normalize errors
   Compiler Error: 'for' without matching 'end for' [line 3]
   Runtime Error: Too Many Arguments [line 2]
-- Re-introduce debugger
+  (so that many tests pass)
 - Implement implicits:
   - time
   - wait
@@ -59,12 +66,6 @@ Next steps:
   - hash
   - version
   - stackTrace
-  Types (maps)
-  - funcRef
-  - list
-  - string
-  - number
-  - map
 - Scientific notation (big?) numbers 
   - How is this done?
   - Parsed and stored as doubles
@@ -72,6 +73,7 @@ Next steps:
 - Optional delimiter for print (print "Hello", "")
   - Difficult to test because we output "per line"
 - `(null)[1] = 1` should throw error
+- Re-introduce debugger?
 - Partial parsing ... useful in interactive environments
   - The parser should know if input is "pending" and return
     signalling that it can wait for more input (as in a co-routine)

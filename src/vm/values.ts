@@ -249,17 +249,6 @@ function computeEffectiveIndex(accessTarget: IndexedCollection, index: number): 
   return effectiveIndex;
 }
 
-function mapAccess(mapObj: Map<any, any>, key: any): any {
-  if (mapObj.has(key)) {
-    return mapObj.get(key);
-  } else if (mapObj.has("__isa")) {
-    const parentMap = mapObj.get("__isa");
-    return mapAccess(parentMap, key); 
-  } else {
-    throw new Error(`Map has no property "${key}".`);
-  }
-}
-
 function toBooleanNr(value: any): number {
   if (value === null) {
     return 0;

@@ -40,6 +40,7 @@ class Interpreter {
     addImplicits(p);
     addGraphicImplicits(p);
     addPrintImplicit(p);
+    addPrototypeImplicits(p);
 
     const interpThis = this;
 

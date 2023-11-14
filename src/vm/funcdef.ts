@@ -56,10 +56,20 @@ class BoundFunction {
 
   public readonly funcDef: FuncDef;
   public readonly context: Context;
+  private _selfFn: boolean;
 
   constructor(funcDef: FuncDef, context: Context) {
     this.funcDef = funcDef;
     this.context = context;
+    this._selfFn = false;
+  }
+
+  makeSelfFunction() {
+    this._selfFn = true;
+  }
+
+  isSelfFunction() {
+    return this._selfFn;
   }
 
 }

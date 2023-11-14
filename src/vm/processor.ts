@@ -16,6 +16,11 @@ class Processor {
   context: Context;
   // The global context.
   globalContext: Context;
+  // List prototypes
+  listPrototype: Map<any, any>;
+  mapPrototype: Map<any, any>;
+  stringPrototype: Map<any, any>;
+  numberPrototype: Map<any, any>;
   // Stack of frames (waiting to be returned to; not the current one).
   savedFrames: Stack<Frame>;
   // Counter used to return control back to host.
@@ -27,6 +32,10 @@ class Processor {
     this.code = programCode;
     this.ip = 0;
     this.globalContext = new Context();
+    this.listPrototype = new Map<any, any>();
+    this.mapPrototype = new Map<any, any>();
+    this.stringPrototype = new Map<any, any>();
+    this.numberPrototype = new Map<any, any>();
     this.context = this.globalContext;
     this.savedFrames = new Stack<Frame>();
     this.opStack = new Stack();
@@ -38,26 +47,44 @@ class Processor {
     this.runUntilDone();
   }
 
-  addNative(name: string, argCount: number, impl: Function) {
-    const args = [];
-    for (let argIdx = 0; argIdx < argCount; argIdx++) {
-      args.push(new FuncDefArg(`arg_${argIdx + 1}`, undefined));
-    }
-    const funcDef = new FuncDef(args, impl);
-    const boundFunc = new BoundFunction(funcDef, this.globalContext);
+  addNative(name: string, impl: Function, defaultValues: any[] | null = null) {
+    const boundFunc = this.makeNativeBoundFunction(impl, defaultValues);
     this.globalContext.setLocal(name, boundFunc);
   }
 
-  addNativeWithDefaults(name: string, argCount: number, defaultValues: any[], impl: Function) {
+  addStringNative(name: string, impl: Function, defaultValues: any[] | null = null) {
+    this.addPrototypeNative(this.stringPrototype, name, impl, defaultValues);
+  }
+
+  addMapNative(name: string, impl: Function, defaultValues: any[] | null = null) {
+    this.addPrototypeNative(this.mapPrototype, name, impl, defaultValues);
+  }
+
+  addListNative(name: string, impl: Function, defaultValues: any[] | null = null) {
+    this.addPrototypeNative(this.listPrototype, name, impl, defaultValues);
+  }
+
+  addNumberNative(name: string, impl: Function, defaultValues: any[] | null = null) {
+    this.addPrototypeNative(this.numberPrototype, name, impl, defaultValues);
+  }
+
+  addPrototypeNative(target: Map<string, any>, name: string, impl: Function, defaultValues: any[] | null = null) {
+    const boundFunc = this.makeNativeBoundFunction(impl, defaultValues);
+    boundFunc.makeSelfFunction();
+    target.set(name, boundFunc);
+  }
+
+  makeNativeBoundFunction(impl: Function, defaultValues: any[] | null = null): BoundFunction {
     const args = [];
+    const argCount = impl.length;
     for (let argIdx = 0; argIdx < argCount; argIdx++) {
-      const defaultValue = defaultValues[argIdx];
+      const defaultValue = defaultValues !== null ? defaultValues[argIdx] : undefined;
       const arg = new FuncDefArg(`arg_${argIdx + 1}`, defaultValue);
       args.push(arg);
     }
     const funcDef = new FuncDef(args, impl);
     const boundFunc = new BoundFunction(funcDef, this.globalContext);
-    this.globalContext.setLocal(name, boundFunc);
+    return boundFunc;
   }
 
   runUntilDone(maxCount: number = 73681) {
@@ -103,15 +130,13 @@ class Processor {
           const methodName: string = this.opStack.pop();
           const callTarget = this.opStack.pop();
 
-          if(!(callTarget instanceof Map)) {
-            throw new RuntimeError("Can call methods only on Maps");
+          let resolvedMethod: any;
+          if (callTarget instanceof Map) {
+            resolvedMethod = this.mapAccess(callTarget, methodName);
+          } else {
+            // Lookup in base type
+            resolvedMethod = this.prototypeAccess(callTarget, methodName);
           }
-
-          if(!(callTarget.has(methodName))) {
-            throw new RuntimeError(`Map has no property "${methodName}"`);
-          }
-
-          const resolvedMethod: any = callTarget.get(methodName);
 
           this.performCall(methodName, paramCount, resolvedMethod, callTarget);
           break;
@@ -172,7 +197,7 @@ class Processor {
           const identifier = this.code.arg1[this.ip];
           const isFuncRef: boolean = this.code.arg2[this.ip];
           const value = this.context.get(identifier);
-          this.callOrPushValue(value, isFuncRef);
+          this.callOrPushValue(value, isFuncRef, null);
           break;
         }
         case BC.INDEXED_ACCESS: {
@@ -187,16 +212,24 @@ class Processor {
           let value: any;
 
           if (isList || isString) {
-            checkInt(index, "Index must be an integer");
-            const effectiveIndex = computeEffectiveIndex(accessTarget, index);
-            value = accessTarget[effectiveIndex];
+            if (typeof index === "number") {
+              checkInt(index, "Index must be an integer");
+              const effectiveIndex = computeEffectiveIndex(accessTarget, index);
+              value = accessTarget[effectiveIndex];
+            } else if (isList) {
+              value = this.mapAccess(this.listPrototype, index);
+            } else if (isString) {
+              value = this.mapAccess(this.stringPrototype, index);
+            } else {
+              throw new Error("Uncovered case");
+            }
           } else if(isMap) {
-            value = mapAccess(accessTarget, index);
+            value = this.mapAccess(accessTarget, index);
           } else {
             throw new RuntimeError("Cannot perform indexed access on this type");
           }
 
-          this.callOrPushValue(value, isFuncRef);
+          this.callOrPushValue(value, isFuncRef, accessTarget);
           break;
         }
         case BC.DOT_ACCESS : {
@@ -204,11 +237,14 @@ class Processor {
           const isFuncRef: boolean = this.code.arg2[this.ip];
           const accessTarget = this.opStack.pop();
 
-          if (!(accessTarget instanceof Map)) {
-            throw new RuntimeError("Properties can be accessed only from Maps");
+          let value: any;
+          if (accessTarget instanceof Map) {
+            value = this.mapAccess(accessTarget, propertyName);
+          } else {
+            // Lookup in base type
+            value = this.prototypeAccess(accessTarget, propertyName);
           }
-          const value = mapAccess(accessTarget, propertyName);
-          this.callOrPushValue(value, isFuncRef);
+          this.callOrPushValue(value, isFuncRef, accessTarget);
           break;         
         }
         case BC.SLICE_SEQUENCE: {
@@ -592,12 +628,37 @@ class Processor {
     this.code = frame.code;
   }
 
-  private callOrPushValue(value: any, isFuncRef: boolean) {
+  private prototypeAccess(accessTarget: any, key: string): any {
+    if (accessTarget instanceof Array) {
+      return this.mapAccess(this.listPrototype, key);
+    } else if (typeof accessTarget === "string") {
+      return this.mapAccess(this.stringPrototype, key);
+    } else if (typeof accessTarget === "number") {
+      return this.mapAccess(this.numberPrototype, key);
+    } else {
+      throw new RuntimeError(`Map has no property "${key}".`);
+    }
+  }
+
+  private mapAccess(mapObj: Map<any, any>, key: any): any {
+    if (mapObj.has(key)) {
+      return mapObj.get(key);
+    } else if (mapObj.has("__isa")) {
+      const parentMap = mapObj.get("__isa");
+      return this.mapAccess(parentMap, key); 
+    } else if (mapObj === this.mapPrototype) {
+      throw new Error(`Map has no property "${key}".`);
+    } else {
+      return this.mapAccess(this.mapPrototype, key); 
+    }
+  }
+
+  private callOrPushValue(value: any, isFuncRef: boolean, accessSrc: any | null) {
     // If it's a function and we are not dealing with a function
     // reference, the function should be called.
     // The resulting value will be put in the stack instead.
     if (value instanceof BoundFunction && !isFuncRef) {
-      this.immediatelyCallFunction(value);
+      this.immediatelyCallFunction(value, accessSrc);
     } else {
       // Otherwise use the value as-is
       this.opStack.push(value)
@@ -676,16 +737,26 @@ class Processor {
     }    
   }
 
-  private immediatelyCallFunction(value: BoundFunction) {
-    const funcDef: FuncDef = value.funcDef;
+  private immediatelyCallFunction(boundFunc: BoundFunction, accessSrc: any | null) {
+    const funcDef: FuncDef = boundFunc.funcDef;
 
     // Decide how to call function
     if (funcDef.isNative()) {
       let params = [];
-      // Use default values, if any
-      if (funcDef.argNames.length > 0) {
+      if (boundFunc.isSelfFunction()) {
+        params.push(accessSrc);
+        // Use default arg-values, if any
+        let moreParams = funcDef.effectiveDefaultValues;
+        // Skip first param
+        moreParams = moreParams.slice(1);
+        for(let p in moreParams) {
+          params.push(p);
+        }
+      } else {
+        // Use default arg-values, if any
         params = funcDef.effectiveDefaultValues;
       }
+
       const func = funcDef.getFunction();
       const retVal = func.apply(this, params);
       this.opStack.push(retVal);
@@ -696,7 +767,7 @@ class Processor {
       this.pushFrame();
       // Set the new code to run
       this.code = funcDef.getCode();
-      this.context = new Context(value.context);
+      this.context = new Context(boundFunc.context);
       // Populate default values, if any
       for (let idx = 0; idx < funcDef.argNames.length; idx++) {
         this.context.setLocal(funcDef.argNames[idx], funcDef.effectiveDefaultValues[idx]);

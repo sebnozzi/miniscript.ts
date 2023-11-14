@@ -2,18 +2,18 @@
 function addImplicits(p: Processor) {
 
   // str(value)
-  p.addNative("str", 1, function(value: any): string {
+  p.addNative("str", function(value: any): string {
     const result: string = formatValue(value);
     return result;
   });
 
   // rnd
-  p.addNative("rnd", 0, function(): number {
+  p.addNative("rnd", function(): number {
     return Math.random();
   });
 
   // range(start,stop[,step])
-  p.addNativeWithDefaults("range", 3, [undefined, undefined, null], function(start: number, stop: number, step: number) {
+  p.addNative("range", function(start: number, stop: number, step: number) {
     checkInt(start, "Argument 'start' should be integer");
     checkInt(stop, "Argument 'stop' should be integer");
 
@@ -40,6 +40,6 @@ function addImplicits(p: Processor) {
     }
 
     return result;
-  });
+  }, [undefined, undefined, null]);
 
 }
