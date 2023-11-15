@@ -1,6 +1,6 @@
 
 function addPrintImplicit(p: Processor) {
-  p.addGlobalImplicit("print", function(value: any) {
+  p.addGlobalImplicit("print(s)", function(value: any) {
     const text = formatValue(value);
     p.stdoutCallback(text);
   });

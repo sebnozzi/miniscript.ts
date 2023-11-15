@@ -1,8 +1,6 @@
 
 Next steps:
-- Provide a way to specify argument NAMES for implicit functions
-  Right now it's arg_1, arg_2, etc.
-  addIntrinsic("foo(x,y=null,z=123)", function(x,y,z){})
+- indexOf has "after" argument ... 
 - Implement implicits:
   - globals
   - locals
@@ -14,11 +12,6 @@ Next steps:
   - split
   - insert
   - remove
-- Support printing of
-  - list
-  - map
-  - number
-  - string
 - Implement implicits:
   - round
   - floor

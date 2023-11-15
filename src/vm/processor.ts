@@ -48,16 +48,16 @@ class Processor {
     this.onFinished = function() {};
     // Add core-type map-accessing functions
     const vmThis = this;
-    this.listCoreTypeMapFn = this.makeNativeBoundFunction(function() {
+    this.listCoreTypeMapFn = this.makeNativeBoundFunction([], [], function() {
       return vmThis.listCoreType;
     });
-    this.stringCoreTypeMapFn = this.makeNativeBoundFunction(function() {
+    this.stringCoreTypeMapFn = this.makeNativeBoundFunction([], [], function() {
       return vmThis.stringCoreType;
     });
-    this.numberCoreTypeMapFn = this.makeNativeBoundFunction(function() {
+    this.numberCoreTypeMapFn = this.makeNativeBoundFunction([], [], function() {
       return vmThis.numberCoreType;
     });
-    this.mapCoreTypeMapFn = this.makeNativeBoundFunction(function() {
+    this.mapCoreTypeMapFn = this.makeNativeBoundFunction([], [], function() {
       return vmThis.mapCoreType;
     });
   }
@@ -66,9 +66,10 @@ class Processor {
     this.runUntilDone();
   }
 
-  addGlobalImplicit(name: string, impl: Function, defaultValues: any[] | null = null) {
-    const boundFunc = this.makeNativeBoundFunction(impl, defaultValues);
-    this.globalContext.setLocal(name, boundFunc);
+  addGlobalImplicit(signature: string, impl: Function) {
+    const [fnName, argNames, defaultValues] = parseSignature(signature);
+    const boundFunc = this.makeNativeBoundFunction(argNames, defaultValues, impl);
+    this.globalContext.setLocal(fnName, boundFunc);
   }
 
   addCoreTypeImplicit(target: Map<string, any>, name: string, boundFunc: BoundFunction) {
@@ -76,12 +77,18 @@ class Processor {
     target.set(name, boundFunc);
   }
 
-  makeNativeBoundFunction(impl: Function, defaultValues: any[] | null = null): BoundFunction {
+  makeNativeBoundFunction(argNames: string[], defaultValues: any[], impl: Function): BoundFunction {
     const args = [];
     const argCount = impl.length;
+
+    if (argNames.length !== argCount || argNames.length !== defaultValues.length) {
+      throw new Error("Length mismatch in argument count! Check function signature.");
+    }
+
     for (let argIdx = 0; argIdx < argCount; argIdx++) {
-      const defaultValue = defaultValues !== null ? defaultValues[argIdx] : undefined;
-      const arg = new FuncDefArg(`arg_${argIdx + 1}`, defaultValue);
+      const argName = argNames[argIdx];
+      const defaultValue = defaultValues[argIdx];
+      const arg = new FuncDefArg(argName, defaultValue);
       args.push(arg);
     }
     const funcDef = new FuncDef(args, impl);

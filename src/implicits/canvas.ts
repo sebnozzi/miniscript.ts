@@ -9,7 +9,7 @@ function addGraphicImplicits(p: Processor) {
   });
 
   // fillEllipse x,y,w,h,c
-  p.addGlobalImplicit("fillEllipse", function(x:number,y:number,width:number,height:number,color:string) {
+  p.addGlobalImplicit("fillEllipse(x,y,width,height,color)", function(x:number,y:number,width:number,height:number,color:string) {
     const canvas = document.getElementById("gfx") as HTMLCanvasElement;
     const gfx = canvas.getContext("2d") as CanvasRenderingContext2D;
     gfx.fillStyle = color;
