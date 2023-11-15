@@ -28,11 +28,12 @@ function addImplicits(p: Processor) {
     return total;
   });
 
-  p.addGlobalImplicit("indexOf(self,value)", function(self: any, value: any): number | null {
+  p.addGlobalImplicit("indexOf(self,value,after=null)", function(self: any, value: any, after: number | null): number | null {
     if (self instanceof Array || typeof self === "string") {
-      const idx = self.indexOf(value);
+      let afterIdx = after !== null ? after : 0;
+      const idx = self.indexOf(value, afterIdx);
       return idx >= 0 ? idx : null;
-    } else if (self instanceof Map) {
+    } else if (self instanceof Map && after === null) {
       for(let [key,mapValue] of self) {
         if (mapValue === value) {
           return key;

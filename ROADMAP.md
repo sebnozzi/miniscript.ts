@@ -1,10 +1,13 @@
 
 Next steps:
-- indexOf has "after" argument ... 
+- Implicits don't "pollute" the global scope
+  They are resolved if anything else fails AFTER the global
+  scope is exhausted. That's why they don't appear.
 - Implement implicits:
   - globals
   - locals
-  => look in the official impl ... what are these? keywords?
+  => They are implemented as special "identifiers", which are 
+     specially resolved ... I guess like "list", "map", ...
   Make "locals" return a clone of the map? Immutable map?
 - Implement
   - sort
