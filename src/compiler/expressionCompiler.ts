@@ -1,10 +1,14 @@
 
 class ExpressionCompilerContext {
-  constructor(public readonly isFuncRef: boolean = false) {
+  constructor(public readonly isFuncRef: boolean = false, public readonly isStatement: boolean = false) {
   }
   enterFunctionReference(): ECContext {
-    const newContext = new ExpressionCompilerContext(true);
+    const newContext = new ExpressionCompilerContext(true, this.isStatement);
     return newContext;
+  }
+  enterStatement(): ECContext {
+    const newContext = new ExpressionCompilerContext(this.isFuncRef, true);
+    return newContext;   
   }
 }
 
@@ -268,7 +272,15 @@ class ExpressionCompiler {
   private compileIndexedAccessExpression(e: IndexedAccessExpr, context: ECContext) {
     this.compileExpression(e.indexExpr);
     this.compileExpression(e.accessTarget);
-    this.builder.push(BC.INDEXED_ACCESS, context.isFuncRef);
+    // If the indexed-access takes place as a statement INVOKE the function
+    // Otherwise return the function value
+    let isFuncRef: boolean;
+    if (context.isStatement) {
+      isFuncRef = false;
+    } else {
+      isFuncRef = true;
+    }
+    this.builder.push(BC.INDEXED_ACCESS, isFuncRef);
   }
 
   private compileDotAccessExpression(e: DotAccessExpr, context: ECContext) {

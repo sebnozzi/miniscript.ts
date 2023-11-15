@@ -1,6 +1,5 @@
 
 Next steps:
-- Indexed-accessing of functions in expressions
 - Settle for ONE nomenclature for base-types, core-types, prototypes ...
 - Support adding a function to the type-prototypes.
 - Support printing of

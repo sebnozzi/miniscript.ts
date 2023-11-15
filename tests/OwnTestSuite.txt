@@ -1,4 +1,28 @@
 ======================================================================
+==== Map-function: statement vs expression
+==== Indexing never invokes the result if it's part of an expression
+==== This might change as a result of 
+==== https://github.com/JoeStrout/miniscript/issues/89
+m = {}
+m.f = function
+    print "foo"
+    return 123
+end function
+// Function gets invoked
+m.f
+// Function gets invoked
+m["f"]
+// Function gets invoked and return value printed
+print m.f
+// Function does NOT get invoked, and function value printed
+print m["f"]
+----------------------------------------------------------------------
+foo
+foo
+foo
+123
+FUNCTION()
+======================================================================
 ==== Self-function with "self" with no arguments
 number.isOdd = function(self)
 	return self % 2 == 1
@@ -55,7 +79,8 @@ print list.len > 0
 1
 1
 ======================================================================
-==== Base types as functions
+==== Base types are functions
+==== (which return maps)
 print @list
 print @number
 print @map
@@ -65,20 +90,6 @@ FUNCTION()
 FUNCTION()
 FUNCTION()
 FUNCTION()
-======================================================================
-==== Intrinsic method "len" (using indexed-access)
-s = "Hello"
-print s["len"]
-
-a = [1,2,3,4]
-print a["len"]
-
-m = {"a": "A", "b": "B"}
-print m["len"]
-----------------------------------------------------------------------
-5
-4
-2
 ======================================================================
 ==== Intrinsic method "indexOf" (using indexed-access)
 s = "Hello"
