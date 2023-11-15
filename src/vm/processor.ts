@@ -668,7 +668,7 @@ class Processor {
     if (mapObj.has(key)) {
       return mapObj.get(key);
     } else {
-      throw new RuntimeError(`Map has no property "${key}" [line ${this.getCurrentSrcLineNr()}]`);
+      throw new RuntimeError(`Key Not Found: '${key}' not found in map [line ${this.getCurrentSrcLineNr()}]`);
     }
   }
 
@@ -679,7 +679,7 @@ class Processor {
       const parentMap = mapObj.get("__isa");
       return this.mapAccess(parentMap, key); 
     } else if (mapObj === this.mapCoreType) {
-      throw new RuntimeError(`Map has no property "${key}" [line ${this.getCurrentSrcLineNr()}]`);
+      throw new RuntimeError(`Key Not Found: '${key}' not found in map [line ${this.getCurrentSrcLineNr()}]`);
     } else {
       return this.mapAccess(this.mapCoreType, key); 
     }

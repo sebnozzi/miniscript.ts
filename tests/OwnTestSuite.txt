@@ -1,4 +1,106 @@
 ======================================================================
+==== Intrinsic: abs
+print abs(0.0)
+print abs(-12.4)
+print abs(55)
+print abs(null)
+print abs("Hello")
+print abs([])
+print abs({"a":1})
+----------------------------------------------------------------------
+0
+12.4
+55
+0
+0
+0
+0
+======================================================================
+==== Intrinsics: upper / lower
+s = "hElLo"
+print s.upper
+print upper(s)
+print s.lower
+print lower(s)
+----------------------------------------------------------------------
+HELLO
+HELLO
+hello
+hello
+======================================================================
+==== Intrinsic: sum
+m = {"a": 1, "b": 2}
+a = [11,22,33,44,55]
+s = "Hello"
+n = 123
+
+print sum(m)
+print m.sum
+
+print sum(a)
+print a.sum
+
+print sum(s)
+print sum(n)
+----------------------------------------------------------------------
+3
+3
+165
+165
+0
+0
+======================================================================
+==== Intrinsic: hasIndex
+m = {"a": 1, "b": 2}
+a = [11,22,33,44,55]
+s = "Hello"
+n = 123
+print hasIndex(m,"a")
+print m.hasIndex("b")
+
+// Typical source of error ... hasIndex != hasElement!
+print hasIndex(a,33)
+print a.hasIndex(44)
+// This works
+print hasIndex(a,4)
+print a.hasIndex(1)
+
+print hasIndex(s,2)
+print s.hasIndex(3)
+
+print hasIndex(n, 1)
+----------------------------------------------------------------------
+1
+1
+0
+0
+1
+1
+1
+1
+null
+======================================================================
+==== Intrinsic: indexes
+m = {"a": 1, "b": 2}
+a = [11,22,33,44,55]
+s = "Hello"
+n = 123
+print indexes(m)
+print m.indexes
+print indexes(a)
+print a.indexes
+print indexes(s)
+print s.indexes
+print indexes(n)
+----------------------------------------------------------------------
+["a", "b"]
+["a", "b"]
+[0, 1, 2, 3, 4]
+[0, 1, 2, 3, 4]
+[0, 1, 2, 3, 4]
+[0, 1, 2, 3, 4]
+null
+======================================================================
 ==== Map-function: statement vs expression
 ==== Indexing never invokes the result if it's part of an expression
 ==== This might change as a result of 

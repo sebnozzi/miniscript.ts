@@ -274,3 +274,12 @@ function toString(a: any): string {
     return formatValue(a);
   }
 }
+
+// Not the same as trying to convert to number (e.g. `val("3")`)
+function toNumberValue(value: any): number {
+  if (typeof value == "number" ) {
+    return value;
+  } else {
+    return 0;
+  }
+}

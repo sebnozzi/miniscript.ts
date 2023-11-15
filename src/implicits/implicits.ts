@@ -12,6 +12,22 @@ function addImplicits(p: Processor) {
     }
   });
 
+  p.addGlobalImplicit("sum", function(self: any): number {
+    let list;
+    if (self instanceof Array) {
+      list = self as Array<any>;
+    } else if (self instanceof Map) {
+      list = Array.from( self.values() );
+    } else {
+      return 0;
+    }
+    let total = 0;
+    for (let e of list) {
+      total += toNumberValue(e);
+    }
+    return total;
+  });
+
   p.addGlobalImplicit("indexOf", function(self: any, value: any): number | null {
     if (self instanceof Array || typeof self === "string") {
       const idx = self.indexOf(value);
@@ -28,15 +44,66 @@ function addImplicits(p: Processor) {
     }
   });
 
-  // str(value)
+  p.addGlobalImplicit("hasIndex", function(self: any, index: any): number | null {
+    if (self instanceof Map) {
+      return self.has(index) ? 1 : 0;
+    } else if (self instanceof Array || typeof self === "string") {
+      if (typeof index === "number" && self.length > 0) {
+        return index >= 0 && index < self.length ? 1 : 0;
+      } else {
+        return 0;
+      }
+    } else {
+      return null;
+    }
+  });
+
+  p.addGlobalImplicit("indexes", function(self: any, value: any): any[] | null {
+    if (self instanceof Map) {
+      const keys = Array.from( self.keys() );
+      return keys;
+    } else if (self instanceof Array || typeof self === "string") {
+      const indexes = [];
+      for (let i = 0; i < self.length; i++) {
+        indexes.push(i);
+      }
+      return indexes;
+    } else {
+      return null;
+    }
+  });
+
   p.addGlobalImplicit("str", function(value: any): string {
     const result: string = formatValue(value);
     return result;
   });
 
-  // rnd
   p.addGlobalImplicit("rnd", function(): number {
     return Math.random();
+  });
+
+  p.addGlobalImplicit("abs", function(value: any): number {
+    if (typeof value === "number") {
+      return Math.abs(value);
+    } else {
+      return 0;
+    }
+  });
+
+  p.addGlobalImplicit("upper", function(value: any): string | any {
+    if (typeof value === "string") {
+      return value.toUpperCase();
+    } else {
+      return value;
+    }
+  });
+
+  p.addGlobalImplicit("lower", function(value: any): string | any {
+    if (typeof value === "string") {
+      return value.toLowerCase();
+    } else {
+      return value;
+    }
   });
 
   // range(start,stop[,step])

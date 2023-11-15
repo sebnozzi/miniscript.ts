@@ -1,9 +1,9 @@
 
 function addBaseTypesImplicits(p: Processor) {
 
-  const listImplicitNames = ["len", "indexOf"];
-  const stringImplicitNames = ["len", "indexOf"];
-  const mapImplicitNames = ["len", "indexOf"];
+  const listImplicitNames = ["len", "indexOf", "indexes", "hasIndex", "sum"];
+  const stringImplicitNames = ["len", "indexOf", "indexes", "hasIndex", "upper", "lower"];
+  const mapImplicitNames = ["len", "indexOf", "indexes", "hasIndex", "sum"];
 
   const getFn = (name: string): BoundFunction => {
     const optFn = p.globalContext.getOpt(name);
@@ -22,7 +22,7 @@ function addBaseTypesImplicits(p: Processor) {
   };
 
   importImplicits(p.listCoreType, listImplicitNames);
-  importImplicits(p.mapCoreType, stringImplicitNames);
-  importImplicits(p.stringCoreType, mapImplicitNames);
+  importImplicits(p.mapCoreType, mapImplicitNames);
+  importImplicits(p.stringCoreType, stringImplicitNames);
 
 }

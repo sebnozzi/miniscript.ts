@@ -1,6 +1,6 @@
 
 class RuntimeError extends Error {
   constructor(message: string) {
-    super(message);
+    super(`Runtime Error: ${message}`);
   }
 }

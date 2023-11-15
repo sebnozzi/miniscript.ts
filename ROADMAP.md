@@ -1,36 +1,32 @@
 
 Next steps:
-- Support adding a function to the type-prototypes.
-  - indexes
-  - hasIndex
-- Support iterating over a map (key/value pairs)
+- Provide a way to specify argument NAMES for implicit functions
+  Right now it's arg_1, arg_2, etc.
+  addIntrinsic("foo(x,y=null,z=123)", function(x,y,z){})
+- Implement implicits:
+  - globals
+  - locals
+  => look in the official impl ... what are these? keywords?
+  Make "locals" return a clone of the map? Immutable map?
+- Implement
+  - sort
+  - join
+  - split
+  - insert
+  - remove
 - Support printing of
   - list
   - map
   - number
   - string
 - Implement implicits:
-  - globals
-  - locals
-  => look in the official impl ... what are these? keywords?
-  Make "locals" return a clone of the map? Immutable map?
-- Test isa-equality with base-maps:
-  - funcRef
-  - list
-  - string
-  - number
-  - map
-- Implement implicits:
   - round
   - floor
   - ceil
   - sign
-  - abs
   - val
   - log
   - sqrt
-  - lower
-  - upper
   - pop
   - pull
   - push
@@ -38,15 +34,12 @@ Next steps:
   - slice
   - sort
   - split
-  - sum
   - insert
   - remove
   - replace
-  - hasIndex
   - char
   - code
   - values
-  - indexes
   - acos
   - asin
   - pi
@@ -57,7 +50,13 @@ Next steps:
   - bitOr
   - bitXor
   - refEquals(a, b)
-  - len()
+- Support iterating over a map (key/value pairs)
+- Test isa-equality with base-maps:
+  - funcRef
+  - list
+  - string
+  - number
+  - map
 - Write tests for operator precedence ... could be that the parser has bugs!
   https://miniscript.org/wiki/Operators
 - Normalize errors
