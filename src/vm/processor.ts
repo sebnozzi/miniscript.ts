@@ -16,12 +16,12 @@ class Processor {
   context: Context;
   // The global context.
   globalContext: Context;
-  // List prototypes
-  listPrototype: Map<any, any>;
-  mapPrototype: Map<any, any>;
-  stringPrototype: Map<any, any>;
-  numberPrototype: Map<any, any>;
-  // Core Type Map Functions
+  // Core-types
+  listCoreType: Map<any, any>;
+  mapCoreType: Map<any, any>;
+  stringCoreType: Map<any, any>;
+  numberCoreType: Map<any, any>;
+  // Core-type access functions
   listCoreTypeMapFn: BoundFunction;
   stringCoreTypeMapFn: BoundFunction;
   numberCoreTypeMapFn: BoundFunction;
@@ -37,10 +37,10 @@ class Processor {
     this.code = programCode;
     this.ip = 0;
     this.globalContext = new Context();
-    this.listPrototype = new Map<any, any>();
-    this.mapPrototype = new Map<any, any>();
-    this.stringPrototype = new Map<any, any>();
-    this.numberPrototype = new Map<any, any>();
+    this.listCoreType = new Map<any, any>();
+    this.mapCoreType = new Map<any, any>();
+    this.stringCoreType = new Map<any, any>();
+    this.numberCoreType = new Map<any, any>();
     this.context = this.globalContext;
     this.savedFrames = new Stack<Frame>();
     this.opStack = new Stack();
@@ -49,16 +49,16 @@ class Processor {
     // Add core-type map-accessing functions
     const vmThis = this;
     this.listCoreTypeMapFn = this.makeNativeBoundFunction(function() {
-      return vmThis.listPrototype;
+      return vmThis.listCoreType;
     });
     this.stringCoreTypeMapFn = this.makeNativeBoundFunction(function() {
-      return vmThis.stringPrototype;
+      return vmThis.stringCoreType;
     });
     this.numberCoreTypeMapFn = this.makeNativeBoundFunction(function() {
-      return vmThis.numberPrototype;
+      return vmThis.numberCoreType;
     });
     this.mapCoreTypeMapFn = this.makeNativeBoundFunction(function() {
-      return vmThis.mapPrototype;
+      return vmThis.mapCoreType;
     });
   }
 
@@ -71,7 +71,7 @@ class Processor {
     this.globalContext.setLocal(name, boundFunc);
   }
 
-  addBaseTypeImplicit(target: Map<string, any>, name: string, boundFunc: BoundFunction) {
+  addCoreTypeImplicit(target: Map<string, any>, name: string, boundFunc: BoundFunction) {
     boundFunc.makeSelfFunction();
     target.set(name, boundFunc);
   }
@@ -229,9 +229,9 @@ class Processor {
               const effectiveIndex = computeEffectiveIndex(accessTarget, index);
               value = accessTarget[effectiveIndex];
             } else if (isList) {
-              value = this.mapAccess(this.listPrototype, index);
+              value = this.mapAccess(this.listCoreType, index);
             } else if (isString) {
-              value = this.mapAccess(this.stringPrototype, index);
+              value = this.mapAccess(this.stringCoreType, index);
             } else {
               throw new Error("Uncovered case");
             }
@@ -652,13 +652,13 @@ class Processor {
 
   private selectCoreTypeMap(accessTarget: any): Map<any,any> {
     if (accessTarget instanceof Array) {
-      return this.listPrototype;
+      return this.listCoreType;
     } else if (typeof accessTarget === "string") {
-      return this.stringPrototype;
+      return this.stringCoreType;
     } else if (accessTarget instanceof Map) {
-      return this.mapPrototype;
+      return this.mapCoreType;
     } else if (typeof accessTarget === "number") {
-      return this.numberPrototype;
+      return this.numberCoreType;
     } else {
       throw new RuntimeError(`No core-type map for value ${accessTarget}`);
     }
@@ -678,10 +678,10 @@ class Processor {
     } else if (mapObj.has("__isa")) {
       const parentMap = mapObj.get("__isa");
       return this.mapAccess(parentMap, key); 
-    } else if (mapObj === this.mapPrototype) {
+    } else if (mapObj === this.mapCoreType) {
       throw new RuntimeError(`Map has no property "${key}" [line ${this.getCurrentSrcLineNr()}]`);
     } else {
-      return this.mapAccess(this.mapPrototype, key); 
+      return this.mapAccess(this.mapCoreType, key); 
     }
   }
 

@@ -1,7 +1,9 @@
 
 Next steps:
-- Settle for ONE nomenclature for base-types, core-types, prototypes ...
 - Support adding a function to the type-prototypes.
+  - indexes
+  - hasIndex
+- Support iterating over a map (key/value pairs)
 - Support printing of
   - list
   - map
