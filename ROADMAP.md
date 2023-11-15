@@ -1,5 +1,7 @@
 
 Next steps:
+- Indexed-accessing of functions in expressions
+- Settle for ONE nomenclature for base-types, core-types, prototypes ...
 - Support adding a function to the type-prototypes.
 - Support printing of
   - list
@@ -9,6 +11,8 @@ Next steps:
 - Implement implicits:
   - globals
   - locals
+  => look in the official impl ... what are these? keywords?
+  Make "locals" return a clone of the map? Immutable map?
 - Test isa-equality with base-maps:
   - funcRef
   - list

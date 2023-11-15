@@ -270,9 +270,7 @@ function toString(a: any): string {
     return "" + a;
   } else if (typeof a === "string") {
     return a;
-  } else if (a instanceof Array) {
-    return formatValue(a);
   } else {
-    throw new Error("Don't know how to make a string out of: " + a);
+    return formatValue(a);
   }
 }

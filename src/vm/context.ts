@@ -16,14 +16,14 @@ class Context {
     this.locals[identifier] = value;
   }
 
-  get(identifier: string): any {
+  getOpt(identifier: string): any | undefined {
     let localValue = this.locals[identifier];
     if (localValue !== undefined) {
       return localValue;
     } else if (this.parent) {
-      return this.parent.get(identifier);
+      return this.parent.getOpt(identifier);
     } else {
-      throw new Error("Could not resolve: " + identifier);
+      return undefined;
     }
   }
 

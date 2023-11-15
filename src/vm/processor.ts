@@ -21,6 +21,11 @@ class Processor {
   mapPrototype: Map<any, any>;
   stringPrototype: Map<any, any>;
   numberPrototype: Map<any, any>;
+  // Core Type Map Functions
+  listCoreTypeMapFn: BoundFunction;
+  stringCoreTypeMapFn: BoundFunction;
+  numberCoreTypeMapFn: BoundFunction;
+  mapCoreTypeMapFn: BoundFunction;
   // Stack of frames (waiting to be returned to; not the current one).
   savedFrames: Stack<Frame>;
   // Counter used to return control back to host.
@@ -41,35 +46,32 @@ class Processor {
     this.opStack = new Stack();
     this.cycleCount = 0;
     this.onFinished = function() {};
+    // Add core-type map-accessing functions
+    const vmThis = this;
+    this.listCoreTypeMapFn = this.makeNativeBoundFunction(function() {
+      return vmThis.listPrototype;
+    });
+    this.stringCoreTypeMapFn = this.makeNativeBoundFunction(function() {
+      return vmThis.stringPrototype;
+    });
+    this.numberCoreTypeMapFn = this.makeNativeBoundFunction(function() {
+      return vmThis.numberPrototype;
+    });
+    this.mapCoreTypeMapFn = this.makeNativeBoundFunction(function() {
+      return vmThis.mapPrototype;
+    });
   }
 
   run() {
     this.runUntilDone();
   }
 
-  addNative(name: string, impl: Function, defaultValues: any[] | null = null) {
+  addGlobalImplicit(name: string, impl: Function, defaultValues: any[] | null = null) {
     const boundFunc = this.makeNativeBoundFunction(impl, defaultValues);
     this.globalContext.setLocal(name, boundFunc);
   }
 
-  addStringNative(name: string, impl: Function, defaultValues: any[] | null = null) {
-    this.addPrototypeNative(this.stringPrototype, name, impl, defaultValues);
-  }
-
-  addMapNative(name: string, impl: Function, defaultValues: any[] | null = null) {
-    this.addPrototypeNative(this.mapPrototype, name, impl, defaultValues);
-  }
-
-  addListNative(name: string, impl: Function, defaultValues: any[] | null = null) {
-    this.addPrototypeNative(this.listPrototype, name, impl, defaultValues);
-  }
-
-  addNumberNative(name: string, impl: Function, defaultValues: any[] | null = null) {
-    this.addPrototypeNative(this.numberPrototype, name, impl, defaultValues);
-  }
-
-  addPrototypeNative(target: Map<string, any>, name: string, impl: Function, defaultValues: any[] | null = null) {
-    const boundFunc = this.makeNativeBoundFunction(impl, defaultValues);
+  addBaseTypeImplicit(target: Map<string, any>, name: string, boundFunc: BoundFunction) {
     boundFunc.makeSelfFunction();
     target.set(name, boundFunc);
   }
@@ -120,8 +122,11 @@ class Processor {
           const funcName: string = this.code.arg1[this.ip] as string;
           const paramCount: number = this.code.arg2[this.ip] as number;
 
-          const resolvedFunc: any = this.context.get(funcName);
-
+          const optValue: any | undefined = this.context.getOpt(funcName);
+          if (optValue === undefined) {
+            throw new RuntimeError(`Could not resolve "${funcName}" [line ${this.getCurrentSrcLineNr()}]`);
+          }
+          const resolvedFunc: any = optValue;
           this.performCall(funcName, paramCount, resolvedFunc, null);
           break;
         }
@@ -135,7 +140,8 @@ class Processor {
             resolvedMethod = this.mapAccess(callTarget, methodName);
           } else {
             // Lookup in base type
-            resolvedMethod = this.prototypeAccess(callTarget, methodName);
+            const baseTypeMap = this.selectCoreTypeMap(callTarget);
+            resolvedMethod = this.coreTypeMapAccess(baseTypeMap, methodName);
           }
 
           this.performCall(methodName, paramCount, resolvedMethod, callTarget);
@@ -186,7 +192,7 @@ class Processor {
           const valueToAssign = this.opStack.pop();
 
           if (!(assignTarget instanceof Map)) {
-            throw new RuntimeError("Assignment target must be a Map");
+            throw new RuntimeError(`Assignment target must be a Map [line ${this.getCurrentSrcLineNr()}]`);
           }
 
           assignTarget.set(propertyName, valueToAssign);
@@ -196,8 +202,14 @@ class Processor {
         case BC.EVAL_ID: {
           const identifier = this.code.arg1[this.ip];
           const isFuncRef: boolean = this.code.arg2[this.ip];
-          const value = this.context.get(identifier);
-          this.callOrPushValue(value, isFuncRef, null);
+          const optValue = this.context.getOpt(identifier);
+          if (optValue !== undefined) {
+            this.callOrPushValue(optValue, isFuncRef, null);
+          } else {
+            // Could not resolve, maybe it's a core-type function
+            const value = this.resolveSpecial(identifier);
+            this.callOrPushValue(value, isFuncRef, null);
+          }
           break;
         }
         case BC.INDEXED_ACCESS: {
@@ -213,7 +225,7 @@ class Processor {
 
           if (isList || isString) {
             if (typeof index === "number") {
-              checkInt(index, "Index must be an integer");
+              checkInt(index, `Index must be an integer [line ${this.getCurrentSrcLineNr()}]`);
               const effectiveIndex = computeEffectiveIndex(accessTarget, index);
               value = accessTarget[effectiveIndex];
             } else if (isList) {
@@ -226,7 +238,7 @@ class Processor {
           } else if(isMap) {
             value = this.mapAccess(accessTarget, index);
           } else {
-            throw new RuntimeError("Cannot perform indexed access on this type");
+            throw new RuntimeError(`Cannot perform indexed access on this type [line ${this.getCurrentSrcLineNr()}]`);
           }
 
           this.callOrPushValue(value, isFuncRef, accessTarget);
@@ -241,8 +253,9 @@ class Processor {
           if (accessTarget instanceof Map) {
             value = this.mapAccess(accessTarget, propertyName);
           } else {
-            // Lookup in base type
-            value = this.prototypeAccess(accessTarget, propertyName);
+            // Lookup in base type - redefine access-target
+            const baseTypeMap = this.selectCoreTypeMap(accessTarget);
+            value = this.coreTypeMapAccess(baseTypeMap, propertyName);
           }
           this.callOrPushValue(value, isFuncRef, accessTarget);
           break;         
@@ -254,18 +267,18 @@ class Processor {
           let startIdx = this.opStack.pop();
           // Check list-target
           if (!(sliceTarget instanceof Array || typeof sliceTarget === "string")) {
-            throw new RuntimeError("Slice target must be List or String");
+            throw new RuntimeError(`Slice target must be List or String [line ${this.getCurrentSrcLineNr()}]`);
           }
           // Check / compute indexes
           if (startIdx) {
-            checkInt(startIdx, "Slice-start should be an integer value");
+            checkInt(startIdx, `Slice-start should be an integer value [line ${this.getCurrentSrcLineNr()}]`);
             startIdx = computeEffectiveIndex(sliceTarget, startIdx);
           } else {
             // Take slice from the beginning
             startIdx = 0;
           }
           if (endIdx) {
-            checkInt(endIdx, "Slice-end should be an integer value");
+            checkInt(endIdx, `Slice-end should be an integer value [line ${this.getCurrentSrcLineNr()}]`);
             endIdx = computeEffectiveIndex(sliceTarget, endIdx);
           } else {
             // Take slice to the end
@@ -328,7 +341,7 @@ class Processor {
         case BC.NEW_MAP: {
           const parentMap = this.opStack.pop();
           if (!(parentMap instanceof Map)) {
-            throw new RuntimeError("Operator `new` can only be used with Maps");
+            throw new RuntimeError(`Operator "new" can only be used with Maps [line ${this.getCurrentSrcLineNr()}]`);
           }
           const newMap = new Map<any, any>();
           newMap.set("__isa", parentMap);
@@ -513,7 +526,7 @@ class Processor {
         case BC.NEGATE_NUMBER: {
           const valueInStack = this.opStack.pop();
           if (typeof valueInStack !== "number") {
-            throw new RuntimeError("Value must be a number");
+            throw new RuntimeError(`Value must be a number [line ${this.getCurrentSrcLineNr()}]`);
           } else {
             const result = -1 * valueInStack;
             this.opStack.push(result);
@@ -628,15 +641,34 @@ class Processor {
     this.code = frame.code;
   }
 
-  private prototypeAccess(accessTarget: any, key: string): any {
-    if (accessTarget instanceof Array) {
-      return this.mapAccess(this.listPrototype, key);
-    } else if (typeof accessTarget === "string") {
-      return this.mapAccess(this.stringPrototype, key);
-    } else if (typeof accessTarget === "number") {
-      return this.mapAccess(this.numberPrototype, key);
+  getCurrentSrcLineNr(): number | null {
+    const optSrcMapEntry = this.code.srcMap.findEntry(this.ip);
+    if (optSrcMapEntry !== null) {
+      return optSrcMapEntry.srcLoc.start.row;
     } else {
-      throw new RuntimeError(`Map has no property "${key}".`);
+      return null;
+    }
+  }
+
+  private selectCoreTypeMap(accessTarget: any): Map<any,any> {
+    if (accessTarget instanceof Array) {
+      return this.listPrototype;
+    } else if (typeof accessTarget === "string") {
+      return this.stringPrototype;
+    } else if (accessTarget instanceof Map) {
+      return this.mapPrototype;
+    } else if (typeof accessTarget === "number") {
+      return this.numberPrototype;
+    } else {
+      throw new RuntimeError(`No core-type map for value ${accessTarget}`);
+    }
+  }
+
+  private coreTypeMapAccess(mapObj: Map<any, any>, key: any): any {
+    if (mapObj.has(key)) {
+      return mapObj.get(key);
+    } else {
+      throw new RuntimeError(`Map has no property "${key}" [line ${this.getCurrentSrcLineNr()}]`);
     }
   }
 
@@ -647,9 +679,23 @@ class Processor {
       const parentMap = mapObj.get("__isa");
       return this.mapAccess(parentMap, key); 
     } else if (mapObj === this.mapPrototype) {
-      throw new Error(`Map has no property "${key}".`);
+      throw new RuntimeError(`Map has no property "${key}" [line ${this.getCurrentSrcLineNr()}]`);
     } else {
       return this.mapAccess(this.mapPrototype, key); 
+    }
+  }
+
+  private resolveSpecial(identifier: string): any {
+    if (identifier === "string") {
+      return this.stringCoreTypeMapFn
+    } else if (identifier === "number") {
+      return this.numberCoreTypeMapFn;
+    } else if (identifier === "list") {
+      return this.listCoreTypeMapFn;
+    } else if (identifier === "map") {
+      return this.mapCoreTypeMapFn;
+    } else {
+      throw new RuntimeError(`Could not resolve "${identifier}" [line ${this.getCurrentSrcLineNr()}]`);
     }
   }
 
@@ -668,7 +714,7 @@ class Processor {
 
   private performCall(funcName: string, paramCount: number, maybeFunction: any, dotCallTarget: any | null) {
     if (!(maybeFunction instanceof BoundFunction)) {
-      throw new RuntimeError(`Identifier ${funcName} should be a function`);
+      throw new RuntimeError(`Identifier ${funcName} should be a function [line ${this.getCurrentSrcLineNr()}]`);
     }
 
     const boundFunc = maybeFunction as BoundFunction;
@@ -677,7 +723,7 @@ class Processor {
     const funcArgCount = funcDef.argNames.length;
 
     if (paramCount > funcArgCount) {
-      throw new RuntimeError(`Too many parameters in call to ${funcName}. Expected at most ${funcArgCount}, found ${paramCount}.`)
+      throw new RuntimeError(`Too many parameters in call to ${funcName} [line ${this.getCurrentSrcLineNr()}].`)
     } else if (paramCount < funcDef.argNames.length) {
       // Push the missing default argument values
       const missingArgCount = funcArgCount - paramCount;
@@ -771,6 +817,10 @@ class Processor {
       // Populate default values, if any
       for (let idx = 0; idx < funcDef.argNames.length; idx++) {
         this.context.setLocal(funcDef.argNames[idx], funcDef.effectiveDefaultValues[idx]);
+      }
+      // If it has an access-source, set "self" to that value
+      if (accessSrc) {
+        this.context.setLocal("self", accessSrc);
       }
       // Set initial ip
       this.ip = 0;  

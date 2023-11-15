@@ -1,19 +1,46 @@
 
+
 function addImplicits(p: Processor) {
 
+  p.addGlobalImplicit("len", function(self: any): number | null {
+    if (self instanceof Array || typeof self === "string") {
+      return self.length;
+    } else if (self instanceof Map) {
+      return self.size;
+    } else {
+      return null;
+    }
+  });
+
+  p.addGlobalImplicit("indexOf", function(self: any, value: any): number | null {
+    if (self instanceof Array || typeof self === "string") {
+      const idx = self.indexOf(value);
+      return idx >= 0 ? idx : null;
+    } else if (self instanceof Map) {
+      for(let [key,mapValue] of self) {
+        if (mapValue === value) {
+          return key;
+        }
+      }
+      return null;
+    } else {
+      return null;
+    }
+  });
+
   // str(value)
-  p.addNative("str", function(value: any): string {
+  p.addGlobalImplicit("str", function(value: any): string {
     const result: string = formatValue(value);
     return result;
   });
 
   // rnd
-  p.addNative("rnd", function(): number {
+  p.addGlobalImplicit("rnd", function(): number {
     return Math.random();
   });
 
   // range(start,stop[,step])
-  p.addNative("range", function(start: number, stop: number, step: number) {
+  p.addGlobalImplicit("range", function(start: number, stop: number, step: number) {
     checkInt(start, "Argument 'start' should be integer");
     checkInt(stop, "Argument 'stop' should be integer");
 

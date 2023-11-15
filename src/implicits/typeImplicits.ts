@@ -1,33 +1,28 @@
 
-function addPrototypeImplicits(p: Processor) {
+function addBaseTypesImplicits(p: Processor) {
 
-  p.addListNative("len", function(self: Array<any>): number {
-    return self.length;
-  });
-
-  p.addMapNative("len", function(self: Map<any, any>): number {
-    return self.size;
-  });
-
-  p.addStringNative("len", function(self: string): number {
-    return self.length;
-  });
-
-  p.addListNative("indexOf", function(self: Array<any>, value: any): number {
-    return self.indexOf(value);
-  });
-
-  p.addMapNative("indexOf", function(self: Map<any, any>, value: any): any {
-    for(let [key,mapValue] of self) {
-      if (mapValue === value) {
-        return key;
-      }
+  const listImplicitNames = ["len", "indexOf"];
+  const stringImplicitNames = ["len", "indexOf"];
+  const mapImplicitNames = ["len", "indexOf"];
+  
+  const getFn = (name: string): BoundFunction => {
+    const optFn = p.globalContext.getOpt(name);
+    if (optFn) {
+      return optFn;
+    } else {
+      throw new Error("Implicit not found: " + name);
     }
-    return null;
-  });
+  };
 
-  p.addStringNative("indexOf", function(self: string, value: any): number {
-    return self.indexOf(value);
-  });
+  const importImplicits = (targetList: Map<any,any>, implicitNames: string[]) => {
+    for (let fnName of implicitNames) {
+      const boundFn = getFn(fnName);
+      p.addBaseTypeImplicit(targetList, fnName, boundFn);
+    }
+  };
+
+  importImplicits(p.listPrototype, listImplicitNames);
+  importImplicits(p.mapPrototype, stringImplicitNames);
+  importImplicits(p.stringPrototype, mapImplicitNames);
 
 }

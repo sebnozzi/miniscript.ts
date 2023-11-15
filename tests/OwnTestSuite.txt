@@ -1,4 +1,71 @@
 ======================================================================
+==== Self-function with "self" with no arguments
+number.isOdd = function(self)
+	return self % 2 == 1
+end function
+
+print (3).isOdd
+----------------------------------------------------------------------
+1
+======================================================================
+==== Adding functions to the base-types
+string.myStartsWith = function(s)
+	return self.indexOf(s) == 0
+end function
+
+print "Hello".myStartsWith("Hel")
+
+number.isOdd = function(self)
+	return self % 2 == 1
+end function
+
+print (3).isOdd
+
+list.countOccurrences = function(x)
+	count = 0
+	for e in self
+		if e == x then count = count + 1
+	end for
+	return count
+end function
+
+print [1,2,3,4,5,1,2,3,1,2].countOccurrences(1)
+
+map.isEmpty = function(self)
+	return self.len == 0
+end function
+
+print {}.isEmpty
+print {"a":1}.isEmpty
+----------------------------------------------------------------------
+1
+1
+3
+1
+0
+======================================================================
+==== Base types are maps with entries (except number)
+print list.len > 0
+print number.len == 0
+print map.len > 0
+print list.len > 0
+----------------------------------------------------------------------
+1
+1
+1
+1
+======================================================================
+==== Base types as functions
+print @list
+print @number
+print @map
+print @list
+----------------------------------------------------------------------
+FUNCTION()
+FUNCTION()
+FUNCTION()
+FUNCTION()
+======================================================================
 ==== Intrinsic method "len" (using indexed-access)
 s = "Hello"
 print s["len"]
