@@ -16,7 +16,28 @@ function equals(a: any, b: any): number {
       return 0;
     } else {
       for (let i = 0; i < a.length; i++) {
-        if (a[i] !== b[i]) {
+        if (a[i] === b[i]) {
+          continue;
+        }
+        if (equals(a[i], b[i]) === 0) {
+          return 0;
+        }
+      }
+      return 1;
+    }
+  } else if (a instanceof Map && b instanceof Map) {
+    if (a.size !== b.size) {
+      return 0;
+    } else {
+      for (let aKey of a.keys()) {
+        if (!b.has(aKey)) {
+          return 0;
+        }
+        const aValue = a.get(aKey);
+        const bValue = b.get(aKey);
+        if (aValue === bValue) {
+          continue;
+        } else if (equals(aValue, bValue) !== 1) {
           return 0;
         }
       }
@@ -105,6 +126,19 @@ function add(a: any, b: any): any {
       return a.concat(b);
     } else {
       throw new Error(`Got ${b} instead of another List`);
+    }
+  } else if (a instanceof Map) {
+    if (b instanceof Map) {
+      const combined = new Map<any,any>();
+      for (let [k,v] of a.entries()) {
+        combined.set(k,v);
+      }
+      for (let [k,v] of b.entries()) {
+        combined.set(k,v);
+      }
+      return combined;
+    } else {
+      throw new RuntimeError(`Got ${toString(b)} where a Map was required`);
     }
   } else if (a === null) {
     return null;
