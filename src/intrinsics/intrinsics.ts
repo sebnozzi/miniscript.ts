@@ -30,7 +30,7 @@ function addIntrinsics(p: Processor) {
 
   p.addGlobalIntrinsic("indexOf(self,value,after=null)", function(self: any, value: any, after: number | null): number | null {
     if (self instanceof Array || typeof self === "string") {
-      let afterIdx = after !== null ? after : 0;
+      let afterIdx = after !== null ? after : -1;
       // If negative, wrap around
       if (afterIdx < -1) {
         afterIdx += self.length;
