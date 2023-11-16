@@ -31,12 +31,25 @@ function addIntrinsics(p: Processor) {
   p.addGlobalIntrinsic("indexOf(self,value,after=null)", function(self: any, value: any, after: number | null): number | null {
     if (self instanceof Array || typeof self === "string") {
       let afterIdx = after !== null ? after : 0;
-      const idx = self.indexOf(value, afterIdx);
+      // If negative, wrap around
+      if (afterIdx < -1) {
+        afterIdx += self.length;
+      }
+      if (afterIdx < -1 || afterIdx >= self.length-1) {
+        return null;
+      }
+      const idx = self.indexOf(value, afterIdx + 1);
       return idx >= 0 ? idx : null;
-    } else if (self instanceof Map && after === null) {
-      for(let [key,mapValue] of self) {
-        if (mapValue === value) {
-          return key;
+    } else if (self instanceof Map) {
+      let startSearch = after == null ? true : false;
+      for(let key of self.keys()) {
+        if (startSearch) {
+          const mapValue = self.get(key);
+          if (mapValue === value) {
+            return key;
+          }
+        } else if (key === after) {
+          startSearch = true;
         }
       }
       return null;
@@ -50,7 +63,7 @@ function addIntrinsics(p: Processor) {
       return self.has(index) ? 1 : 0;
     } else if (self instanceof Array || typeof self === "string") {
       if (typeof index === "number" && self.length > 0) {
-        return index >= 0 && index < self.length ? 1 : 0;
+        return index >= -self.length && index < self.length ? 1 : 0;
       } else {
         return 0;
       }
