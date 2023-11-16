@@ -8,14 +8,14 @@ function parseSignature(functionSignature: string): [string, string[], any[]] {
   // parse the parameters and possible default values.
   if (functionSignature.indexOf("(") > 0) {
     const nameArgsParts = functionSignature.split("(");
-    fnName = nameArgsParts[0];
+    fnName = nameArgsParts[0].trim();
     const argsParts = nameArgsParts[1].slice(0,-1).split(",");
     for (let part of argsParts) {
       const argValueParts = part.split("=");
-      const argName = argValueParts[0];
+      const argName = argValueParts[0].trim();
       let defaultValue: any = undefined;
       if (argValueParts.length > 1) {
-        const defaultValueStr = argValueParts[1];
+        const defaultValueStr = argValueParts[1].trim();
         // Now parse ... 
         if (defaultValueStr === "null") {
           defaultValue = null;

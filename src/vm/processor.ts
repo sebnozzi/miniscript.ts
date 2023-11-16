@@ -73,7 +73,6 @@ class Processor {
   }
 
   addCoreTypeImplicit(target: Map<string, any>, name: string, boundFunc: BoundFunction) {
-    boundFunc.makeSelfFunction();
     target.set(name, boundFunc);
   }
 
@@ -679,16 +678,25 @@ class Processor {
     }
   }
 
-  private mapAccess(mapObj: Map<any, any>, key: any): any {
+  mapAccess(mapObj: Map<any, any>, key: any): any {
+    const value = this.mapAccessOpt(mapObj, key);
+    if (value === undefined) {
+      throw new RuntimeError(`Key Not Found: '${key}' not found in map [line ${this.getCurrentSrcLineNr()}]`);
+    } else {
+      return value;
+    }
+  }
+
+  mapAccessOpt(mapObj: Map<any, any>, key: any): any | undefined {
     if (mapObj.has(key)) {
       return mapObj.get(key);
     } else if (mapObj.has("__isa")) {
       const parentMap = mapObj.get("__isa");
-      return this.mapAccess(parentMap, key); 
+      return this.mapAccessOpt(parentMap, key); 
     } else if (mapObj === this.mapCoreType) {
-      throw new RuntimeError(`Key Not Found: '${key}' not found in map [line ${this.getCurrentSrcLineNr()}]`);
+      return undefined;
     } else {
-      return this.mapAccess(this.mapCoreType, key); 
+      return this.mapAccessOpt(this.mapCoreType, key); 
     }
   }
 
@@ -727,11 +735,16 @@ class Processor {
     const boundFunc = maybeFunction as BoundFunction;
     const funcDef = boundFunc.funcDef;
 
-    const funcArgCount = funcDef.argNames.length;
+    let funcArgCount = funcDef.argNames.length;
+
+    // Subtract one argument for a native dot-call
+    if (funcDef.isNative() && dotCallTarget !== null) {
+      funcArgCount -= 1;
+    }
 
     if (paramCount > funcArgCount) {
       throw new RuntimeError(`Too many parameters in call to ${funcName} [line ${this.getCurrentSrcLineNr()}].`)
-    } else if (paramCount < funcDef.argNames.length) {
+    } else if (paramCount < funcArgCount) {
       // Push the missing default argument values
       const missingArgCount = funcArgCount - paramCount;
       const defaultValues = funcDef.getLastNEffectiveDefaultValues(missingArgCount);
@@ -745,11 +758,16 @@ class Processor {
       // Build parameter list
       const paramValues = [];
       // Pop param values from stack (even default ones)
-      for (let {} of funcDef.argNames) {
+      let argNames = funcDef.argNames;
+      if (dotCallTarget !== null) {
+        // Ommit the "self" argument
+        argNames = argNames.slice(1);
+      }
+      for (let {} of argNames) {
         const paramValue = this.opStack.pop();
         paramValues.unshift(paramValue);
       }
-      // Add dot-call target if any
+      // Add dot-call target "manually", if any
       if (dotCallTarget) {
         // The "self" parameter
         paramValues.unshift(dotCallTarget);
@@ -796,13 +814,13 @@ class Processor {
     // Decide how to call function
     if (funcDef.isNative()) {
       let params = [];
-      if (boundFunc.isSelfFunction()) {
+      if (accessSrc !== null) {
         params.push(accessSrc);
         // Use default arg-values, if any
         let moreParams = funcDef.effectiveDefaultValues;
         // Skip first param
         moreParams = moreParams.slice(1);
-        for(let p in moreParams) {
+        for(let p of moreParams) {
           params.push(p);
         }
       } else {

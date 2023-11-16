@@ -1,7 +1,7 @@
 
 function addBaseTypesImplicits(p: Processor) {
 
-  const listImplicitNames = ["len", "indexOf", "indexes", "hasIndex", "sum"];
+  const listImplicitNames = ["len", "indexOf", "indexes", "hasIndex", "sum", "sort"];
   const stringImplicitNames = ["len", "indexOf", "indexes", "hasIndex", "upper", "lower"];
   const mapImplicitNames = ["len", "indexOf", "indexes", "hasIndex", "sum"];
 

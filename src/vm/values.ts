@@ -283,3 +283,11 @@ function toNumberValue(value: any): number {
     return 0;
   }
 }
+
+function toIntegerValue(value: any): number {
+  if (typeof value == "number" ) {
+    return Math.floor(value);
+  } else {
+    return 0;
+  }
+}

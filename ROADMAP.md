@@ -1,20 +1,27 @@
 
 Next steps:
-- Implicits don't "pollute" the global scope
-  They are resolved if anything else fails AFTER the global
-  scope is exhausted. That's why they don't appear.
-- Implement implicits:
-  - globals
-  - locals
-  => They are implemented as special "identifiers", which are 
-     specially resolved ... I guess like "list", "map", ...
-  Make "locals" return a clone of the map? Immutable map?
 - Implement
-  - sort
+  - push
   - join
   - split
   - insert
   - remove
+  - pull
+- Implicits don't "pollute" the global scope
+  They are resolved if anything else fails AFTER the global
+  scope is exhausted. That's why they don't appear.
+- Implement special-identifiers:
+  - globals
+  - locals
+  => They are implemented as special "identifiers", which are 
+     specially resolved ...
+  - globals / locals can not be set-to, only accessed
+    I mean, this is illegal
+      globals = ...
+      locals = ...
+    But this is OK:
+      globals["lslsl"] = ...
+      locals["sksks] = ... 
 - Implement implicits:
   - round
   - floor
@@ -24,8 +31,6 @@ Next steps:
   - log
   - sqrt
   - pop
-  - pull
-  - push
   - shuffle
   - slice
   - sort
