@@ -66,13 +66,13 @@ class Processor {
     this.runUntilDone();
   }
 
-  addGlobalImplicit(signature: string, impl: Function) {
+  addGlobalIntrinsic(signature: string, impl: Function) {
     const [fnName, argNames, defaultValues] = parseSignature(signature);
     const boundFunc = this.makeNativeBoundFunction(argNames, defaultValues, impl);
     this.globalContext.setLocal(fnName, boundFunc);
   }
 
-  addCoreTypeImplicit(target: Map<string, any>, name: string, boundFunc: BoundFunction) {
+  addCoreTypeIntrinsic(target: Map<string, any>, name: string, boundFunc: BoundFunction) {
     target.set(name, boundFunc);
   }
 

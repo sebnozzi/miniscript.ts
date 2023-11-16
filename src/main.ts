@@ -1,5 +1,5 @@
 /// <reference path="./vm/processor.ts"/>
-/// <reference path="./implicits/implicits.ts"/>
+/// <reference path="./intrinsics/intrinsics.ts"/>
 
 function setupIde() {
   const e = globalThis.editor;

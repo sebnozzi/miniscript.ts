@@ -5,7 +5,7 @@ Next steps:
   - split
   - insert
   - remove
-- Implicits don't "pollute" the global scope
+- Intrinsics don't "pollute" the global scope
   They are resolved if anything else fails AFTER the global
   scope is exhausted. That's why they don't appear.
 - Implement special-identifiers:
@@ -20,7 +20,7 @@ Next steps:
     But this is OK:
       globals["lslsl"] = ...
       locals["sksks] = ... 
-- Implement implicits:
+- Implement intrinsics:
   - round
   - floor
   - ceil
@@ -61,7 +61,7 @@ Next steps:
   Compiler Error: 'for' without matching 'end for' [line 3]
   Runtime Error: Too Many Arguments [line 2]
   (so that many tests pass)
-- Implement implicits:
+- Implement intrinsics:
   - time
   - wait
   - yield

@@ -1291,7 +1291,7 @@ print bitXor(14, 7)	// binary 1110 ^ 0111 = 1001
 15
 9
 ======================================================================
-==== Check various edge cases with function calls and implicit results.
+==== Check various edge cases with function calls and intrinsic results.
 func = function
 	print "func invoked!"
 	return rnd * 10

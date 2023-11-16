@@ -1,8 +1,8 @@
 
 
-function addImplicits(p: Processor) {
+function addIntrinsics(p: Processor) {
 
-  p.addGlobalImplicit("len(self)", function(self: any): number | null {
+  p.addGlobalIntrinsic("len(self)", function(self: any): number | null {
     if (self instanceof Array || typeof self === "string") {
       return self.length;
     } else if (self instanceof Map) {
@@ -12,7 +12,7 @@ function addImplicits(p: Processor) {
     }
   });
 
-  p.addGlobalImplicit("sum(self)", function(self: any): number {
+  p.addGlobalIntrinsic("sum(self)", function(self: any): number {
     let list: any[];
     if (self instanceof Array) {
       list = self as Array<any>;
@@ -28,7 +28,7 @@ function addImplicits(p: Processor) {
     return total;
   });
 
-  p.addGlobalImplicit("indexOf(self,value,after=null)", function(self: any, value: any, after: number | null): number | null {
+  p.addGlobalIntrinsic("indexOf(self,value,after=null)", function(self: any, value: any, after: number | null): number | null {
     if (self instanceof Array || typeof self === "string") {
       let afterIdx = after !== null ? after : 0;
       const idx = self.indexOf(value, afterIdx);
@@ -45,7 +45,7 @@ function addImplicits(p: Processor) {
     }
   });
 
-  p.addGlobalImplicit("hasIndex(self,index)", function(self: any, index: any): number | null {
+  p.addGlobalIntrinsic("hasIndex(self,index)", function(self: any, index: any): number | null {
     if (self instanceof Map) {
       return self.has(index) ? 1 : 0;
     } else if (self instanceof Array || typeof self === "string") {
@@ -59,7 +59,7 @@ function addImplicits(p: Processor) {
     }
   });
 
-  p.addGlobalImplicit("pop(self)", function(self: any): any | null {
+  p.addGlobalIntrinsic("pop(self)", function(self: any): any | null {
     if (self instanceof Array) {
       if (self.length < 1) {
         return null;
@@ -83,7 +83,7 @@ function addImplicits(p: Processor) {
   });
 
 
-  p.addGlobalImplicit("pull(self)", function(self: any): any | null {
+  p.addGlobalIntrinsic("pull(self)", function(self: any): any | null {
     if (self instanceof Array) {
       if (self.length < 1) {
         return null;
@@ -108,7 +108,7 @@ function addImplicits(p: Processor) {
     }
   });
 
-  p.addGlobalImplicit("push(self,value)", function(self: any, value: any): any | null {
+  p.addGlobalIntrinsic("push(self,value)", function(self: any, value: any): any | null {
     if (self instanceof Array) {
       self.push(value);
       return self;
@@ -120,7 +120,7 @@ function addImplicits(p: Processor) {
     }
   });
 
-  p.addGlobalImplicit("indexes(self)", function(self: any): any[] | null {
+  p.addGlobalIntrinsic("indexes(self)", function(self: any): any[] | null {
     if (self instanceof Map) {
       const keys = Array.from( self.keys() );
       return keys;
@@ -135,7 +135,7 @@ function addImplicits(p: Processor) {
     }
   });
 
-  p.addGlobalImplicit("sort(self,byKey=null,ascending=1)", 
+  p.addGlobalIntrinsic("sort(self,byKey=null,ascending=1)", 
     function(self: any, byKey: any | null, ascending: any): any {
       type KeyedValue = {
         sortKey: any,
@@ -231,16 +231,16 @@ function addImplicits(p: Processor) {
   });
 
 
-  p.addGlobalImplicit("str(self)", function(value: any): string {
+  p.addGlobalIntrinsic("str(self)", function(value: any): string {
     const result: string = formatValue(value);
     return result;
   });
 
-  p.addGlobalImplicit("rnd", function(): number {
+  p.addGlobalIntrinsic("rnd", function(): number {
     return Math.random();
   });
 
-  p.addGlobalImplicit("abs(x)", function(x: any): number {
+  p.addGlobalIntrinsic("abs(x)", function(x: any): number {
     if (typeof x === "number") {
       return Math.abs(x);
     } else {
@@ -248,7 +248,7 @@ function addImplicits(p: Processor) {
     }
   });
 
-  p.addGlobalImplicit("upper(self)", function(value: any): string | any {
+  p.addGlobalIntrinsic("upper(self)", function(value: any): string | any {
     if (typeof value === "string") {
       return value.toUpperCase();
     } else {
@@ -256,7 +256,7 @@ function addImplicits(p: Processor) {
     }
   });
 
-  p.addGlobalImplicit("lower(self)", function(value: any): string | any {
+  p.addGlobalIntrinsic("lower(self)", function(value: any): string | any {
     if (typeof value === "string") {
       return value.toLowerCase();
     } else {
@@ -265,7 +265,7 @@ function addImplicits(p: Processor) {
   });
 
   // range(start,stop[,step])
-  p.addGlobalImplicit("range(start,stop,step=null)", function(start: number, stop: number, step: number) {
+  p.addGlobalIntrinsic("range(start,stop,step=null)", function(start: number, stop: number, step: number) {
     checkInt(start, "Argument 'start' should be integer");
     checkInt(stop, "Argument 'stop' should be integer");
 
