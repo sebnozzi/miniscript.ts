@@ -135,6 +135,20 @@ function addIntrinsics(p: Processor) {
     }
   });
 
+
+  p.addGlobalIntrinsic("values(self)", function(self: any): any {
+    if (self instanceof Map) {
+      const values = Array.from( self.values() );
+      return values;
+    } else if (typeof self === "string") {
+      const letters = Array.from( self );
+      return letters;
+    } else {
+      return self;
+    }
+  });
+
+  // Sorts IN PLACE!
   p.addGlobalIntrinsic("sort(self,byKey=null,ascending=1)", 
     function(self: any, byKey: any | null, ascending: any): any {
       type KeyedValue = {
@@ -187,11 +201,8 @@ function addIntrinsics(p: Processor) {
         return self;
       }
 
-      const copied = self.slice();
-      let sorted: any[];
-
       if (byKey === null) {
-        sorted = copied.sort(compareByValues);
+        self.sort(compareByValues);
       } else {
         // Sort by key
         const intKey = toIntegerValue(byKey);
@@ -217,17 +228,18 @@ function addIntrinsics(p: Processor) {
         // Sort list of keyed-values (in-place)
         keyedList.sort(compareByKeys);
         // Extract values to build a values-only (sorted) list
-        sorted = [];
+        // Empty list and push all values to it
+        self.splice(0, self.length);
         for (let keyedValue of keyedList) {
-          sorted.push(keyedValue.value);
+          self.push(keyedValue.value);
         }
       }
 
       if (toBooleanNr(ascending) === 0) {
-        sorted.reverse();
+        self.reverse();
       }
 
-      return sorted;
+      return self;
   });
 
 
