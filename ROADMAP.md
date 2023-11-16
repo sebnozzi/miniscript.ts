@@ -1,12 +1,10 @@
 
 Next steps:
 - Implement
-  - push
   - join
   - split
   - insert
   - remove
-  - pull
 - Implicits don't "pollute" the global scope
   They are resolved if anything else fails AFTER the global
   scope is exhausted. That's why they don't appear.
@@ -30,7 +28,6 @@ Next steps:
   - val
   - log
   - sqrt
-  - pop
   - shuffle
   - slice
   - sort

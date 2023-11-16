@@ -59,6 +59,67 @@ function addImplicits(p: Processor) {
     }
   });
 
+  p.addGlobalImplicit("pop(self)", function(self: any): any | null {
+    if (self instanceof Array) {
+      if (self.length < 1) {
+        return null;
+      }
+      const result = self.pop();
+      // Return the removed element
+      return result;
+    } else if (self instanceof Map) {
+      if (self.size < 1) {
+        return null;
+      }
+      // Remove the element corresponding to (the arbirtrary)
+      // first key
+      const firstKey = self.keys().next().value;
+      self.delete(firstKey);
+      // Return removed key
+      return firstKey;
+    } else {
+      return null;
+    }
+  });
+
+
+  p.addGlobalImplicit("pull(self)", function(self: any): any | null {
+    if (self instanceof Array) {
+      if (self.length < 1) {
+        return null;
+      }
+      const result = self[0];
+      // Remove the first element (in place!)
+      self.splice(0,1);
+      // Return the removed element
+      return result;
+    } else if (self instanceof Map) {
+      if (self.size < 1) {
+        return null;
+      }
+      // Remove the element corresponding to (the arbirtrary)
+      // first key
+      const firstKey = self.keys().next().value;
+      self.delete(firstKey);
+      // Return removed key
+      return firstKey;
+    } else {
+      return null;
+    }
+  });
+
+  p.addGlobalImplicit("push(self,value)", function(self: any, value: any): any | null {
+    if (self instanceof Array) {
+      self.push(value);
+      return self;
+    } else if (self instanceof Map) {
+      self.set(value, 1);
+      return self;
+    } else {
+      return null;
+    }
+  });
+
   p.addGlobalImplicit("indexes(self)", function(self: any): any[] | null {
     if (self instanceof Map) {
       const keys = Array.from( self.keys() );
