@@ -1,6 +1,5 @@
 
 Next steps:
-- Support iterating over a map (key/value pairs)
 - Implement
   - insert
   - remove
