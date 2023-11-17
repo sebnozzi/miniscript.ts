@@ -129,6 +129,40 @@ function addIntrinsics(p: Processor) {
     }
   });
 
+  p.addGlobalIntrinsic("remove(self,k)", function(self: any, k: any): any {
+    if (self instanceof Map) {
+      if (self.has(k)) {
+        self.delete(k);
+        return 1;
+      } else {
+        return 0;
+      }
+    } else if (self instanceof Array) {
+      if (k == null) {
+        throw new RuntimeError("argument to 'remove' must not be null");
+      }
+      let index = toIntegerValue(k);
+      if (index < 0) {
+        index += self.length;
+      }
+      checkRange(index, 0, self.length-1);
+      self.splice(index, 1);
+      return null;
+    } else if (typeof self === "string") {
+      if (k == null) {
+        throw new RuntimeError("argument to 'remove' must not be null");
+      }
+      const s = toString(k);
+      const foundPos = s.indexOf(k);
+      if (foundPos < 0) {
+        return self;
+      }
+      const result = self.replace(k, "");
+      return result;
+    }
+    throw new RuntimeError("Type Error: 'remove' requires map, list, or string");
+  });
+
   p.addGlobalIntrinsic("indexOf(self,value,after=null)", function(self: any, value: any, after: number | null): number | null {
     if (self instanceof Array || typeof self === "string") {
       let afterIdx = after !== null ? after : -1;

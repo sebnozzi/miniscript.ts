@@ -2,11 +2,11 @@
 function addBaseTypesIntrinsics(p: Processor) {
 
   const listIntrinsicNames = ["len", "indexOf", "indexes", "hasIndex", "sum",
-    "sort", "push", "pull", "pop", "values", "insert"];
+    "sort", "push", "pull", "pop", "values", "insert", "remove"];
   const stringIntrinsicNames = ["len", "indexOf", "indexes", "hasIndex", "upper", 
-    "lower", "values", "insert"];
+    "lower", "values", "insert", "remove"];
   const mapIntrinsicNames = ["len", "indexOf", "indexes", "hasIndex", "sum",
-    "push", "pull", "pop", "values"];
+    "push", "pull", "pop", "values", "remove"];
 
   const getFn = (name: string): BoundFunction => {
     const optFn = p.globalContext.getOpt(name);

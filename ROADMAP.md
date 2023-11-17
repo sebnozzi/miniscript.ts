@@ -1,8 +1,6 @@
 
 Next steps:
 - Implement
-  - remove
-- Check that indexes in intrinsics are converted to int
   - replace
   - slice
   - join
@@ -19,6 +17,7 @@ Next steps:
   - bitAnd
   - bitOr
   - bitXor
+
 - Implement special-identifiers:
   - globals
   - locals
@@ -34,6 +33,11 @@ Next steps:
   They are resolved if anything else fails AFTER the global
   scope is exhausted.
 - Split intrinsics into different files
+- Do a code review and compare intrinsics impl. with official one
+  - Check type conversions
+  - Check edge cases
+  - Check that indexes in intrinsics are converted to int
+  - Check that checkRange is used
 - Implement intrinsics:
   - refEquals(a, b)
 - Implement math-assignment operators
