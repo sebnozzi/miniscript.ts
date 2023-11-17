@@ -1,4 +1,44 @@
 ======================================================================
+==== Intrinsic: char
+print char(64) + char(32) + char(65)
+print code(char(null))
+print code(char(""))
+print code(char("123"))
+print code(char([1,2,3]))
+print code(char(-1))
+----------------------------------------------------------------------
+@ A
+0
+0
+0
+0
+0
+======================================================================
+==== Intrinsic: code
+print code("A")
+print code("1")
+print code(1)
+print code("[")
+print code([1])
+print code("{")
+print code({2:2})
+print code(false)
+print code(0)
+print code(null)
+print code("")
+----------------------------------------------------------------------
+65
+49
+49
+91
+91
+123
+123
+48
+48
+0
+null
+======================================================================
 ==== Intrinsic: sign
 print sign(0.75)  //  1
 print sign(-22)   // -1

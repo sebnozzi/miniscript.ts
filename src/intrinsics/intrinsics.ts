@@ -85,6 +85,27 @@ function addIntrinsics(p: Processor) {
     }
   });
 
+  p.addGlobalIntrinsic("code(x)", function(x: any): number | null {
+    if (x !== null) {
+      const s = toString(x);
+      if (x === "") {
+        return null
+      }
+      const result = s.charCodeAt(0);
+      return result;
+    } else {
+      return 0;
+    }
+  });
+
+  p.addGlobalIntrinsic("char(n)", function(x: any): string {
+    if (typeof x === "number" && x > 0) {
+      const s = String.fromCharCode(x)
+      return s;
+    }
+    return String.fromCharCode(0);
+  });
+
   p.addGlobalIntrinsic("indexOf(self,value,after=null)", function(self: any, value: any, after: number | null): number | null {
     if (self instanceof Array || typeof self === "string") {
       let afterIdx = after !== null ? after : -1;

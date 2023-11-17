@@ -1,8 +1,6 @@
 
 Next steps:
 - Implement
-  - char
-  - code
   - insert
   - remove
   - replace
