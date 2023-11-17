@@ -1,7 +1,6 @@
 
 Next steps:
 - Implement
-  - join
   - log
   - sqrt
   - pi

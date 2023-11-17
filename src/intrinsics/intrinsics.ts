@@ -303,6 +303,25 @@ function addIntrinsics(p: Processor) {
     }
   });
 
+  p.addGlobalIntrinsic("join(self,delimiter=\" \")",
+  function(self: any, delimiter: any): string {
+    const delim = toString(delimiter);
+    if (!(self instanceof Array)) {
+      return self;
+    } else {
+      const list: (string|null)[] = [];
+      for (let value of self) {
+        if (value === null) {
+          list.push("");
+        } else {
+          list.push(toString(value));
+        }
+      }
+      const result = list.join(delim);
+      return result;
+    }
+  });
+
   p.addGlobalIntrinsic("hasIndex(self,index)", function(self: any, index: any): number | null {
     if (self instanceof Map) {
       return self.has(index) ? 1 : 0;
