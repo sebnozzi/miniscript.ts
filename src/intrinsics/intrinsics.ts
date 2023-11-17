@@ -163,6 +163,71 @@ function addIntrinsics(p: Processor) {
     throw new RuntimeError("Type Error: 'remove' requires map, list, or string");
   });
 
+  p.addGlobalIntrinsic("replace(self,oldVal,newVal,maxCount=null)",
+  function(self: any, oldVal: any, newVal: any, maxCountVal: any): any {
+    if (self === null) {
+      throw new RuntimeError("argument to 'replace' must not be null");
+    }
+    let maxCount = -1;
+    if (maxCountVal !== null) {
+      maxCount = toIntegerValue(maxCountVal);
+      if (maxCount < 1) {
+        return self;
+      }
+    }
+    let count = 0;
+    if (self instanceof Map) {
+      const keysToChange = [];
+      for (let key of self.keys()) {
+        const value = self.get(key);
+        if (equals(value, oldVal)) {
+          keysToChange.push(key);
+          count += 1;
+          if (maxCount > 0 && count === maxCount) {
+            break;
+          }
+        }
+      }
+      for (let key of keysToChange) {
+        self.set(key, newVal);
+      }
+      return self;
+    } else if (self instanceof Array) {
+      for (let i = 0; i < self.length; i++) {
+        if (equals(self[i], oldVal)) {
+          self[i] = newVal;
+          count++;
+        }
+        if (maxCount > 0 && count == maxCount) {
+          break;
+        }
+      }
+      return self;
+    } else if (typeof self === "string") {
+      let str = toString(self);
+      let oldstr = oldVal === null ? "" : toString(oldVal);
+      if (isNullOrEmpty(oldstr)) {
+        throw new RuntimeError("replace: oldval argument is empty");
+      }
+      let newstr = newVal == null ? "" : toString(newVal);
+      let idx = 0;
+      while (true) {
+        idx = str.indexOf(oldstr, idx);
+        if (idx < 0) {
+          break;
+        }
+        str = str.substring(0, idx) + newstr + str.substring(idx + oldstr.length);
+        idx += newstr.length;
+        count++;
+        if (maxCount > 0 && count == maxCount) {
+          break;
+        }
+      }
+      return str;
+    }
+    throw new RuntimeError("Type Error: 'replace' requires map, list, or string");
+  });
+
   p.addGlobalIntrinsic("indexOf(self,value,after=null)", function(self: any, value: any, after: number | null): number | null {
     if (self instanceof Array || typeof self === "string") {
       let afterIdx = after !== null ? after : -1;

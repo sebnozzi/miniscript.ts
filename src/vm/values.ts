@@ -331,3 +331,13 @@ function checkRange(i: number, min: number, max: number, desc: string = "index")
     throw new RuntimeError(`Index Error: ${desc} (${i}) out of range (${min} to ${max})`);
   }
 }
+
+function isNullOrEmpty(str: string): boolean {
+  if (str === null) {
+    return true;
+  } else if (typeof str === "string") {
+    return str === "";
+  } else {
+    throw new Error("Invalid argument: " + str);
+  }
+}
