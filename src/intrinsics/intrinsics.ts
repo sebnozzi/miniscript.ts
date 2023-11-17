@@ -58,6 +58,33 @@ function addIntrinsics(p: Processor) {
     }
   });
 
+  p.addGlobalIntrinsic("sign(n)", function(n: any): number {
+    if (typeof n === "number") {
+      if (n > 0) {
+        return 1;
+      } else if (n < 0) {
+        return -1;
+      }
+    }
+    return 0;
+  });
+
+  // Try to convert to a number
+  p.addGlobalIntrinsic("val(x)", function(x: any): number | null {
+    if (typeof x === "number") {
+      return x;
+    } else if (typeof x === "string") {
+      let result: number = Number(x);
+      if (isNaN(result)) {
+        return 0;
+      } else {
+        return result;
+      }
+    } else {
+      return null;
+    }
+  });
+
   p.addGlobalIntrinsic("indexOf(self,value,after=null)", function(self: any, value: any, after: number | null): number | null {
     if (self instanceof Array || typeof self === "string") {
       let afterIdx = after !== null ? after : -1;

@@ -1,29 +1,25 @@
 
 Next steps:
 - Implement
+  - char
+  - code
   - insert
   - remove
   - replace
-  - sign
-  - val
+  - slice
   - join
   - split
-  - char
-  - code
+  - log
+  - sqrt
   - pi
   - acos
   - asin
   - atan
   - sin
   - cos
-  - log
-  - sqrt
 - Implement special-identifiers:
   - globals
   - locals
-  - Intrinsics don't "pollute" the global scope
-    They are resolved if anything else fails AFTER the global
-    scope is exhausted. That's why they don't appear.
   - globals / locals can not be set-to, only accessed
     I mean, this is illegal
       globals = ...
@@ -32,14 +28,17 @@ Next steps:
       globals["lslsl"] = ...
       locals["sksks] = ... 
   - Implement super
+- Make intrinsics not "pollute" the global scope
+  They are resolved if anything else fails AFTER the global
+  scope is exhausted.
 - Implement intrinsics:
   - shuffle
-  - slice
   - split
   - bitAnd
   - bitOr
   - bitXor
   - refEquals(a, b)
+- Implement math-assignment operators
 - Test isa-equality with base-maps:
   - funcRef
   - list
