@@ -106,6 +106,29 @@ function addIntrinsics(p: Processor) {
     return String.fromCharCode(0);
   });
 
+  p.addGlobalIntrinsic("insert(self,index,value)", function(self: any, index: number, value: any): any | null {
+    if (index === null) {
+      throw new RuntimeError("index argument required");
+    }
+    if (typeof index !== "number") {
+      throw new RuntimeError("number required for index argument");
+    }
+    index = toIntegerValue(index);
+    if (index < 0) {
+      index += self.length + 1;
+    }
+    checkRange(index, 0, self.length);
+    if (self instanceof Array) {
+      self.splice(index, 0, value);
+    } else if (typeof self === "string") {
+      const valueStr = toString(value);
+      const result = [self.slice(0, index), valueStr, self.slice(index)].join('');
+      return result;
+    } else {
+      throw new RuntimeError("insert called on an invalid type");
+    }
+  });
+
   p.addGlobalIntrinsic("indexOf(self,value,after=null)", function(self: any, value: any, after: number | null): number | null {
     if (self instanceof Array || typeof self === "string") {
       let afterIdx = after !== null ? after : -1;

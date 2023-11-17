@@ -1,8 +1,8 @@
 
 Next steps:
 - Implement
-  - insert
   - remove
+- Check that indexes in intrinsics are converted to int
   - replace
   - slice
   - join
@@ -15,6 +15,10 @@ Next steps:
   - atan
   - sin
   - cos
+  - shuffle
+  - bitAnd
+  - bitOr
+  - bitXor
 - Implement special-identifiers:
   - globals
   - locals
@@ -29,14 +33,16 @@ Next steps:
 - Make intrinsics not "pollute" the global scope
   They are resolved if anything else fails AFTER the global
   scope is exhausted.
+- Split intrinsics into different files
 - Implement intrinsics:
-  - shuffle
-  - split
-  - bitAnd
-  - bitOr
-  - bitXor
   - refEquals(a, b)
 - Implement math-assignment operators
+  +=
+  -=
+  *=
+  /=
+  %=
+  ^=
 - Test isa-equality with base-maps:
   - funcRef
   - list

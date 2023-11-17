@@ -325,3 +325,9 @@ function toIntegerValue(value: any): number {
     return 0;
   }
 }
+
+function checkRange(i: number, min: number, max: number, desc: string = "index") {
+  if (i < min || i > max) {
+    throw new RuntimeError(`Index Error: ${desc} (${i}) out of range (${min} to ${max})`);
+  }
+}
