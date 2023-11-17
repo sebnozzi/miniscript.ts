@@ -28,6 +28,36 @@ function addIntrinsics(p: Processor) {
     return total;
   });
 
+  p.addGlobalIntrinsic("floor(n)", function(n: any): number {
+    if (typeof n === "number") {
+      return Math.floor(n);
+    } else {
+      return 0;
+    }
+  });
+
+  p.addGlobalIntrinsic("ceil(n)", function(n: any): number {
+    if (typeof n === "number") {
+      return Math.ceil(n);
+    } else {
+      return 0;
+    }
+  });
+
+  p.addGlobalIntrinsic("round(n,decimalPlaces=0)", function(n: any, decimalPlaces: any): number {
+    if (typeof n === "number" && typeof decimalPlaces === "number") {
+      if (decimalPlaces >= 0) {
+        const places = Math.pow(10, decimalPlaces);      
+        return Math.round(n * places) / places;
+      } else {
+        const pow10Nr = Math.pow(10, -decimalPlaces);
+        return Math.round(n / pow10Nr) * pow10Nr;
+      }
+    } else {
+      return 0;
+    }
+  });
+
   p.addGlobalIntrinsic("indexOf(self,value,after=null)", function(self: any, value: any, after: number | null): number | null {
     if (self instanceof Array || typeof self === "string") {
       let afterIdx = after !== null ? after : -1;

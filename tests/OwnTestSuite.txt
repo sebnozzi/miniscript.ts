@@ -1,4 +1,28 @@
 ======================================================================
+==== Intrinsics: floor, ceil, round
+print floor(1.99)
+print ceil(1.99)
+
+print floor(-1.99)
+print ceil(-1.99)
+
+print round(1.79,1)
+print round(1.72,1)
+
+// Negative numbers cause rounding to happen to the nearest
+// 10-power: 10^(-n). 10 for -1, 100 for -2, etc.
+print round(7.79,-1)
+print round(245.72,-2)
+----------------------------------------------------------------------
+1
+2
+-2
+-1
+1.8
+1.7
+10
+200
+======================================================================
 ==== Intrinsic: indexOf w/ "after" index
 a = [1,2,3,4,1,2,3]
 print indexOf(a, 1, 2)

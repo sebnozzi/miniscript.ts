@@ -1,18 +1,30 @@
 
 Next steps:
+- Support iterating over a map (key/value pairs)
 - Implement
-  - join
-  - split
   - insert
   - remove
-- Intrinsics don't "pollute" the global scope
-  They are resolved if anything else fails AFTER the global
-  scope is exhausted. That's why they don't appear.
+  - replace
+  - sign
+  - val
+  - join
+  - split
+  - char
+  - code
+  - pi
+  - acos
+  - asin
+  - atan
+  - sin
+  - cos
+  - log
+  - sqrt
 - Implement special-identifiers:
   - globals
   - locals
-  => They are implemented as special "identifiers", which are 
-     specially resolved ...
+  - Intrinsics don't "pollute" the global scope
+    They are resolved if anything else fails AFTER the global
+    scope is exhausted. That's why they don't appear.
   - globals / locals can not be set-to, only accessed
     I mean, this is illegal
       globals = ...
@@ -20,35 +32,15 @@ Next steps:
     But this is OK:
       globals["lslsl"] = ...
       locals["sksks] = ... 
+  - Implement super
 - Implement intrinsics:
-  - round
-  - floor
-  - ceil
-  - sign
-  - val
-  - log
-  - sqrt
   - shuffle
   - slice
-  - sort
   - split
-  - insert
-  - remove
-  - replace
-  - char
-  - code
-  - values
-  - acos
-  - asin
-  - pi
-  - atan
-  - sin
-  - cos
   - bitAnd
   - bitOr
   - bitXor
   - refEquals(a, b)
-- Support iterating over a map (key/value pairs)
 - Test isa-equality with base-maps:
   - funcRef
   - list
