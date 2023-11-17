@@ -279,16 +279,16 @@ function slice(vm: Processor, sliceTarget: any, startIdx: number, endIdx: number
     throw new RuntimeError(`Slice target must be List or String [line ${vm.getCurrentSrcLineNr()}]`);
   }
   // Check / compute indexes
-  if (startIdx) {
+  if (startIdx !== null) {
     checkInt(startIdx, `Slice-start should be an integer value [line ${vm.getCurrentSrcLineNr()}]`);
-    startIdx = computeEffectiveIndex(sliceTarget, startIdx);
+    startIdx = computeSliceIndex(vm, sliceTarget, startIdx);
   } else {
     // Take slice from the beginning
     startIdx = 0;
   }
-  if (endIdx) {
+  if (endIdx !== null) {
     checkInt(endIdx, `Slice-end should be an integer value [line ${vm.getCurrentSrcLineNr()}]`);
-    endIdx = computeEffectiveIndex(sliceTarget, endIdx);
+    endIdx = computeSliceIndex(vm, sliceTarget, endIdx);
   } else {
     // Take slice to the end
     endIdx = sliceTarget.length;
@@ -298,13 +298,28 @@ function slice(vm: Processor, sliceTarget: any, startIdx: number, endIdx: number
   return newCollection;
 }
 
-function computeEffectiveIndex(accessTarget: IndexedCollection, index: number): number {
+// Here it's important that the index is valid and within the access-target
+function computeAccessIndex(vm: Processor, accessTarget: IndexedCollection, index: number): number {
   // Compute effective index
   const effectiveIndex = (index < 0) ? index + accessTarget.length : index;
   // Check bounds
   if (effectiveIndex < 0 || effectiveIndex >= accessTarget.length) {
-    throw new Error(`Index Error (index ${index} out of range)`);
+    throw new Error(`Index Error (index ${index} out of range) [line ${vm.getCurrentSrcLineNr()}]`);
   }
+  return effectiveIndex;
+}
+
+// Here we can be flexible, adjust values and allow index to be == collection.length
+function computeSliceIndex(vm: Processor, accessTarget: IndexedCollection, index: number): number {
+  // Compute effective index
+  const effectiveIndex = (index < 0) ? index + accessTarget.length : index;
+  // Adjust values
+  if (effectiveIndex < 0) {
+    return 0;
+  } else if (effectiveIndex >= accessTarget.length) {
+    return accessTarget.length;
+  }
+  // Otherwise return as calculated
   return effectiveIndex;
 }
 

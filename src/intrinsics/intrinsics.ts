@@ -234,6 +234,45 @@ function addIntrinsics(p: Processor) {
     return newCollection;
   });
 
+  p.addGlobalIntrinsic("split(self,delimiter=\" \",maxCount=-1)",
+  function(self: any, delimiter: any, maxCount: any,): Array<string> {
+    self = toString(self);
+    delimiter = toString(delimiter);
+    maxCount = toIntegerValue(maxCount);
+
+    let result: string[] = [];
+    let pos = 0;
+
+		while (pos < self.length) {
+		  let nextPos;
+			
+      if (maxCount >= 0 && result.length == maxCount - 1) {
+        // Force finishing loop
+        nextPos = self.length;
+      } else if (delimiter.length == 0) {
+        // Split by every char if delimiter is empty
+        nextPos = pos + 1;
+      } else { 
+        // Advance 
+        nextPos = self.indexOf(delimiter, pos);
+      }
+					
+      if (nextPos < 0) {
+        nextPos = self.length;
+      }
+					
+      result.push(self.substring(pos, nextPos));
+
+			pos = nextPos + delimiter.length;
+
+			if (pos == self.length && delimiter.length > 0) {
+        result.push("");
+      }
+		}
+
+		return result;
+  });
+
   p.addGlobalIntrinsic("indexOf(self,value,after=null)", function(self: any, value: any, after: number | null): number | null {
     if (self instanceof Array || typeof self === "string") {
       let afterIdx = after !== null ? after : -1;

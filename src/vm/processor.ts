@@ -179,7 +179,7 @@ class Processor {
           if (isList) {
             // Check and compute index
             checkInt(index, "Index must be an integer");
-            const effectiveIndex = computeEffectiveIndex(assignTarget, index);
+            const effectiveIndex = computeAccessIndex(this, assignTarget, index);
             assignTarget[effectiveIndex] = valueToAssign;
           } else if(isMap) {
             assignTarget.set(index, valueToAssign);
@@ -232,7 +232,7 @@ class Processor {
           if (isList || isString) {
             if (typeof index === "number") {
               checkInt(index, `Index must be an integer [line ${this.getCurrentSrcLineNr()}]`);
-              const effectiveIndex = computeEffectiveIndex(accessTarget, index);
+              const effectiveIndex = computeAccessIndex(this, accessTarget, index);
               value = accessTarget[effectiveIndex];
             } else if (isList) {
               value = this.mapAccess(this.listCoreType, index);

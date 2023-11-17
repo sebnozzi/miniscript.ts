@@ -6,12 +6,18 @@ print slice(s,2,4)
 print slice(s,2)
 print slice(s,0,2)
 print slice(s,-4,-2)
+// Should output empty strings
+print slice("Hello",0,0)
+print slice("Hello",-100,0)
+
 ----------------------------------------------------------------------
 L
 LL
 LLO
 HE
 EL
+
+
 ======================================================================
 ==== Intrinsic: slice (list)
 list1 = [0, 10, 20, 30, 40]

@@ -2,7 +2,6 @@
 Next steps:
 - Implement
   - join
-  - split
   - log
   - sqrt
   - pi
