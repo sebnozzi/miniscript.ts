@@ -1,7 +1,6 @@
 
 Next steps:
 - Implement
-  - slice
   - join
   - split
   - log

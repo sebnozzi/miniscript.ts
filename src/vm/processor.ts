@@ -269,29 +269,9 @@ class Processor {
         case BC.SLICE_SEQUENCE: {
           // Pop parameters
           const sliceTarget = this.opStack.pop();
-          let endIdx = this.opStack.pop();
-          let startIdx = this.opStack.pop();
-          // Check list-target
-          if (!(sliceTarget instanceof Array || typeof sliceTarget === "string")) {
-            throw new RuntimeError(`Slice target must be List or String [line ${this.getCurrentSrcLineNr()}]`);
-          }
-          // Check / compute indexes
-          if (startIdx) {
-            checkInt(startIdx, `Slice-start should be an integer value [line ${this.getCurrentSrcLineNr()}]`);
-            startIdx = computeEffectiveIndex(sliceTarget, startIdx);
-          } else {
-            // Take slice from the beginning
-            startIdx = 0;
-          }
-          if (endIdx) {
-            checkInt(endIdx, `Slice-end should be an integer value [line ${this.getCurrentSrcLineNr()}]`);
-            endIdx = computeEffectiveIndex(sliceTarget, endIdx);
-          } else {
-            // Take slice to the end
-            endIdx = sliceTarget.length;
-          }
-          // Compute slice
-          const newCollection = sliceTarget.slice(startIdx, endIdx);
+          const endIdx = this.opStack.pop();
+          const startIdx = this.opStack.pop();
+          const newCollection = slice(this, sliceTarget, startIdx, endIdx);
           // Push result
           this.opStack.push(newCollection);
           this.ip += 1;

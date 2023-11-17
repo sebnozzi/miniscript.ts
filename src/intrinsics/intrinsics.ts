@@ -228,6 +228,12 @@ function addIntrinsics(p: Processor) {
     throw new RuntimeError("Type Error: 'replace' requires map, list, or string");
   });
 
+  p.addGlobalIntrinsic("slice(seq,from=0,to=null)",
+  function(sequence: any, fromIdx: any, toIdx: any,): any {
+    const newCollection = slice(p, sequence, fromIdx, toIdx);
+    return newCollection;
+  });
+
   p.addGlobalIntrinsic("indexOf(self,value,after=null)", function(self: any, value: any, after: number | null): number | null {
     if (self instanceof Array || typeof self === "string") {
       let afterIdx = after !== null ? after : -1;

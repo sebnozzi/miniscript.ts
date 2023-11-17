@@ -273,6 +273,31 @@ function absClamp01(value: number): number {
   return value;
 }
 
+function slice(vm: Processor, sliceTarget: any, startIdx: number, endIdx: number): any {
+  // Check list-target
+  if (!(sliceTarget instanceof Array || typeof sliceTarget === "string")) {
+    throw new RuntimeError(`Slice target must be List or String [line ${vm.getCurrentSrcLineNr()}]`);
+  }
+  // Check / compute indexes
+  if (startIdx) {
+    checkInt(startIdx, `Slice-start should be an integer value [line ${vm.getCurrentSrcLineNr()}]`);
+    startIdx = computeEffectiveIndex(sliceTarget, startIdx);
+  } else {
+    // Take slice from the beginning
+    startIdx = 0;
+  }
+  if (endIdx) {
+    checkInt(endIdx, `Slice-end should be an integer value [line ${vm.getCurrentSrcLineNr()}]`);
+    endIdx = computeEffectiveIndex(sliceTarget, endIdx);
+  } else {
+    // Take slice to the end
+    endIdx = sliceTarget.length;
+  }
+  // Compute slice
+  const newCollection = sliceTarget.slice(startIdx, endIdx);
+  return newCollection;
+}
+
 function computeEffectiveIndex(accessTarget: IndexedCollection, index: number): number {
   // Compute effective index
   const effectiveIndex = (index < 0) ? index + accessTarget.length : index;
