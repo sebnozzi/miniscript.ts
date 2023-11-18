@@ -53,6 +53,34 @@ function addIntrinsics(p: Processor) {
     }
   });
 
+  p.addGlobalIntrinsic("pi", function(): number {
+    return Math.PI;
+  });
+
+  p.addGlobalIntrinsic("sin(x)", function(x: any): number {
+    return Math.sin(x);
+  });
+
+  p.addGlobalIntrinsic("cos(x)", function(x: any): number {
+    return Math.cos(x);
+  });
+
+  p.addGlobalIntrinsic("tan(x)", function(x: any): number {
+    return Math.tan(x);
+  });
+
+  p.addGlobalIntrinsic("asin(x)", function(x: any): number {
+    return Math.asin(x);
+  });
+
+  p.addGlobalIntrinsic("acos(x)", function(x: any): number {
+    return Math.acos(x);
+  });
+
+  p.addGlobalIntrinsic("atan(x)", function(x: any): number {
+    return Math.atan(x);
+  });
+
   p.addGlobalIntrinsic("sign(n)", function(n: any): number {
     if (typeof n === "number") {
       if (n > 0) {

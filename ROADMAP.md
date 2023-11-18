@@ -1,16 +1,10 @@
 
 Next steps:
 - Implement
-  - sqrt
-  - pi
-  - acos
-  - asin
-  - atan
-  - sin
-  - cos
   - bitAnd
   - bitOr
   - bitXor
+  - sqrt
   - shuffle
   - hash
   - time
