@@ -3,7 +3,7 @@ class ForLoop {
   public readonly endAddr: number;
   public readonly localVarName: string;
   public readonly values: any;
-  public readonly mapObj: Map<any,any> | null;
+  public readonly mapObj: HashMap | null;
   private valueIdx: number;
   private valueCount: number;
 
@@ -15,7 +15,7 @@ class ForLoop {
     if (values instanceof Array) {
       this.values = values;
       this.mapObj = null;
-    } else if (values instanceof Map) {
+    } else if (values instanceof HashMap) {
       this.values = Array.from(values.keys());
       this.mapObj = values;
     } else {
@@ -35,7 +35,7 @@ class ForLoop {
     if (this.mapObj) {
       const currentKey = this.values[this.valueIdx];
       const currentMapValue = this.mapObj.get(currentKey);
-      currentValue = new Map<any,any>();
+      currentValue = new HashMap();
       currentValue.set("key", currentKey);
       currentValue.set("value", currentMapValue);
     } else {

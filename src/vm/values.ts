@@ -8,7 +8,10 @@ type Concatenable = {
   concat(a: any): any;
 }
 
-function equals(a: any, b: any): number {
+function equals(a: any, b: any, recursionDepth: number = 16): number {
+  if (recursionDepth < 0) {
+    return 1;
+  }
   // JavaScript does not compare Arrays the way we want
   // so we have to implement our own version.
   if (a instanceof Array && b instanceof Array) {
@@ -19,14 +22,14 @@ function equals(a: any, b: any): number {
         if (a[i] === b[i]) {
           continue;
         }
-        if (equals(a[i], b[i]) === 0) {
+        if (equals(a[i], b[i], recursionDepth - 1) === 0) {
           return 0;
         }
       }
       return 1;
     }
-  } else if (a instanceof Map && b instanceof Map) {
-    if (a.size !== b.size) {
+  } else if (a instanceof HashMap && b instanceof HashMap) {
+    if (a.size() !== b.size()) {
       return 0;
     } else {
       for (let aKey of a.keys()) {
@@ -35,9 +38,9 @@ function equals(a: any, b: any): number {
         }
         const aValue = a.get(aKey);
         const bValue = b.get(aKey);
-        if (aValue === bValue) {
+        if (equals(aValue, bValue, recursionDepth - 1)) {
           continue;
-        } else if (equals(aValue, bValue) !== 1) {
+        } else if (equals(aValue, bValue, recursionDepth - 1) !== 1) {
           return 0;
         }
       }
@@ -127,14 +130,14 @@ function add(a: any, b: any): any {
     } else {
       throw new RuntimeError(`Got ${b} instead of another List`);
     }
-  } else if (a instanceof Map) {
-    if (b instanceof Map) {
-      const combined = new Map<any,any>();
-      for (let [k,v] of a.entries()) {
-        combined.set(k,v);
+  } else if (a instanceof HashMap) {
+    if (b instanceof HashMap) {
+      const combined = new HashMap();
+      for (let e of a.entries()) {
+        combined.set(e.key,e.value);
       }
-      for (let [k,v] of b.entries()) {
-        combined.set(k,v);
+      for (let e of b.entries()) {
+        combined.set(e.key,e.value);
       }
       return combined;
     } else {
@@ -351,8 +354,8 @@ function toBooleanNr(value: any): number {
     return value.length;
   } else if (typeof value === "string") {
     return value.length > 0 ? 1 : 0;
-  } else if (value instanceof Map) {
-    return value.size > 0 ? 1 : 0;
+  } else if (value instanceof HashMap) {
+    return value.size() > 0 ? 1 : 0;
   } else {
     throw new RuntimeError("Type not supported: " + value);
   }
@@ -397,6 +400,57 @@ function round(n: any, decimalPlaces: any): number | undefined {
   } else {
     return undefined;
   }
+}
+
+function hashCode(value: any, recursionDepth: number = 16): number {
+  if (value === null) {
+    return -1;
+  } else if (value instanceof Array) {
+    return listHashCode(value, recursionDepth - 1);
+  } else if (value instanceof HashMap) {
+    return mapHashCode(value, recursionDepth - 1);
+  } else {
+    const valueStr = toString(value);
+    return stringHashCode(valueStr);
+  }
+}
+
+function listHashCode(list: Array<any>, recursionDepth: number = 16): number {
+  let result = hashCode(list.length);
+  if (recursionDepth < 1) {
+    return result;
+  }
+  for (let i = 0; i < list.length; i++) {
+    const value = list[i];
+    if (value != null) {
+      result ^= hashCode(value, recursionDepth - 1);
+    }
+  }
+  return result;
+}
+
+function mapHashCode(map: HashMap, recursionDepth: number = 16) {
+  let result = stringHashCode(toString(map.size));
+  if (recursionDepth < 0) {
+    return result;
+  }
+  for (let {key, value} of map.entries()) {
+    result ^= hashCode(key, recursionDepth - 1);
+    if (value != null) {
+      result ^= hashCode(value, recursionDepth - 1);
+    }
+  }
+  return result;
+}
+
+function stringHashCode(str: string): number {
+  let hash = 0;
+  for (let i = 0, len = str.length; i < len; i++) {
+      let chr = str.charCodeAt(i);
+      hash = (hash << 5) - hash + chr;
+      hash |= 0; // Convert to 32bit integer
+  }
+  return hash;
 }
 
 function getRandomInt(max: number): number {

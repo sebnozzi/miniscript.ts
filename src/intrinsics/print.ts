@@ -20,11 +20,11 @@ function formatValue(value: any, quoteStrings: boolean = false): string {
       formattedValues.push(formatValue(e, true));
     }
     text = "[" + formattedValues.join(", ") + "]";
-  } else if (value instanceof Map) {
+  } else if (value instanceof HashMap) {
     const formattedPairs = [];
-    for (let [key, mapValue] of value.entries()) {
-      const formattedKey = formatValue(key, true);
-      const formattedValue = formatValue(mapValue, true);
+    for (let e of value.entries()) {
+      const formattedKey = formatValue(e.key, true);
+      const formattedValue = formatValue(e.value, true);
       const formattedPair = formattedKey + ": " + formattedValue;
       formattedPairs.push(formattedPair);
     }

@@ -18,7 +18,7 @@ function addBaseTypesIntrinsics(p: Processor) {
     }
   };
 
-  const importIntrinsics = (targetList: Map<any,any>, intrinsicNames: string[]) => {
+  const importIntrinsics = (targetList: HashMap, intrinsicNames: string[]) => {
     for (let fnName of intrinsicNames) {
       const boundFn = getFn(fnName);
       p.addCoreTypeIntrinsic(targetList, fnName, boundFn);

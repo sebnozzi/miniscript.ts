@@ -4,7 +4,7 @@
 
 type TxtCallback = (txt: string) => any;
 
-const MAX_ISA_RECURSION_DEPTH = 20;
+const MAX_ISA_RECURSION_DEPTH = 16;
 
 class Processor {
 
@@ -19,10 +19,10 @@ class Processor {
   // The global context.
   globalContext: Context;
   // Core-types
-  listCoreType: Map<any, any>;
-  mapCoreType: Map<any, any>;
-  stringCoreType: Map<any, any>;
-  numberCoreType: Map<any, any>;
+  listCoreType: HashMap;
+  mapCoreType: HashMap;
+  stringCoreType: HashMap;
+  numberCoreType: HashMap;
   // Core-type access functions
   listCoreTypeMapFn: BoundFunction;
   stringCoreTypeMapFn: BoundFunction;
@@ -39,10 +39,10 @@ class Processor {
     this.code = programCode;
     this.ip = 0;
     this.globalContext = new Context(this);
-    this.listCoreType = new Map<any, any>();
-    this.mapCoreType = new Map<any, any>();
-    this.stringCoreType = new Map<any, any>();
-    this.numberCoreType = new Map<any, any>();
+    this.listCoreType = new HashMap();
+    this.mapCoreType = new HashMap();
+    this.stringCoreType = new HashMap();
+    this.numberCoreType = new HashMap();
     this.context = this.globalContext;
     this.savedFrames = new Stack<Frame>();
     this.opStack = new Stack();
@@ -74,7 +74,7 @@ class Processor {
     this.globalContext.setLocal(fnName, boundFunc);
   }
 
-  addCoreTypeIntrinsic(target: Map<string, any>, name: string, boundFunc: BoundFunction) {
+  addCoreTypeIntrinsic(target: HashMap, name: string, boundFunc: BoundFunction) {
     target.set(name, boundFunc);
   }
 
@@ -144,7 +144,7 @@ class Processor {
           const callTarget = this.opStack.pop();
 
           let resolvedMethod: any;
-          if (callTarget instanceof Map) {
+          if (callTarget instanceof HashMap) {
             resolvedMethod = this.mapAccess(callTarget, methodName);
           } else {
             // Lookup in base type
@@ -176,7 +176,7 @@ class Processor {
 
           const isString = typeof assignTarget === "string";
           const isList = assignTarget instanceof Array;
-          const isMap = assignTarget instanceof Map;
+          const isMap = assignTarget instanceof HashMap;
 
           if (isList) {
             // Check and compute index
@@ -199,7 +199,7 @@ class Processor {
           const assignTarget = this.opStack.pop();
           const valueToAssign = this.opStack.pop();
 
-          if (!(assignTarget instanceof Map)) {
+          if (!(assignTarget instanceof HashMap)) {
             throw new RuntimeError(`Assignment target must be a Map [line ${this.getCurrentSrcLineNr()}]`);
           }
 
@@ -233,7 +233,7 @@ class Processor {
 
           const isString = typeof assignTarget === "string";
           const isList = assignTarget instanceof Array;
-          const isMap = assignTarget instanceof Map;
+          const isMap = assignTarget instanceof HashMap;
 
           if (isList) {
             // Check and compute index
@@ -261,7 +261,7 @@ class Processor {
           const assignTarget = this.opStack.pop();
           const operand = this.opStack.pop();
 
-          if (!(assignTarget instanceof Map)) {
+          if (!(assignTarget instanceof HashMap)) {
             throw new RuntimeError(`Assignment target must be a Map [line ${this.getCurrentSrcLineNr()}]`);
           }
 
@@ -293,7 +293,7 @@ class Processor {
 
           const isString = typeof accessTarget === "string";
           const isList = accessTarget instanceof Array;
-          const isMap = accessTarget instanceof Map;
+          const isMap = accessTarget instanceof HashMap;
 
           let value: any;
 
@@ -326,7 +326,7 @@ class Processor {
           const accessTarget = this.opStack.pop();
 
           let value: any;
-          if (accessTarget instanceof Map) {
+          if (accessTarget instanceof HashMap) {
             value = this.mapAccess(accessTarget, propertyName);
           } else if (accessTarget === null) {
             throw new RuntimeError(`Type Error (while attempting to look up ${propertyName}) [line ${this.getCurrentSrcLineNr()}]`);
@@ -384,7 +384,7 @@ class Processor {
         case BC.BUILD_MAP: {
           const elementCount: any = this.code.arg1[this.ip];
           const elements: any[] = this.opStack.popN(elementCount * 2);
-          const newMap = new Map<any, any>();
+          const newMap = new HashMap();
           // Iterate over elements and process key/value
           // Advance by 2, processing in pairs
           for (let i = 0; i < elements.length; i += 2) {
@@ -398,10 +398,10 @@ class Processor {
         }
         case BC.NEW_MAP: {
           const parentMap = this.opStack.pop();
-          if (!(parentMap instanceof Map)) {
+          if (!(parentMap instanceof HashMap)) {
             throw new RuntimeError(`Operator "new" can only be used with Maps [line ${this.getCurrentSrcLineNr()}]`);
           }
-          const newMap = new Map<any, any>();
+          const newMap = new HashMap();
           newMap.set("__isa", parentMap);
           this.opStack.push(newMap);                
           this.ip += 1;
@@ -706,12 +706,12 @@ class Processor {
     }
   }
 
-  private selectCoreTypeMap(accessTarget: any): Map<any,any> {
+  private selectCoreTypeMap(accessTarget: any): HashMap {
     if (accessTarget instanceof Array) {
       return this.listCoreType;
     } else if (typeof accessTarget === "string") {
       return this.stringCoreType;
-    } else if (accessTarget instanceof Map) {
+    } else if (accessTarget instanceof HashMap) {
       return this.mapCoreType;
     } else if (typeof accessTarget === "number") {
       return this.numberCoreType;
@@ -720,7 +720,7 @@ class Processor {
     }
   }
 
-  private coreTypeMapAccess(mapObj: Map<any, any>, key: any): any {
+  private coreTypeMapAccess(mapObj: HashMap, key: any): any {
     if (mapObj.has(key)) {
       return mapObj.get(key);
     } else {
@@ -728,7 +728,7 @@ class Processor {
     }
   }
 
-  mapAccess(mapObj: Map<any, any>, key: any): any {
+  mapAccess(mapObj: HashMap, key: any): any {
     const value = this.mapAccessOpt(mapObj, key);
     if (value === undefined) {
       throw new RuntimeError(`Key Not Found: '${key}' not found in map [line ${this.getCurrentSrcLineNr()}]`);
@@ -737,7 +737,7 @@ class Processor {
     }
   }
 
-  mapAccessOpt(mapObj: Map<any, any>, key: any, depth: number = 0): any | undefined {
+  mapAccessOpt(mapObj: HashMap, key: any, depth: number = 0): any | undefined {
     if (depth > MAX_ISA_RECURSION_DEPTH) {
       throw new RuntimeError(`__isa depth exceeded (perhaps a reference loop?) [line ${this.getCurrentSrcLineNr()}]`);
     }

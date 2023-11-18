@@ -2,14 +2,14 @@
 
 class Context {
 
-  private readonly locals: Map<string,any>;
+  private readonly locals: HashMap;
   private readonly parent: Context | null;
   private readonly forLoops: {[id: number]: ForLoop};
   private readonly globalContext: Context;
   private readonly vm: Processor;
 
   constructor(vm: Processor, parent: Context | null = null) {
-    this.locals = new Map<string,any>();
+    this.locals = new HashMap();
     this.parent = parent;
     this.forLoops = {};
     this.vm = vm;

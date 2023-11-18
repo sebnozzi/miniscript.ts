@@ -1,8 +1,5 @@
 
 Next steps:
-- Implement
-  - time
-  - hash
 - Implement special-identifiers:
   - Implement super
 - Make intrinsics not "pollute" the global scope
@@ -29,6 +26,7 @@ Next steps:
   Runtime Error: Too Many Arguments [line 2]
   (so that many tests pass)
 - Implement intrinsics:
+  - time
   - wait
   - yield
   - version

@@ -5,8 +5,8 @@ function addIntrinsics(p: Processor) {
   p.addGlobalIntrinsic("len(self)", function(self: any): number | null {
     if (self instanceof Array || typeof self === "string") {
       return self.length;
-    } else if (self instanceof Map) {
-      return self.size;
+    } else if (self instanceof HashMap) {
+      return self.size();
     } else {
       return null;
     }
@@ -16,7 +16,7 @@ function addIntrinsics(p: Processor) {
     let list: any[];
     if (self instanceof Array) {
       list = self as Array<any>;
-    } else if (self instanceof Map) {
+    } else if (self instanceof HashMap) {
       list = Array.from( self.values() );
     } else {
       return 0;
@@ -185,7 +185,7 @@ function addIntrinsics(p: Processor) {
   });
 
   p.addGlobalIntrinsic("remove(self,k)", function(self: any, k: any): any {
-    if (self instanceof Map) {
+    if (self instanceof HashMap) {
       if (self.has(k)) {
         self.delete(k);
         return 1;
@@ -231,7 +231,7 @@ function addIntrinsics(p: Processor) {
       }
     }
     let count = 0;
-    if (self instanceof Map) {
+    if (self instanceof HashMap) {
       const keysToChange = [];
       for (let key of self.keys()) {
         const value = self.get(key);
@@ -340,7 +340,7 @@ function addIntrinsics(p: Processor) {
       }
       const idx = self.indexOf(value, afterIdx + 1);
       return idx >= 0 ? idx : null;
-    } else if (self instanceof Map) {
+    } else if (self instanceof HashMap) {
       let startSearch = after == null ? true : false;
       for(let key of self.keys()) {
         if (startSearch) {
@@ -378,7 +378,7 @@ function addIntrinsics(p: Processor) {
   });
 
   p.addGlobalIntrinsic("hasIndex(self,index)", function(self: any, index: any): number | null {
-    if (self instanceof Map) {
+    if (self instanceof HashMap) {
       return self.has(index) ? 1 : 0;
     } else if (self instanceof Array || typeof self === "string") {
       if (typeof index === "number" && self.length > 0) {
@@ -399,13 +399,13 @@ function addIntrinsics(p: Processor) {
       const result = self.pop();
       // Return the removed element
       return result;
-    } else if (self instanceof Map) {
-      if (self.size < 1) {
+    } else if (self instanceof HashMap) {
+      if (self.size() < 1) {
         return null;
       }
       // Remove the element corresponding to (the arbirtrary)
       // first key
-      const firstKey = self.keys().next().value;
+      const firstKey = self.keys()[0];
       self.delete(firstKey);
       // Return removed key
       return firstKey;
@@ -425,13 +425,13 @@ function addIntrinsics(p: Processor) {
       self.splice(0,1);
       // Return the removed element
       return result;
-    } else if (self instanceof Map) {
-      if (self.size < 1) {
+    } else if (self instanceof HashMap) {
+      if (self.size() < 1) {
         return null;
       }
       // Remove the element corresponding to (the arbirtrary)
       // first key
-      const firstKey = self.keys().next().value;
+      const firstKey = self.keys()[0];
       self.delete(firstKey);
       // Return removed key
       return firstKey;
@@ -444,7 +444,7 @@ function addIntrinsics(p: Processor) {
     if (self instanceof Array) {
       self.push(value);
       return self;
-    } else if (self instanceof Map) {
+    } else if (self instanceof HashMap) {
       self.set(value, 1);
       return self;
     } else {
@@ -453,7 +453,7 @@ function addIntrinsics(p: Processor) {
   });
 
   p.addGlobalIntrinsic("indexes(self)", function(self: any): any[] | null {
-    if (self instanceof Map) {
+    if (self instanceof HashMap) {
       const keys = Array.from( self.keys() );
       return keys;
     } else if (self instanceof Array || typeof self === "string") {
@@ -469,7 +469,7 @@ function addIntrinsics(p: Processor) {
 
 
   p.addGlobalIntrinsic("values(self)", function(self: any): any {
-    if (self instanceof Map) {
+    if (self instanceof HashMap) {
       const values = Array.from( self.values() );
       return values;
     } else if (typeof self === "string") {
@@ -543,7 +543,7 @@ function addIntrinsics(p: Processor) {
         for (let i = 0; i < self.length; i++) {
           const value = self[i];
           let sortKey: any = null;
-          if (value instanceof Map) {
+          if (value instanceof HashMap) {
             sortKey = p.mapAccessOpt(value, byKey) || null;
           } else if (value instanceof Array) {
             if (intKey > -value.length && intKey < value.length) {
@@ -594,7 +594,7 @@ function addIntrinsics(p: Processor) {
         self[rndIdx] = self[idx];
         self[idx] = tempValue;
       }
-    } else if (self instanceof Map) {
+    } else if (self instanceof HashMap) {
       const keys = Array.from(self.keys());
       for (let keyIdx = keys.length - 1; keyIdx >= 1; keyIdx--) {
         const rndIdx = getRandomInt(keyIdx+1);
@@ -633,8 +633,13 @@ function addIntrinsics(p: Processor) {
     }
   });
 
-  // range(start,stop[,step])
-  p.addGlobalIntrinsic("range(start,stop,step=null)", function(start: number, stop: number, step: number) {
+  p.addGlobalIntrinsic("hash(obj)", 
+  function(obj: any): number {
+    return hashCode(obj);
+  });
+
+  p.addGlobalIntrinsic("range(start,stop,step=null)", 
+  function(start: number, stop: number, step: number) {
     checkInt(start, "Argument 'start' should be integer");
     checkInt(stop, "Argument 'stop' should be integer");
 
