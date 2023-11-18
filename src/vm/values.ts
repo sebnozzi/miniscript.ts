@@ -385,6 +385,20 @@ function toIntegerValue(value: any): number {
   }
 }
 
+function round(n: any, decimalPlaces: any): number | undefined {
+  if (typeof n === "number" && typeof decimalPlaces === "number") {
+    if (decimalPlaces >= 0) {
+      const places = Math.pow(10, decimalPlaces);      
+      return Math.round(n * places) / places;
+    } else {
+      const pow10Nr = Math.pow(10, -decimalPlaces);
+      return Math.round(n / pow10Nr) * pow10Nr;
+    }
+  } else {
+    return undefined;
+  }
+}
+
 function checkRange(i: number, min: number, max: number, desc: string = "index") {
   if (i < min || i > max) {
     throw new RuntimeError(`Index Error: ${desc} (${i}) out of range (${min} to ${max})`);

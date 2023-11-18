@@ -8,7 +8,13 @@ function addPrintIntrinsic(p: Processor) {
 
 function formatValue(value: any, quoteStrings: boolean = false): string {
   let text = "";
-  if (value instanceof Array) {
+  if (typeof value === "number") {
+    const isFloat = !Number.isInteger(value) && Number.isFinite(value);
+    if (isFloat) {
+      value = round(value, 6);
+    }
+    text = "" + value;
+  } else if (value instanceof Array) {
     const formattedValues = [];
     for (const e of value) {
       formattedValues.push(formatValue(e, true));
