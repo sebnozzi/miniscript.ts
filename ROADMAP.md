@@ -1,6 +1,15 @@
 
 Next steps:
+- Implement math-assignment operators
+  +=
+  -=
+  *=
+  /=
+  %=
+  ^=
 - Implement
+  - shuffle
+  - hash
   - log
   - sqrt
   - pi
@@ -9,21 +18,10 @@ Next steps:
   - atan
   - sin
   - cos
-  - shuffle
   - bitAnd
   - bitOr
   - bitXor
-
 - Implement special-identifiers:
-  - globals
-  - locals
-  - globals / locals can not be set-to, only accessed
-    I mean, this is illegal
-      globals = ...
-      locals = ...
-    But this is OK:
-      globals["lslsl"] = ...
-      locals["sksks] = ... 
   - Implement super
 - Make intrinsics not "pollute" the global scope
   They are resolved if anything else fails AFTER the global
@@ -36,13 +34,6 @@ Next steps:
   - Check that checkRange is used
 - Implement intrinsics:
   - refEquals(a, b)
-- Implement math-assignment operators
-  +=
-  -=
-  *=
-  /=
-  %=
-  ^=
 - Test isa-equality with base-maps:
   - funcRef
   - list

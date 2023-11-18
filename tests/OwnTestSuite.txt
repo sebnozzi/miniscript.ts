@@ -1,4 +1,75 @@
 ======================================================================
+==== Test writing locals
+// Should raise error
+f = function
+	locals = {}
+end function
+f
+----------------------------------------------------------------------
+Runtime Error: can't assign to locals [line 3]
+======================================================================
+==== Test writing globals
+// Should raise error
+globals = {}
+----------------------------------------------------------------------
+Runtime Error: can't assign to globals [line 2]
+======================================================================
+==== Writing globals / locals
+
+// Test writing globals
+
+a = [4,5,6]
+
+f1 = function
+	globals["a"] = [1,2,3]
+end function
+
+f2 = function
+	globals.a = [7,8,9]
+end function
+
+print a
+
+f1
+print a
+
+f2
+print a
+
+// Test writing locals
+
+f3 = function
+	a = 123
+	print a
+	locals["a"] = 456
+	print a
+	locals.a = 789
+	print a
+end function
+
+f3
+----------------------------------------------------------------------
+[4, 5, 6]
+[1, 2, 3]
+[7, 8, 9]
+123
+456
+789
+======================================================================
+==== Accessing globals / locals
+a = [4,5,6]
+f = function
+	print globals.a
+	print globals["a"]
+	a = 123
+	print locals["a"]
+end function
+f
+----------------------------------------------------------------------
+[4, 5, 6]
+[4, 5, 6]
+123
+======================================================================
 ==== Intrinsic: slice (strings)
 s = "HELLO"
 print slice(s,2,3)

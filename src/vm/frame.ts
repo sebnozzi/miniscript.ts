@@ -3,17 +3,13 @@
 /// <reference path="./code.ts"/>
 
 class Frame {
-  ip: number;
-  code: Code;
-  context: Context;
+  public readonly ip: number;
+  public readonly code: Code;
+  public readonly context: Context;
 
-  constructor(code: Code, context: Context | undefined = undefined) {
-    this.ip = 0;
+  constructor(code: Code, ip: number, frameContext: Context) {
     this.code = code;
-    if (context) {
-      this.context = context;
-    } else {
-      this.context = new Context();
-    }
+    this.ip = ip;
+    this.context = frameContext;
   }
 }

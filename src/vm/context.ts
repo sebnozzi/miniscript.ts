@@ -2,28 +2,43 @@
 
 class Context {
 
-  locals: {[id: string]: any};
-  parent: Context | null;
-  forLoops: {[id: number]: ForLoop};
+  private readonly locals: Map<string,any>;
+  private readonly parent: Context | null;
+  private readonly forLoops: {[id: number]: ForLoop};
+  private readonly globalContext: Context;
+  private readonly vm: Processor;
 
-  constructor(parent: Context | null = null) {
-    this.locals = {};
+  constructor(vm: Processor, parent: Context | null = null) {
+    this.locals = new Map<string,any>();
     this.parent = parent;
     this.forLoops = {};
+    this.vm = vm;
+    this.globalContext = vm.globalContext;
   }
 
   setLocal(identifier: string, value: any) {
-    this.locals[identifier] = value;
+    if (identifier === "globals") {
+      throw new RuntimeError(`can't assign to globals [line ${this.vm.getCurrentSrcLineNr()}]`);
+    } else if (identifier === "locals") {
+      throw new RuntimeError(`can't assign to locals [line ${this.vm.getCurrentSrcLineNr()}]`);
+    }
+    this.locals.set(identifier, value);
   }
 
   getOpt(identifier: string): any | undefined {
-    let localValue = this.locals[identifier];
-    if (localValue !== undefined) {
-      return localValue;
-    } else if (this.parent) {
-      return this.parent.getOpt(identifier);
+    if (identifier === "globals") {
+      return this.globalContext.locals;
+    } else if (identifier === "locals") {
+      return this.locals;
     } else {
-      return undefined;
+      if (this.locals.has(identifier)) {
+        const localValue = this.locals.get(identifier);
+        return localValue;
+      } else if (this.parent) {
+        return this.parent.getOpt(identifier);
+      } else {
+        return undefined;
+      }
     }
   }
 

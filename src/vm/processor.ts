@@ -38,7 +38,7 @@ class Processor {
   constructor(programCode: Code, public readonly stdoutCallback: TxtCallback, public readonly stderrCallback: TxtCallback) {
     this.code = programCode;
     this.ip = 0;
-    this.globalContext = new Context();
+    this.globalContext = new Context(this);
     this.listCoreType = new Map<any, any>();
     this.mapCoreType = new Map<any, any>();
     this.stringCoreType = new Map<any, any>();
@@ -612,9 +612,7 @@ class Processor {
   }
 
   pushFrame() {
-    const frame = new Frame(this.code);
-    frame.context = this.context;
-    frame.ip = this.ip;
+    const frame = new Frame(this.code, this.ip, this.context);
     this.savedFrames.push(frame);
     // Remove at some point?
     if (this.savedFrames.count() > 100) {
@@ -686,6 +684,9 @@ class Processor {
   }
 
   private resolveSpecial(identifier: string): any {
+    if (identifier === "globals") {
+
+    }
     if (identifier === "string") {
       return this.stringCoreTypeMapFn
     } else if (identifier === "number") {
@@ -769,7 +770,7 @@ class Processor {
       this.pushFrame();
 
       this.code = funcDef.getCode();
-      this.context = new Context(boundFunc.context);
+      this.context = new Context(this, boundFunc.context);
       this.ip = 0;
 
       // Pop and set parameters as variables
@@ -823,7 +824,7 @@ class Processor {
       this.pushFrame();
       // Set the new code to run
       this.code = funcDef.getCode();
-      this.context = new Context(boundFunc.context);
+      this.context = new Context(this, boundFunc.context);
       // Populate default values, if any
       for (let idx = 0; idx < funcDef.argNames.length; idx++) {
         this.context.setLocal(funcDef.argNames[idx], funcDef.effectiveDefaultValues[idx]);
