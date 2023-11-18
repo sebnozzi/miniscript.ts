@@ -1,9 +1,6 @@
 
 Next steps:
 - Implement
-  - bitAnd
-  - bitOr
-  - bitXor
   - sqrt
   - shuffle
   - hash
