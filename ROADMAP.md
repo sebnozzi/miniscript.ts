@@ -1,9 +1,6 @@
 
 Next steps:
 - Implement
-  - shuffle
-  - hash
-  - log
   - sqrt
   - pi
   - acos
@@ -14,6 +11,9 @@ Next steps:
   - bitAnd
   - bitOr
   - bitXor
+  - shuffle
+  - hash
+  - time
 - Implement special-identifiers:
   - Implement super
 - Make intrinsics not "pollute" the global scope
@@ -40,10 +40,8 @@ Next steps:
   Runtime Error: Too Many Arguments [line 2]
   (so that many tests pass)
 - Implement intrinsics:
-  - time
   - wait
   - yield
-  - hash
   - version
   - stackTrace
 - Scientific notation (big?) numbers 

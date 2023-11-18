@@ -64,6 +64,13 @@ function addIntrinsics(p: Processor) {
     return 0;
   });
 
+  p.addGlobalIntrinsic("log(x,base=10)", function(x: any, base: any): number {
+    if (typeof x === "number" && typeof base === "number") {
+      return Math.log(x) / Math.log(base);
+    }
+    return 0;
+  });
+
   // Try to convert to a number
   p.addGlobalIntrinsic("val(x)", function(x: any): number | null {
     if (typeof x === "number") {
