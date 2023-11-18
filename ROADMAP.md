@@ -1,12 +1,5 @@
 
 Next steps:
-- Implement math-assignment operators
-  +=
-  -=
-  *=
-  /=
-  %=
-  ^=
 - Implement
   - shuffle
   - hash

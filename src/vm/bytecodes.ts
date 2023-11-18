@@ -20,6 +20,11 @@ enum BC {
   // Assign property using dot-notation, like myMap.property = value
   DOT_ASSIGN,
 
+  // Various forms of math-assignments
+  MATH_ASSIGN_LOCAL,
+  MATH_ASSIGN_INDEXED,
+  MATH_DOT_ASSIGN,
+
   // Adds two stack values, leaving result in the stack
   ADD_VALUES,
 

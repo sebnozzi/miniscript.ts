@@ -160,8 +160,8 @@ class Processor {
           break;
         }
         case BC.ASSIGN_LOCAL: {
-          const valueToAssign = this.opStack.pop();
           const varName: string = this.code.arg1[this.ip] as string;
+          const valueToAssign = this.opStack.pop();
           this.context.setLocal(varName, valueToAssign)
           this.ip += 1;
           break;
@@ -207,6 +207,72 @@ class Processor {
           this.ip += 1;
           break;         
         }
+        case BC.MATH_ASSIGN_LOCAL: {
+          const varName: string = this.code.arg1[this.ip] as string;
+          const opTokenType: TokenType = this.code.arg2[this.ip] as TokenType;
+          const operand = this.opStack.pop();
+          // Get existing value
+          const existingValue = this.context.getOpt(varName);
+          if (existingValue !== undefined) {
+            const finalValue = computeMathAssignValue(existingValue, opTokenType, operand);
+            this.context.setLocal(varName, finalValue);
+          } else {
+            throw new RuntimeError(`Undefined Local Identifier: '${varName}' is unknown in this context [line ${this.getCurrentSrcLineNr()}]`);
+          }
+          this.ip += 1;
+          break;
+        }
+        case BC.MATH_ASSIGN_INDEXED: {
+          const opTokenType: TokenType = this.code.arg1[this.ip] as TokenType;
+          // pop target
+          const assignTarget = this.opStack.pop();
+          // pop index
+          const index = this.opStack.pop();
+          // pop value
+          const operand = this.opStack.pop();
+
+          const isString = typeof assignTarget === "string";
+          const isList = assignTarget instanceof Array;
+          const isMap = assignTarget instanceof Map;
+
+          if (isList) {
+            // Check and compute index
+            checkInt(index, "Index must be an integer");
+            const effectiveIndex = computeAccessIndex(this, assignTarget, index);
+            const currentValue = assignTarget[effectiveIndex];
+            const finalValue = computeMathAssignValue(currentValue, opTokenType, operand);
+            assignTarget[effectiveIndex] = finalValue;
+          } else if(isMap) {
+            const currentValue = this.mapAccess(assignTarget, index);
+            const finalValue = computeMathAssignValue(currentValue, opTokenType, operand);
+            assignTarget.set(index, finalValue);
+          } else if(isString) {
+            throw new RuntimeError("Cannot assign to String (immutable)");
+          } else {
+            throw new RuntimeError("Cannot set to element of this type");
+          }
+
+          this.ip += 1;
+          break;
+        }
+        case BC.MATH_DOT_ASSIGN : {
+          const propertyName: string = this.code.arg1[this.ip];
+          const opTokenType: TokenType = this.code.arg2[this.ip] as TokenType;
+          const assignTarget = this.opStack.pop();
+          const operand = this.opStack.pop();
+
+          if (!(assignTarget instanceof Map)) {
+            throw new RuntimeError(`Assignment target must be a Map [line ${this.getCurrentSrcLineNr()}]`);
+          }
+
+          const currentValue = this.mapAccess(assignTarget, propertyName);
+          const finalValue = computeMathAssignValue(currentValue, opTokenType, operand);
+          assignTarget.set(propertyName, finalValue);
+
+          this.ip += 1;
+          break;         
+        }
+
         case BC.EVAL_ID: {
           const identifier = this.code.arg1[this.ip];
           const isFuncRef: boolean = this.code.arg2[this.ip];

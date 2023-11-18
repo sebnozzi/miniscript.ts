@@ -323,6 +323,25 @@ function computeSliceIndex(vm: Processor, accessTarget: IndexedCollection, index
   return effectiveIndex;
 }
 
+function computeMathAssignValue(currentValue: any, opTokenType: TokenType, operand: any): any {
+  switch(opTokenType) {
+    case TokenType.PLUS_ASSIGN:
+      return add(currentValue, operand);
+    case TokenType.MINUS_ASSIGN:
+      return subtract(currentValue, operand);
+    case TokenType.DIV_ASSIGN:
+      return divide(currentValue, operand);
+    case TokenType.MULT_ASSIGN:
+      return multiply(currentValue, operand);
+    case TokenType.MOD_ASSIGN:
+      return modulus(currentValue, operand);
+    case TokenType.POW_ASSIGN:
+      return power(currentValue, operand);
+    default:
+      throw new Error("Invalid token-type: " + TokenType[opTokenType]);
+  }
+}
+
 function toBooleanNr(value: any): number {
   if (value === null) {
     return 0;

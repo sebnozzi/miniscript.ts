@@ -99,6 +99,8 @@ class StatementCompiler {
       this.compileExpressionStatement(s);
     } else if (s instanceof AssignmentStatement) {
       this.compileAssignmentStatement(s);
+    } else if (s instanceof MathAssignmentStatement) {
+      this.compileMathAssignmentStatement(s);
     } else if (s instanceof ReturnStatement) {
       this.compileReturnStatement(s, context);
     } else if (s instanceof IfStatement) {
@@ -151,6 +153,28 @@ class StatementCompiler {
       // Map to assign into
       this.compileExpression(target.accessTarget);
       this.builder.push(BC.DOT_ASSIGN, target.property.value);   
+    } else {
+      throw new Error("Assignment target not yet supported: " + s.target.description());
+    }
+    this.builder.endMapEntry(s.location());
+  }
+
+  private compileMathAssignmentStatement(s: MathAssignmentStatement) {
+    this.builder.startMapEntry();
+    // Compute the value to be assigned
+    this.compileExpression(s.value);
+    // Push bytecodes to complete the assignment
+    const target = s.target;
+    if (target instanceof IdentifierExpr) {
+      this.builder.push(BC.MATH_ASSIGN_LOCAL, target.identifier.value, s.opToken);
+    } else if (target instanceof IndexedAccessExpr) {
+      this.compileExpression(target.indexExpr);
+      this.compileExpression(target.accessTarget);
+      this.builder.push(BC.MATH_ASSIGN_INDEXED, s.opToken);
+    } else if (target instanceof DotAccessExpr) {
+      // Map to assign into
+      this.compileExpression(target.accessTarget);
+      this.builder.push(BC.MATH_DOT_ASSIGN, target.property.value, s.opToken);   
     } else {
       throw new Error("Assignment target not yet supported: " + s.target.description());
     }
