@@ -4,6 +4,8 @@
 
 type TxtCallback = (txt: string) => any;
 
+const MAX_ISA_RECURSION_DEPTH = 20;
+
 class Processor {
 
   // The instruction pointer. Points to the position in code.
@@ -667,16 +669,19 @@ class Processor {
     }
   }
 
-  mapAccessOpt(mapObj: Map<any, any>, key: any): any | undefined {
+  mapAccessOpt(mapObj: Map<any, any>, key: any, depth: number = 0): any | undefined {
+    if (depth > MAX_ISA_RECURSION_DEPTH) {
+      throw new RuntimeError(`__isa depth exceeded (perhaps a reference loop?) [line ${this.getCurrentSrcLineNr()}]`);
+    }
     if (mapObj.has(key)) {
       return mapObj.get(key);
     } else if (mapObj.has("__isa")) {
       const parentMap = mapObj.get("__isa");
-      return this.mapAccessOpt(parentMap, key); 
+      return this.mapAccessOpt(parentMap, key, depth + 1); 
     } else if (mapObj === this.mapCoreType) {
       return undefined;
     } else {
-      return this.mapAccessOpt(this.mapCoreType, key); 
+      return this.mapAccessOpt(this.mapCoreType, key, depth + 1); 
     }
   }
 
