@@ -584,6 +584,31 @@ function addIntrinsics(p: Processor) {
     return Math.random();
   });
 
+  p.addGlobalIntrinsic("shuffle(self)", 
+  function(self: any): any {  
+    if (self instanceof Array) {
+      for (let idx = self.length - 1; idx >= 1; idx--) {
+        const rndIdx = getRandomInt(idx+1);
+        // Swap values between current index and random index
+        const tempValue = self[rndIdx];
+        self[rndIdx] = self[idx];
+        self[idx] = tempValue;
+      }
+    } else if (self instanceof Map) {
+      const keys = Array.from(self.keys());
+      for (let keyIdx = keys.length - 1; keyIdx >= 1; keyIdx--) {
+        const rndIdx = getRandomInt(keyIdx+1);
+        // Swap values between current key in loop and random key
+        const key = keys[keyIdx];
+        const rndKey = keys[rndIdx];
+        const tempValue = self.get(rndKey);
+        self.set(rndKey, self.get(key));
+        self.set(key, tempValue);
+      }
+    }
+    return null;
+  });
+
   p.addGlobalIntrinsic("abs(x)", function(x: any): number {
     if (typeof x === "number") {
       return Math.abs(x);

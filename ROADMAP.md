@@ -1,7 +1,6 @@
 
 Next steps:
 - Implement
-  - shuffle
   - time
   - hash
 - Implement special-identifiers:

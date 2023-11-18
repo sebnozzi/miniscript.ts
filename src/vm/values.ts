@@ -399,6 +399,10 @@ function round(n: any, decimalPlaces: any): number | undefined {
   }
 }
 
+function getRandomInt(max: number): number {
+  return Math.floor(Math.random() * max);
+}
+
 function checkRange(i: number, min: number, max: number, desc: string = "index") {
   if (i < min || i > max) {
     throw new RuntimeError(`Index Error: ${desc} (${i}) out of range (${min} to ${max})`);
