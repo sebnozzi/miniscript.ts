@@ -105,7 +105,7 @@ function chainedComparison(values: any[], operators: string[]): number {
     } else if (operator === "<=") {
       result = lessEquals(left, right);
     } else {
-      throw new Error("Invalid operator");
+      throw new RuntimeError("Invalid operator");
     }
     if (!result) {
       return 0;
@@ -125,7 +125,7 @@ function add(a: any, b: any): any {
     if (b instanceof Array) {
       return a.concat(b);
     } else {
-      throw new Error(`Got ${b} instead of another List`);
+      throw new RuntimeError(`Got ${b} instead of another List`);
     }
   } else if (a instanceof Map) {
     if (b instanceof Map) {
@@ -146,7 +146,7 @@ function add(a: any, b: any): any {
     return a;
   } else {
     console.info("Not supported for values","a:",a,"b:",b);
-    throw new Error(`Cannot add ${formatValue(a,true)} + ${formatValue(b,true)}`);
+    throw new RuntimeError(`Cannot add ${formatValue(a,true)} + ${formatValue(b,true)}`);
   }
 }
 
@@ -168,7 +168,7 @@ function subtract(a: any, b: any): any {
     return a;
   } else {
     console.info("Not supported for values","a:",a,"b:",b);
-    throw new Error(`Cannot subtract ${formatValue(a,true)} - ${formatValue(b,true)}`);
+    throw new RuntimeError(`Cannot subtract ${formatValue(a,true)} - ${formatValue(b,true)}`);
   }
 }
 
@@ -181,7 +181,7 @@ function divide(a: any, b: any): number | null {
     return a / 0;
   } else {
     console.info("Not supported for values","a:",a,"b:",b);
-    throw new Error(`Cannot divide ${formatValue(a,true)} / ${formatValue(b,true)}`);
+    throw new RuntimeError(`Cannot divide ${formatValue(a,true)} / ${formatValue(b,true)}`);
   }
 }
 
@@ -207,7 +207,7 @@ function multiply(a: any, b: any): any {
       }
       return result;
     } else {
-      throw new Error(`Number required for replication. Got ${b} instead.`);
+      throw new RuntimeError(`Number required for replication. Got ${b} instead.`);
     }
   } else if (a === null) {
     return null;
@@ -215,7 +215,7 @@ function multiply(a: any, b: any): any {
     return 0;
   } else {
     console.error("Not supported for values","a:",a,"b:",b);
-    throw new Error(`Cannot multiply ${formatValue(a,true)} * ${formatValue(b,true)}`);
+    throw new RuntimeError(`Cannot multiply ${formatValue(a,true)} * ${formatValue(b,true)}`);
   }
 }
 
@@ -228,7 +228,7 @@ function power(a: any, b: any): number | null {
     return 1;
   } else {
     console.info("Not supported for values","a:",a,"b:",b);
-    throw new Error(`Cannot raise to the power ${formatValue(a,true)} ^ ${formatValue(b,true)}`);
+    throw new RuntimeError(`Cannot raise to the power ${formatValue(a,true)} ^ ${formatValue(b,true)}`);
   }
 }
 
@@ -241,7 +241,7 @@ function modulus(a: any, b: any): number | null {
     return a % 0;
   } else {
     console.info("Not supported for values","a:",a,"b:",b);
-    throw new Error(`Cannot perform modulus ${formatValue(a,true)} % ${formatValue(b,true)}`);
+    throw new RuntimeError(`Cannot perform modulus ${formatValue(a,true)} % ${formatValue(b,true)}`);
   }
 }
 
@@ -252,7 +252,7 @@ function logic_and(a: any, b: any): number {
     return absClamp01(a * b);
   } else {
     console.info("Not supported for values","a:",a,"b:",b);
-    throw new Error(`Cannot perform ${formatValue(a,true)} && ${formatValue(b,true)}`);
+    throw new RuntimeError(`Cannot perform ${formatValue(a,true)} && ${formatValue(b,true)}`);
   }
 }
 
@@ -263,7 +263,7 @@ function logic_or(a: any, b: any): number {
     return absClamp01(a + b - a * b);
   } else {
     console.info("Not supported for values","a:",a,"b:",b);
-    throw new Error(`Cannot perform ${formatValue(a,true)} || ${formatValue(b,true)}`);
+    throw new RuntimeError(`Cannot perform ${formatValue(a,true)} || ${formatValue(b,true)}`);
   }
 }
 
@@ -304,7 +304,7 @@ function computeAccessIndex(vm: Processor, accessTarget: IndexedCollection, inde
   const effectiveIndex = (index < 0) ? index + accessTarget.length : index;
   // Check bounds
   if (effectiveIndex < 0 || effectiveIndex >= accessTarget.length) {
-    throw new Error(`Index Error (index ${index} out of range) [line ${vm.getCurrentSrcLineNr()}]`);
+    throw new RuntimeError(`Index Error (list index ${index} out of range) [line ${vm.getCurrentSrcLineNr()}]`);
   }
   return effectiveIndex;
 }
@@ -338,7 +338,7 @@ function computeMathAssignValue(currentValue: any, opTokenType: TokenType, opera
     case TokenType.POW_ASSIGN:
       return power(currentValue, operand);
     default:
-      throw new Error("Invalid token-type: " + TokenType[opTokenType]);
+      throw new RuntimeError("Invalid token-type: " + TokenType[opTokenType]);
   }
 }
 
@@ -354,7 +354,7 @@ function toBooleanNr(value: any): number {
   } else if (value instanceof Map) {
     return value.size > 0 ? 1 : 0;
   } else {
-    throw new Error("Type not supported: " + value);
+    throw new RuntimeError("Type not supported: " + value);
   }
 }
 
@@ -397,6 +397,6 @@ function isNullOrEmpty(str: string): boolean {
   } else if (typeof str === "string") {
     return str === "";
   } else {
-    throw new Error("Invalid argument: " + str);
+    throw new RuntimeError("Invalid argument: " + str);
   }
 }

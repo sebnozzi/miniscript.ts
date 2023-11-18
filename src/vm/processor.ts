@@ -311,8 +311,10 @@ class Processor {
             }
           } else if(isMap) {
             value = this.mapAccess(accessTarget, index);
+          } else if (index === "number") {
+            throw new RuntimeError(`Null Reference Exception: can't index into null [line ${this.getCurrentSrcLineNr()}]`);
           } else {
-            throw new RuntimeError(`Cannot perform indexed access on this type [line ${this.getCurrentSrcLineNr()}]`);
+            throw new RuntimeError(`Type Error (while attempting to look up ${index}) [line ${this.getCurrentSrcLineNr()}]`);
           }
 
           this.callOrPushValue(value, isFuncRef, accessTarget);
@@ -326,6 +328,8 @@ class Processor {
           let value: any;
           if (accessTarget instanceof Map) {
             value = this.mapAccess(accessTarget, propertyName);
+          } else if (accessTarget === null) {
+            throw new RuntimeError(`Type Error (while attempting to look up ${propertyName}) [line ${this.getCurrentSrcLineNr()}]`);
           } else {
             // Lookup in base type - redefine access-target
             const baseTypeMap = this.selectCoreTypeMap(accessTarget);
@@ -781,7 +785,11 @@ class Processor {
 
   private performCall(funcName: string, paramCount: number, maybeFunction: any, dotCallTarget: any | null) {
     if (!(maybeFunction instanceof BoundFunction)) {
-      throw new RuntimeError(`Identifier ${funcName} should be a function [line ${this.getCurrentSrcLineNr()}]`);
+      if (paramCount > 0) {
+        throw new RuntimeError(`Too Many Arguments [line ${this.getCurrentSrcLineNr()}]`);
+      } else {
+        throw new RuntimeError(`Attempting to call a non-function [line ${this.getCurrentSrcLineNr()}]`);
+      }
     }
 
     const boundFunc = maybeFunction as BoundFunction;
