@@ -1,10 +1,9 @@
 
 Next steps:
 - Implement
-  - sqrt
   - shuffle
-  - hash
   - time
+  - hash
 - Implement special-identifiers:
   - Implement super
 - Make intrinsics not "pollute" the global scope

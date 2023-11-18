@@ -117,6 +117,13 @@ function addIntrinsics(p: Processor) {
     return 0;
   });
 
+  p.addGlobalIntrinsic("sqrt(x)", function(x: any): number {
+    if (typeof x === "number") {
+      return Math.sqrt(x);
+    }
+    return 0;
+  });
+
   // Try to convert to a number
   p.addGlobalIntrinsic("val(x)", function(x: any): number | null {
     if (typeof x === "number") {
