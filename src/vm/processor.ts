@@ -311,7 +311,7 @@ class Processor {
             }
           } else if(isMap) {
             value = this.mapAccess(accessTarget, index);
-          } else if (index === "number") {
+          } else if (typeof index === "number") {
             throw new RuntimeError(`Null Reference Exception: can't index into null [line ${this.getCurrentSrcLineNr()}]`);
           } else {
             throw new RuntimeError(`Type Error (while attempting to look up ${index}) [line ${this.getCurrentSrcLineNr()}]`);
