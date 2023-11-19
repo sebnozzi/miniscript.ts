@@ -34,6 +34,8 @@ class Processor {
   cycleCount: number;
   // Callback when processing done
   onFinished: Function;
+  // Random number generator
+  rndGenerator: Function;
 
   constructor(programCode: Code, public readonly stdoutCallback: TxtCallback, public readonly stderrCallback: TxtCallback) {
     this.code = programCode;
@@ -62,6 +64,7 @@ class Processor {
     this.mapCoreTypeMapFn = this.makeNativeBoundFunction([], [], function() {
       return vmThis.mapCoreType;
     });
+    this.rndGenerator = newAleaRndNrGenerator();
   }
 
   run() {
@@ -95,6 +98,14 @@ class Processor {
     const funcDef = new FuncDef(args, impl);
     const boundFunc = new BoundFunction(funcDef, this.globalContext);
     return boundFunc;
+  }
+
+  initRandomGenerator(seed: number | string) {
+    this.rndGenerator = newAleaRndNrGenerator(seed);
+  }
+
+  random() {
+    return this.rndGenerator();
   }
 
   runUntilDone(maxCount: number = 73681) {

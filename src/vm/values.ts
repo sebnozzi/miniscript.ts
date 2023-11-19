@@ -453,8 +453,8 @@ function stringHashCode(str: string): number {
   return hash;
 }
 
-function getRandomInt(max: number): number {
-  return Math.floor(Math.random() * max);
+function getRandomInt(vm: Processor, max: number): number { 
+  return Math.floor(vm.random() * max);
 }
 
 function checkRange(i: number, min: number, max: number, desc: string = "index") {
