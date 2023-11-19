@@ -1,7 +1,10 @@
 
 Next steps:
-- Implement special-identifiers:
-  - Implement super
+- Normalize parsing errors
+  Compiler Error: 'for' without matching 'end for' [line 3] 
+- super
+- isa
+- outer
 - Make intrinsics not "pollute" the global scope
   They are resolved if anything else fails AFTER the global
   scope is exhausted.
@@ -21,10 +24,7 @@ Next steps:
   - map
 - Write tests for operator precedence ... could be that the parser has bugs!
   https://miniscript.org/wiki/Operators
-- Normalize errors
-  Compiler Error: 'for' without matching 'end for' [line 3]
-  Runtime Error: Too Many Arguments [line 2]
-  (so that many tests pass)
+
 - Implement intrinsics:
   - time
   - wait
