@@ -126,7 +126,7 @@ class Tokenizer {
     } else if(this.isIdentifierStartChar(ch)) {
       this.processSymbol()
     } else {
-      throw new ParserError("Unhandled token: " + ch, this.pos)
+      throw new ParserError(`got Unknown(${ch}) where EOL is required`, this.pos)
     }
   }
 

@@ -293,6 +293,9 @@ class Processor {
           } else {
             // Could not resolve, maybe it's a core-type function
             const value = this.resolveSpecial(identifier);
+            if (value === undefined) {
+              throw new RuntimeError(`Undefined Identifier: '${identifier}' is unknown in this context [line ${this.getCurrentSrcLineNr()}]`);
+            }
             this.callOrPushValue(value, isFuncRef, null);
           }
           break;
@@ -764,10 +767,7 @@ class Processor {
     }
   }
 
-  private resolveSpecial(identifier: string): any {
-    if (identifier === "globals") {
-
-    }
+  private resolveSpecial(identifier: string): BoundFunction|undefined {
     if (identifier === "string") {
       return this.stringCoreTypeMapFn
     } else if (identifier === "number") {
@@ -777,7 +777,7 @@ class Processor {
     } else if (identifier === "map") {
       return this.mapCoreTypeMapFn;
     } else {
-      throw new RuntimeError(`Could not resolve "${identifier}" [line ${this.getCurrentSrcLineNr()}]`);
+      return undefined;
     }
   }
 

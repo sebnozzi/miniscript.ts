@@ -17,6 +17,7 @@ class Interpreter {
       parsedStatements = p.parse();
     } catch (e: any) {
       if (e["message"]) {
+        console.error(e);
         this.stderrCallback(e.message);
       }
     }
