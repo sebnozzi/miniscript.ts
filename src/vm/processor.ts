@@ -130,7 +130,7 @@ class Processor {
       // Check that stack is balanced (empty)
       if (this.opStack.count() > 0) {
         console.info("Stack: ", this.opStack);
-        throw new RuntimeError("Stack was not empty!")
+        throw this.runtimeError("Stack was not empty!")
       }
       // Invoke callback
       this.onFinished();
@@ -147,7 +147,7 @@ class Processor {
 
           const optValue: any | undefined = this.context.getOpt(funcName);
           if (optValue === undefined) {
-            throw new RuntimeError(`Could not resolve "${funcName}" [line ${this.getCurrentSrcLineNr()}]`);
+            throw this.runtimeError(`Could not resolve "${funcName}"`);
           }
           const resolvedFunc: any = optValue;
           this.performCall(resolvedFunc, paramCount);
@@ -200,9 +200,9 @@ class Processor {
           } else if(isMap) {
             assignTarget.set(index, valueToAssign);
           } else if(isString) {
-            throw new RuntimeError("Cannot assign to String (immutable)");
+            throw this.runtimeError("Cannot assign to String (immutable)");
           } else {
-            throw new RuntimeError("Cannot set to element of this type");
+            throw this.runtimeError("Cannot set to element of this type");
           }
 
           this.ip += 1;
@@ -214,7 +214,7 @@ class Processor {
           const valueToAssign = this.opStack.pop();
 
           if (!(assignTarget instanceof HashMap)) {
-            throw new RuntimeError(`Assignment target must be a Map [line ${this.getCurrentSrcLineNr()}]`);
+            throw this.runtimeError(`Assignment target must be a Map`);
           }
 
           assignTarget.set(propertyName, valueToAssign);
@@ -231,7 +231,7 @@ class Processor {
             const finalValue = computeMathAssignValue(existingValue, opTokenType, operand);
             this.context.setLocal(varName, finalValue);
           } else {
-            throw new RuntimeError(`Undefined Local Identifier: '${varName}' is unknown in this context [line ${this.getCurrentSrcLineNr()}]`);
+            throw this.runtimeError(`Undefined Local Identifier: '${varName}' is unknown in this context`);
           }
           this.ip += 1;
           break;
@@ -261,9 +261,9 @@ class Processor {
             const finalValue = computeMathAssignValue(currentValue, opTokenType, operand);
             assignTarget.set(index, finalValue);
           } else if(isString) {
-            throw new RuntimeError("Cannot assign to String (immutable)");
+            throw this.runtimeError("Cannot assign to String (immutable)");
           } else {
-            throw new RuntimeError("Cannot set to element of this type");
+            throw this.runtimeError("Cannot set to element of this type");
           }
 
           this.ip += 1;
@@ -276,7 +276,7 @@ class Processor {
           const operand = this.opStack.pop();
 
           if (!(assignTarget instanceof HashMap)) {
-            throw new RuntimeError(`Assignment target must be a Map [line ${this.getCurrentSrcLineNr()}]`);
+            throw this.runtimeError(`Assignment target must be a Map`);
           }
 
           const currentValue = this.mapAccess(assignTarget, propertyName);
@@ -297,7 +297,7 @@ class Processor {
             // Could not resolve, maybe it's a core-type function
             const value = this.resolveSpecial(identifier);
             if (value === undefined) {
-              throw new RuntimeError(`Undefined Identifier: '${identifier}' is unknown in this context [line ${this.getCurrentSrcLineNr()}]`);
+              throw this.runtimeError(`Undefined Identifier: '${identifier}' is unknown in this context`);
             }
             this.callOrPushValue(value, isFuncRef, null, null);
           }
@@ -317,7 +317,7 @@ class Processor {
 
           if (isList || isString) {
             if (typeof index === "number") {
-              checkInt(index, `Index must be an integer [line ${this.getCurrentSrcLineNr()}]`);
+              checkInt(index, `Index must be an integer`);
               const effectiveIndex = computeAccessIndex(this, accessTarget, index);
               value = accessTarget[effectiveIndex];
             } else if (isList) {
@@ -330,9 +330,9 @@ class Processor {
           } else if(isMap) {
             [value, srcMap] = this.mapAccessWithSource(accessTarget, index);
           } else if (typeof index === "number") {
-            throw new RuntimeError(`Null Reference Exception: can't index into null [line ${this.getCurrentSrcLineNr()}]`);
+            throw this.runtimeError(`Null Reference Exception: can't index into null`);
           } else {
-            throw new RuntimeError(`Type Error (while attempting to look up ${index}) [line ${this.getCurrentSrcLineNr()}]`);
+            throw this.runtimeError(`Type Error (while attempting to look up ${index})`);
           }
 
           this.callOrPushValue(value, isFuncRef, accessTarget, srcMap);
@@ -348,7 +348,7 @@ class Processor {
           if (accessTarget instanceof HashMap) {
             [value, srcMap] = this.mapAccessWithSource(accessTarget, propertyName);
           } else if (accessTarget === null) {
-            throw new RuntimeError(`Type Error (while attempting to look up ${propertyName}) [line ${this.getCurrentSrcLineNr()}]`);
+            throw this.runtimeError(`Type Error (while attempting to look up ${propertyName})`);
           } else {
             // Lookup in base type - redefine access-target
             srcMap = this.selectCoreTypeMap(accessTarget);
@@ -364,10 +364,10 @@ class Processor {
           const selfMap = this.context.getOpt("self");
 
           if (superMap === undefined) {
-            throw new RuntimeError(`Undefined Identifier: 'super' is unknown in this context [line ${this.getCurrentSrcLineNr()}]`);
+            throw this.runtimeError(`Undefined Identifier: 'super' is unknown in this context`);
           }
           if (selfMap === undefined) {
-            throw new RuntimeError(`Undefined Identifier: 'self' is unknown in this context [line ${this.getCurrentSrcLineNr()}]`);
+            throw this.runtimeError(`Undefined Identifier: 'self' is unknown in this context`);
           }
 
           let value: any;
@@ -449,7 +449,7 @@ class Processor {
         case BC.NEW_MAP: {
           const parentMap = this.opStack.pop();
           if (!(parentMap instanceof HashMap)) {
-            throw new RuntimeError(`Operator "new" can only be used with Maps [line ${this.getCurrentSrcLineNr()}]`);
+            throw this.runtimeError(`Operator "new" can only be used with Maps`);
           }
           const newMap = new HashMap();
           newMap.set("__isa", parentMap);
@@ -634,7 +634,7 @@ class Processor {
         case BC.NEGATE_NUMBER: {
           const valueInStack = this.opStack.pop();
           if (typeof valueInStack !== "number") {
-            throw new RuntimeError(`Value must be a number [line ${this.getCurrentSrcLineNr()}]`);
+            throw this.runtimeError(`Value must be a number`);
           } else {
             const result = -1 * valueInStack;
             this.opStack.push(result);
@@ -706,7 +706,7 @@ class Processor {
         default: {
           console.log("ip:", this.ip);
           console.error("Bytecode not supported: ", this.code.opCodes[this.ip]);
-          throw new RuntimeError("Bytecode not supported: " + this.code.opCodes[this.ip]);
+          throw this.runtimeError("Bytecode not supported: " + this.code.opCodes[this.ip]);
         }
       } // switch
       this.cycleCount++;
@@ -736,7 +736,7 @@ class Processor {
     this.savedFrames.push(frame);
     // Remove at some point?
     if (this.savedFrames.count() > 100) {
-      throw new RuntimeError("Too much recursion");
+      throw this.runtimeError("Too much recursion");
     }
   }
 
@@ -766,7 +766,7 @@ class Processor {
     } else if (typeof accessTarget === "number") {
       return this.numberCoreType;
     } else {
-      throw new RuntimeError(`No core-type map for value ${accessTarget}`);
+      throw this.runtimeError(`No core-type map for value ${accessTarget}`);
     }
   }
 
@@ -774,14 +774,14 @@ class Processor {
     if (mapObj.has(key)) {
       return mapObj.get(key);
     } else {
-      throw new RuntimeError(`Key Not Found: '${key}' not found in map [line ${this.getCurrentSrcLineNr()}]`);
+      throw this.runtimeError(`Key Not Found: '${key}' not found in map`);
     }
   }
 
   mapAccess(mapObj: HashMap, key: any): any {
     const result = this.mapAccessOpt(mapObj, key);
     if (result === undefined) {
-      throw new RuntimeError(`Key Not Found: '${key}' not found in map [line ${this.getCurrentSrcLineNr()}]`);
+      throw this.runtimeError(`Key Not Found: '${key}' not found in map`);
     } else {
       return result;
     }
@@ -789,7 +789,7 @@ class Processor {
 
   mapAccessWithSource(mapObj: HashMap, key: any, depth: number = 0): [any, HashMap] {
     if (depth > MAX_ISA_RECURSION_DEPTH) {
-      throw new RuntimeError(`__isa depth exceeded (perhaps a reference loop?) [line ${this.getCurrentSrcLineNr()}]`);
+      throw this.runtimeError(`__isa depth exceeded (perhaps a reference loop?)`);
     }
     if (mapObj.has(key)) {
       return [mapObj.get(key), mapObj];
@@ -797,7 +797,7 @@ class Processor {
       const parentMap = mapObj.get("__isa");
       return this.mapAccessWithSource(parentMap, key, depth + 1); 
     } else if (mapObj === this.mapCoreType) {
-      throw new RuntimeError(`Key Not Found: '${key}' not found in map [line ${this.getCurrentSrcLineNr()}]`);
+      throw this.runtimeError(`Key Not Found: '${key}' not found in map`);
     } else {
       return this.mapAccessWithSource(this.mapCoreType, key, depth + 1); 
     }
@@ -805,7 +805,7 @@ class Processor {
 
   mapAccessOpt(mapObj: HashMap, key: any, depth: number = 0): any | undefined {
     if (depth > MAX_ISA_RECURSION_DEPTH) {
-      throw new RuntimeError(`__isa depth exceeded (perhaps a reference loop?) [line ${this.getCurrentSrcLineNr()}]`);
+      throw this.runtimeError(`__isa depth exceeded (perhaps a reference loop?)`);
     }
     if (mapObj.has(key)) {
       return mapObj.get(key);
@@ -849,9 +849,9 @@ class Processor {
   private performCall(maybeFunction: any, paramCount: number = 0, dotCallTarget: any | null = null, srcMap: HashMap | null = null) {
     if (!(maybeFunction instanceof BoundFunction)) {
       if (paramCount > 0) {
-        throw new RuntimeError(`Too Many Arguments [line ${this.getCurrentSrcLineNr()}]`);
+        throw this.runtimeError(`Too Many Arguments`);
       } else {
-        throw new RuntimeError(`Attempting to call a non-function [line ${this.getCurrentSrcLineNr()}]`);
+        throw this.runtimeError(`Attempting to call a non-function`);
       }
     }
 
@@ -866,7 +866,7 @@ class Processor {
     }
 
     if (paramCount > funcArgCount) {
-      throw new RuntimeError(`Too many parameters calling function [line ${this.getCurrentSrcLineNr()}].`)
+      throw this.runtimeError(`Too many parameters calling function.`)
     } else if (paramCount < funcArgCount) {
       // Push the missing default argument values
       const missingArgCount = funcArgCount - paramCount;
