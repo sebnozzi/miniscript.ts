@@ -28,6 +28,8 @@ function testSuite(suiteFileName, description) {
                     for (let i = 0; i < lines.length; i++) {
                       const actual = lines[i];
                       const expected = expectedOutput[i];
+                      console.error("Expected: ", actual);
+                      console.error("Actual: ", expected);
                       chai.assert.equal(actual, expected);
                     }
                   }

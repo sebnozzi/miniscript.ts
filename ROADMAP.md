@@ -1,7 +1,5 @@
 
 Next steps:
-- Normalize parsing errors
-  Compiler Error: 'for' without matching 'end for' [line 3] 
 - super
 - isa
 - outer
@@ -39,6 +37,7 @@ Next steps:
   - Difficult to test because we output "per line"
 - `(null)[1] = 1` should throw error
 - Re-introduce debugger?
+- Normalize all errors, check original code.
 - Partial parsing ... useful in interactive environments
   - The parser should know if input is "pending" and return
     signalling that it can wait for more input (as in a co-routine)
@@ -57,22 +56,10 @@ Next steps:
 
 ===
 
-Optimization ideas:
-- Compile expressions like "x = x + 1" to a ONE opcode
-  Of course the same for "x += 1"
-
-- Have internal "range" objects, that act as iterators ...
-  That is: don't generate all values at once, but give them as-needed
-
-===
-
 Possible performance optimizations:
 - From microScript:
   - avoid pop/push by manipulating stack in-place
   - avoid de-referencing by moving important variables locally and moving back to objects when done
-  - pre-allocate local variable slots? (access them by number instead of resolving each time)
-  - the compiler now emits sub-optimal bytecode sequences
-    - one can re-combine some bytecodes into more compact ones ()
 - Multi-pass: (advanced!)
   - Re-combine some bytecode sequences into more compact ones?
   - Re-write bytecodes into their inlined JS implementation

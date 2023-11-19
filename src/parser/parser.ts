@@ -303,7 +303,7 @@ class Parser {
     const whileStatements = this.parseUntil([TokenType.KW_END_WHILE], loopContext)
 
     // Check for closing "end while"
-    this.consume(TokenType.KW_END_WHILE, "Expected 'end while' at the end of while block")
+    this.consume(TokenType.KW_END_WHILE, "'while' without matching 'end while'")
 
     const headerLocation = whileToken.location.upTo(condition.location());
 
@@ -327,7 +327,7 @@ class Parser {
     const forStatements = this.parseUntil([TokenType.KW_END_FOR], loopContext)
 
     // Check for closing "end for"
-    this.consume(TokenType.KW_END_FOR, "Expected 'end for' at the end of while block")
+    this.consume(TokenType.KW_END_FOR, "'for' without matching 'end for'")
 
     const headerLocation = forToken.location.upTo(rangeExpression.location());
 
@@ -771,14 +771,31 @@ class Parser {
     } else if (this.tokenMatch(TokenType.OPEN_CURLY)) {
       return this.mapLiteral(context)
     } else {
-      throw this.failParsing("Expected expression. Found: " + TokenType[this.peek().tokenType]);
+      throw this.failForMissingExpression();
     }
+  }
+
+  private failForMissingExpression(): ParserError {
+    const found = this.peek().tokenType;
+    let msg = "";
+    if (found === TokenType.KW_END_IF) {
+      msg = "'end if' without matching 'if'";
+    } else if (found === TokenType.KW_END_FOR) {
+      msg = "'end for' without matching 'for'";
+    } else if (found === TokenType.KW_END_WHILE) {
+      msg = "'end while' without matching 'while'";
+    } else if (found === TokenType.KW_END_FUNCTION) {
+      msg = "'end function' without matching 'function'";
+    } else {
+      msg = "Expected expression. Found: " + TokenType[found];
+    }
+    return this.failParsing(msg);
   }
 
   private groupingExpr(context: ParsingContext): GroupingExpr {
     const openingToken = this.previous();
     const expr = this.expression(context);
-    this.consume(TokenType.CLOSE_ROUND, "Expected ')' after expression.")
+    this.consume(TokenType.CLOSE_ROUND);
     const closingToken = this.previous();
     const fullLocation = SrcLocation.forTokenRange(openingToken, closingToken);
     return new GroupingExpr(expr, fullLocation);
@@ -898,11 +915,11 @@ class Parser {
     }
   }
 
-  private consume(tokenType: TokenType, message: string | null): Token {
+  private consume(tokenType: TokenType, message: string | null = null): Token {
     if (this.check(tokenType)) {
       return this.advance()
-    //} else if (message != null) {
-    //  throw this.failParsing(message);
+    } else if (message != null) {
+      throw this.failParsing(message);
     } else {
       const tokenFound = this.peek();
       const msg = 
@@ -942,7 +959,14 @@ class Parser {
   }
 
   private failParsing(message: string): ParserError {
-    const pos = this.peek().location.start;
+    let pos = this.peek().location.start;
+    // Pretend that the end of file is at a new line.
+    // The official miniScript parser apparently operates so.
+    // We need this so that the line-nr matches in the error message.
+    if (this.peek().tokenType === TokenType.EOF && pos.col !== 0) {
+      pos = pos.copy();
+      pos.moveToNewLine();
+    }
     return new ParserError(message, pos);
   }
 
