@@ -116,4 +116,26 @@ class HashMap {
     return entries;
   }
 
+  toMap(depth:number = 16): Map<any,any> {
+    if (depth < 0) {
+      return new Map();
+    }
+    const result = new Map<any,any>();
+    for (let bucket of this.buckets.values()) {
+      for (let i = 0; i < bucket.length; ++i) {
+        const entry = bucket[i];
+        let key = entry.key;
+        let value = entry.value;
+        if (key instanceof HashMap) {
+          key = key.toMap(depth - 1);
+        }
+        if (value instanceof HashMap) {
+          value = value.toMap(depth - 1);
+        }
+        result.set(key, value);
+      }
+    }
+    return result;
+  }
+
 }
