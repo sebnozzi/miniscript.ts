@@ -55,6 +55,8 @@ enum BC {
   COMPARE_LE,
   COMPARE_LT,
 
+  COMPARE_ISA,
+
   // Build a List from values on the stack
   // Push resulting List back
   BUILD_LIST,

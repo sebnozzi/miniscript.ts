@@ -154,6 +154,10 @@ class ExpressionCompiler {
         this.builder.push(BC.COMPARE_GT)
         break;
       }
+      case TokenType.OP_ISA: {
+        this.builder.push(BC.COMPARE_ISA)
+        break;
+      }
       default:
         throw new NotImplemented("Operator not implemented: " + TokenType[e.operator.tokenType])
     }

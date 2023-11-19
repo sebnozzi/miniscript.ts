@@ -476,6 +476,14 @@ class Processor {
           this.ip += 1
           break;
         }
+        case BC.COMPARE_ISA: {
+          const valueB = this.opStack.pop()
+          const valueA = this.opStack.pop()
+          const result = isaEquals(this, valueA, valueB)
+          this.opStack.push(result)
+          this.ip += 1
+          break;
+        }
         case BC.COMPARE_GE: {
           const valueB = this.opStack.pop()
           const valueA = this.opStack.pop()

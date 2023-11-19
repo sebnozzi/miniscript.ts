@@ -1,6 +1,5 @@
 
 Next steps:
-- isa
 - outer
 - Make intrinsics not "pollute" the global scope
   They are resolved if anything else fails AFTER the global

@@ -51,6 +51,41 @@ function equals(a: any, b: any, recursionDepth: number = 16): number {
   }
 }
 
+function isaEquals(vm: Processor, value: any, type: any): number {
+  if (value === null) {
+    return type === null ? 1 : 0;
+  } else if (type === null) {
+    return 0;
+  } else if (typeof value === "number") {
+    return type === vm.numberCoreType ? 1 : 0;
+  } else if (typeof value === "string") {
+    return type === vm.stringCoreType ? 1 : 0;
+  } else if (value instanceof Array) {
+    return type === vm.listCoreType ? 1 : 0;
+  } else if (value instanceof HashMap) {
+    if (type === vm.mapCoreType) {
+      return 1;
+    } else {
+      // Walk up the "isa" chain until a match is found
+      let p = null;
+			p = value.get("__isa");
+			while (p != null) {
+				if (p === type) {
+          return 1;
+        }
+				if (!(p instanceof HashMap)) {
+          return 0;
+        } else {
+          p = p.get("__isa");
+        }
+			}
+			return 0;
+    }
+  } else {
+    return 0;
+  }
+}
+
 function greaterEquals(a: any, b: any): number | null {
   if (typeof a === "number" && typeof b === "number") {
     return a >= b ? 1 : 0;
