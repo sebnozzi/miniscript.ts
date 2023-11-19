@@ -146,7 +146,7 @@ class Processor {
             throw new RuntimeError(`Could not resolve "${funcName}" [line ${this.getCurrentSrcLineNr()}]`);
           }
           const resolvedFunc: any = optValue;
-          this.performCall(funcName, paramCount, resolvedFunc, null);
+          this.performCall(resolvedFunc, paramCount);
           break;
         }
         case BC.DOT_CALL: {
@@ -162,8 +162,7 @@ class Processor {
             const baseTypeMap = this.selectCoreTypeMap(callTarget);
             resolvedMethod = this.coreTypeMapAccess(baseTypeMap, methodName);
           }
-
-          this.performCall(methodName, paramCount, resolvedMethod, callTarget);
+          this.performCall(resolvedMethod, paramCount, callTarget);
           break;
         }
         case BC.RETURN: {
@@ -786,7 +785,7 @@ class Processor {
     // reference, the function should be called.
     // The resulting value will be put in the stack instead.
     if (value instanceof BoundFunction && !isFuncRef) {
-      this.immediatelyCallFunction(value, accessSrc);
+      this.performCall(value, 0, accessSrc);
     } else {
       // Otherwise use the value as-is
       this.opStack.push(value)
@@ -794,7 +793,7 @@ class Processor {
     }
   }
 
-  private performCall(funcName: string, paramCount: number, maybeFunction: any, dotCallTarget: any | null) {
+  private performCall(maybeFunction: any, paramCount: number = 0, dotCallTarget: any | null = null) {
     if (!(maybeFunction instanceof BoundFunction)) {
       if (paramCount > 0) {
         throw new RuntimeError(`Too Many Arguments [line ${this.getCurrentSrcLineNr()}]`);
@@ -814,7 +813,7 @@ class Processor {
     }
 
     if (paramCount > funcArgCount) {
-      throw new RuntimeError(`Too many parameters in call to ${funcName} [line ${this.getCurrentSrcLineNr()}].`)
+      throw new RuntimeError(`Too many parameters calling function [line ${this.getCurrentSrcLineNr()}].`)
     } else if (paramCount < funcArgCount) {
       // Push the missing default argument values
       const missingArgCount = funcArgCount - paramCount;
@@ -877,50 +876,6 @@ class Processor {
         this.context.setLocal("self", dotCallTarget);
       }
     }    
-  }
-
-  private immediatelyCallFunction(boundFunc: BoundFunction, accessSrc: any | null) {
-    const funcDef: FuncDef = boundFunc.funcDef;
-
-    // Decide how to call function
-    if (funcDef.isNative()) {
-      let params = [];
-      if (accessSrc !== null) {
-        params.push(accessSrc);
-        // Use default arg-values, if any
-        let moreParams = funcDef.effectiveDefaultValues;
-        // Skip first param
-        moreParams = moreParams.slice(1);
-        for(let p of moreParams) {
-          params.push(p);
-        }
-      } else {
-        // Use default arg-values, if any
-        params = funcDef.effectiveDefaultValues;
-      }
-
-      const func = funcDef.getFunction();
-      const retVal = func.apply(this, params);
-      this.opStack.push(retVal);
-      this.ip += 1;
-    } else {
-      // Let it return to the next bytecode after the call
-      this.ip += 1;
-      this.pushFrame();
-      // Set the new code to run
-      this.code = funcDef.getCode();
-      this.context = new Context(this, boundFunc.context);
-      // Populate default values, if any
-      for (let idx = 0; idx < funcDef.argNames.length; idx++) {
-        this.context.setLocal(funcDef.argNames[idx], funcDef.effectiveDefaultValues[idx]);
-      }
-      // If it has an access-source, set "self" to that value
-      if (accessSrc) {
-        this.context.setLocal("self", accessSrc);
-      }
-      // Set initial ip
-      this.ip = 0;  
-    }
   }
 
 }
