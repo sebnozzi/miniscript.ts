@@ -1,6 +1,5 @@
 
 Next steps:
-- super
 - isa
 - outer
 - Make intrinsics not "pollute" the global scope
@@ -27,6 +26,7 @@ Next steps:
   - time
   - wait
   - yield
+  - ability for deferred-result intrinsics (like "loadImage", httpGet, etc.)
   - version
   - stackTrace
 - Scientific notation (big?) numbers 

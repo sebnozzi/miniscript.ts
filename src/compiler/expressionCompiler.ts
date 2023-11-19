@@ -28,6 +28,8 @@ class ExpressionCompiler {
       this.compileIdentifierExpr(e, context);
     } else if (e instanceof SelfExpr) {
       this.compileSelfExpr(context);
+    } else if (e instanceof SuperExpr) {
+      this.compileSuperExpr(context);
     } else if (e instanceof BinaryExpr) {
       this.compileBinaryExpression(e, context);
     } else if (e instanceof UnaryExpr) {
@@ -65,6 +67,10 @@ class ExpressionCompiler {
 
   compileSelfExpr(context: ECContext) {
     this.builder.push(BC.EVAL_ID, "self");
+  }
+
+  compileSuperExpr(context: ECContext) {
+    this.builder.push(BC.EVAL_ID, "super");
   }
 
   compileFuncCall(callTarget: Expression, args: Expression[]) {
@@ -284,8 +290,12 @@ class ExpressionCompiler {
   }
 
   private compileDotAccessExpression(e: DotAccessExpr, context: ECContext) {
-    this.compileExpression(e.accessTarget);
-    this.builder.push(BC.DOT_ACCESS, e.property.value, context.isFuncRef);
+    if (e.accessTarget instanceof SuperExpr) {
+      this.builder.push(BC.SUPER_DOT_ACCESS, e.property.value, context.isFuncRef);  
+    } else {
+      this.compileExpression(e.accessTarget);
+      this.builder.push(BC.DOT_ACCESS, e.property.value, context.isFuncRef);
+    }
   }
 
   private compileFuncRefExpression(e: FunctionRefExpr, context: ECContext) {

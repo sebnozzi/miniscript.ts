@@ -10,6 +10,8 @@ enum BC {
   INDEXED_ACCESS,
   // Access property using "dot-notation", as in myMap.myProperty
   DOT_ACCESS,
+  // Access property at "super" using "dot-notation", as in super.myProperty
+  SUPER_DOT_ACCESS,
   // Perform a slice on a sequence (List or String, NOT Map)
   SLICE_SEQUENCE,
 

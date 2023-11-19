@@ -64,7 +64,7 @@ class Processor {
     this.mapCoreTypeMapFn = this.makeNativeBoundFunction([], [], function() {
       return vmThis.mapCoreType;
     });
-    this.rndGenerator = newAleaRndNrGenerator();
+    this.rndGenerator = newRandomGenerator();
   }
 
   run() {
@@ -101,11 +101,15 @@ class Processor {
   }
 
   initRandomGenerator(seed: number | string) {
-    this.rndGenerator = newAleaRndNrGenerator(seed);
+    this.rndGenerator = newRandomGenerator(seed);
   }
 
   random() {
     return this.rndGenerator();
+  }
+
+  runtimeError(msg: string): RuntimeError {
+    return new RuntimeError(`${msg} [line ${this.getCurrentSrcLineNr()}]`);
   }
 
   runUntilDone(maxCount: number = 73681) {
@@ -288,14 +292,14 @@ class Processor {
           const isFuncRef: boolean = this.code.arg2[this.ip];
           const optValue = this.context.getOpt(identifier);
           if (optValue !== undefined) {
-            this.callOrPushValue(optValue, isFuncRef, null);
+            this.callOrPushValue(optValue, isFuncRef, null, null);
           } else {
             // Could not resolve, maybe it's a core-type function
             const value = this.resolveSpecial(identifier);
             if (value === undefined) {
               throw new RuntimeError(`Undefined Identifier: '${identifier}' is unknown in this context [line ${this.getCurrentSrcLineNr()}]`);
             }
-            this.callOrPushValue(value, isFuncRef, null);
+            this.callOrPushValue(value, isFuncRef, null, null);
           }
           break;
         }
@@ -309,6 +313,7 @@ class Processor {
           const isMap = accessTarget instanceof HashMap;
 
           let value: any;
+          let srcMap: HashMap | null = null;
 
           if (isList || isString) {
             if (typeof index === "number") {
@@ -316,21 +321,21 @@ class Processor {
               const effectiveIndex = computeAccessIndex(this, accessTarget, index);
               value = accessTarget[effectiveIndex];
             } else if (isList) {
-              value = this.mapAccess(this.listCoreType, index);
+              [value, srcMap] = this.mapAccessWithSource(this.listCoreType, index);
             } else if (isString) {
-              value = this.mapAccess(this.stringCoreType, index);
+              [value, srcMap] = this.mapAccessWithSource(this.stringCoreType, index);
             } else {
               throw new Error("Uncovered case");
             }
           } else if(isMap) {
-            value = this.mapAccess(accessTarget, index);
+            [value, srcMap] = this.mapAccessWithSource(accessTarget, index);
           } else if (typeof index === "number") {
             throw new RuntimeError(`Null Reference Exception: can't index into null [line ${this.getCurrentSrcLineNr()}]`);
           } else {
             throw new RuntimeError(`Type Error (while attempting to look up ${index}) [line ${this.getCurrentSrcLineNr()}]`);
           }
 
-          this.callOrPushValue(value, isFuncRef, accessTarget);
+          this.callOrPushValue(value, isFuncRef, accessTarget, srcMap);
           break;
         }
         case BC.DOT_ACCESS : {
@@ -339,16 +344,48 @@ class Processor {
           const accessTarget = this.opStack.pop();
 
           let value: any;
+          let srcMap: HashMap;
           if (accessTarget instanceof HashMap) {
-            value = this.mapAccess(accessTarget, propertyName);
+            [value, srcMap] = this.mapAccessWithSource(accessTarget, propertyName);
           } else if (accessTarget === null) {
             throw new RuntimeError(`Type Error (while attempting to look up ${propertyName}) [line ${this.getCurrentSrcLineNr()}]`);
           } else {
             // Lookup in base type - redefine access-target
-            const baseTypeMap = this.selectCoreTypeMap(accessTarget);
-            value = this.coreTypeMapAccess(baseTypeMap, propertyName);
+            srcMap = this.selectCoreTypeMap(accessTarget);
+            value = this.coreTypeMapAccess(srcMap, propertyName);
           }
-          this.callOrPushValue(value, isFuncRef, accessTarget);
+          this.callOrPushValue(value, isFuncRef, accessTarget, srcMap);
+          break;         
+        }
+        case BC.SUPER_DOT_ACCESS : {
+          const propertyName: string = this.code.arg1[this.ip];
+          const isFuncRef: boolean = this.code.arg2[this.ip];
+          const superMap = this.context.getOpt("super");
+          const selfMap = this.context.getOpt("self");
+
+          if (superMap === undefined) {
+            throw new RuntimeError(`Undefined Identifier: 'super' is unknown in this context [line ${this.getCurrentSrcLineNr()}]`);
+          }
+          if (selfMap === undefined) {
+            throw new RuntimeError(`Undefined Identifier: 'self' is unknown in this context [line ${this.getCurrentSrcLineNr()}]`);
+          }
+
+          let value: any;
+          let srcMap: HashMap | null = null;
+          if (superMap instanceof HashMap) {
+            // Use the "superMap" only to lookup the value
+            // But later call it with the "selfMap"
+            [value, srcMap] = this.mapAccessWithSource(superMap, propertyName);
+            if (value === undefined) {
+              throw this.runtimeError(`Type Error (while attempting to look up ${propertyName})`);
+            }
+          } else if (superMap === null) {
+            throw this.runtimeError(`Type Error (while attempting to look up ${propertyName})`);
+          }
+
+          // Note that the source-map and the super-map might not be
+          // the same. Pass the source-map to compute a new "super".
+          this.callOrPushValue(value, isFuncRef, selfMap, srcMap);
           break;         
         }
         case BC.SLICE_SEQUENCE: {
@@ -742,11 +779,27 @@ class Processor {
   }
 
   mapAccess(mapObj: HashMap, key: any): any {
-    const value = this.mapAccessOpt(mapObj, key);
-    if (value === undefined) {
+    const result = this.mapAccessOpt(mapObj, key);
+    if (result === undefined) {
       throw new RuntimeError(`Key Not Found: '${key}' not found in map [line ${this.getCurrentSrcLineNr()}]`);
     } else {
-      return value;
+      return result;
+    }
+  }
+
+  mapAccessWithSource(mapObj: HashMap, key: any, depth: number = 0): [any, HashMap] {
+    if (depth > MAX_ISA_RECURSION_DEPTH) {
+      throw new RuntimeError(`__isa depth exceeded (perhaps a reference loop?) [line ${this.getCurrentSrcLineNr()}]`);
+    }
+    if (mapObj.has(key)) {
+      return [mapObj.get(key), mapObj];
+    } else if (mapObj.has("__isa")) {
+      const parentMap = mapObj.get("__isa");
+      return this.mapAccessWithSource(parentMap, key, depth + 1); 
+    } else if (mapObj === this.mapCoreType) {
+      throw new RuntimeError(`Key Not Found: '${key}' not found in map [line ${this.getCurrentSrcLineNr()}]`);
+    } else {
+      return this.mapAccessWithSource(this.mapCoreType, key, depth + 1); 
     }
   }
 
@@ -780,12 +833,12 @@ class Processor {
     }
   }
 
-  private callOrPushValue(value: any, isFuncRef: boolean, accessSrc: any | null) {
+  private callOrPushValue(value: any, isFuncRef: boolean, accessSrc: any | null, srcMap: HashMap | null) {
     // If it's a function and we are not dealing with a function
     // reference, the function should be called.
     // The resulting value will be put in the stack instead.
     if (value instanceof BoundFunction && !isFuncRef) {
-      this.performCall(value, 0, accessSrc);
+      this.performCall(value, 0, accessSrc, srcMap);
     } else {
       // Otherwise use the value as-is
       this.opStack.push(value)
@@ -793,7 +846,7 @@ class Processor {
     }
   }
 
-  private performCall(maybeFunction: any, paramCount: number = 0, dotCallTarget: any | null = null) {
+  private performCall(maybeFunction: any, paramCount: number = 0, dotCallTarget: any | null = null, srcMap: HashMap | null = null) {
     if (!(maybeFunction instanceof BoundFunction)) {
       if (paramCount > 0) {
         throw new RuntimeError(`Too Many Arguments [line ${this.getCurrentSrcLineNr()}]`);
@@ -874,6 +927,15 @@ class Processor {
       if (dotCallTarget) {
         // The "self" value
         this.context.setLocal("self", dotCallTarget);
+        // The "super" value
+        if(srcMap) {
+          // The "source map" is where the bound-function was found.
+          // Any calls to "super" refer to the isa-map above this one.
+          const isaMap = srcMap.get("__isa");
+          if (isaMap) {
+            this.context.setLocal("super", isaMap);
+          }
+        }
       }
     }    
   }
