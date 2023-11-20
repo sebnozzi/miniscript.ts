@@ -90,7 +90,7 @@ class Parser {
   //  - dot (call)
   //  - logic operators
   //  - comparison operator
-  //  - binary (algebr.) operator
+  //  - binary (algebr.) operators
   private removeSuperfluousLineBreaks(tokens: Token[]): Token[] {
     const typesThatAllowLineBreaks = [
       TokenType.COMMA,
@@ -114,6 +114,7 @@ class Parser {
       TokenType.OP_MINUS,
       TokenType.OP_MULT,
       TokenType.OP_DIV,
+      TokenType.OP_MOD,
       TokenType.OP_AND,
       TokenType.OP_OR,
       TokenType.ASSIGN,
@@ -138,7 +139,7 @@ class Parser {
         // Advance
         idx += 1
         // Consume newlines
-        var shouldConsume = true
+        let shouldConsume = true
         while (shouldConsume && idx < tokens.length) {
           const maybeNewLine = tokens[idx]
           if (maybeNewLine.tokenType == TokenType.NEWLINE) {
@@ -567,7 +568,7 @@ class Parser {
   }
 
   private factor(context: ParsingContext): Expression {
-    var expr = this.power(context)
+    let expr = this.power(context)
 
     while (this.tokenMatch(TokenType.OP_DIV, TokenType.OP_MULT, TokenType.OP_MOD)) {
       const operator = this.previous()
@@ -798,7 +799,7 @@ class Parser {
     const openingToken = this.previous()
     let elements: Expression[] = []
     if (!this.check(TokenType.CLOSE_SQUARE)) {
-      var continueParsing = true
+      let continueParsing = true
       do {
         // Support trailing commas inside list literal
         if(this.previous().tokenType == TokenType.COMMA && this.check(TokenType.CLOSE_SQUARE)) {
@@ -823,7 +824,7 @@ class Parser {
     const openingToken = this.previous();
     let elements = new Map<Expression, Expression>()
     if (!this.check(TokenType.CLOSE_CURLY)) {
-      var continueParsing = true
+      let continueParsing = true
       do {
         // Support trailing commas inside list literal
         if(this.previous().tokenType == TokenType.COMMA && this.check(TokenType.CLOSE_CURLY)) {

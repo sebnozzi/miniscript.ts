@@ -1,7 +1,6 @@
 
 Next steps:
 - Fix "order of operations"
-  - Multiply, divide, modulo
   - Indexing and slicing
   - Call operation and statement
   - List and map literals
@@ -9,6 +8,7 @@ Next steps:
   They are resolved if anything else fails AFTER the global
   scope is exhausted.
 - Split intrinsics into different files
+- Split parser into different files / classes
 - Do a code review and compare intrinsics impl. with official one
   - Check type conversions
   - Check edge cases
