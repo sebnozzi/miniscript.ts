@@ -46,7 +46,6 @@ enum TokenType {
   OP_MULT,
   OP_POW,
 
-  OP_IN,
   OP_NOT,
   OP_FUNCREF,
   OP_ISA,
@@ -63,6 +62,7 @@ enum TokenType {
 
   KW_WHILE,
   KW_FOR,
+  KW_IN,
   KW_BREAK,
   KW_CONTINUE,
 

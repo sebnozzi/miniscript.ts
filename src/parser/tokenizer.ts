@@ -39,7 +39,7 @@ class Tokenizer {
     "true": TokenType.KW_TRUE,
     "false": TokenType.KW_FALSE,
     "null": TokenType.KW_NULL,
-    "in": TokenType.OP_IN,
+    "in": TokenType.KW_IN,
     "not": TokenType.OP_NOT,
     "or": TokenType.OP_OR,
     "and": TokenType.OP_AND,

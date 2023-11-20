@@ -315,7 +315,7 @@ class Parser {
 
     const loopVar = this.consume(TokenType.IDENTIFIER_TK, "Expected identifier as loop variable") as Identifier
 
-    this.consume(TokenType.OP_IN, "Expected 'in' after loop-variable in for")
+    this.consume(TokenType.KW_IN, "Expected 'in' after loop-variable in for")
 
     const rangeExpression = this.expression(context)
 
@@ -517,14 +517,14 @@ class Parser {
   }
 
   private relativeComparison(context: ParsingContext): Expression {
-    const expr = this.nonEqualityComparison(context);
+    const expr = this.term(context);
 
     const operands: Expression[] = [expr];
     const operators: Token[] = [];
 
     while (this.tokenMatch(TokenType.OP_GREATER, TokenType.OP_GREATER_EQUALS, TokenType.OP_LESS, TokenType.OP_LESS_EQUALS)) {
       const operator = this.previous();
-      const right = this.nonEqualityComparison(context);
+      const right = this.term(context);
       operators.push(operator);
       operands.push(right);
     }
@@ -539,18 +539,6 @@ class Parser {
       // A chained comparison was parsed
       return new ChainedComparisonExpr(operands, operators);
     }
-  }
-
-  private nonEqualityComparison(context: ParsingContext): Expression {
-    let expr = this.term(context)
-
-    while (this.tokenMatch(TokenType.OP_IN)) {
-      const operator = this.previous()
-      const right = this.term(context)
-      expr = new BinaryExpr(expr, operator, right)
-    }
-
-    return expr
   }
 
   private term(context: ParsingContext): Expression {
