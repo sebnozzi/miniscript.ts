@@ -476,7 +476,7 @@ class Parser {
 
     while (this.tokenMatch(TokenType.OP_AND)) {
       const operator = this.previous()
-      const right = this.equalityComparison(context)
+      const right = this.unaryNot(context)
       expr = new LogicExpr(expr, operator, right)
     }
 
