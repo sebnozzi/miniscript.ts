@@ -183,10 +183,10 @@ class Processor {
         case BC.ASSIGN_INDEXED: {
           // pop target
           const assignTarget = this.opStack.pop();
-          // pop index
-          const index = this.opStack.pop();
           // pop value
           const valueToAssign = this.opStack.pop();
+          // pop index
+          const index = this.opStack.pop();
 
           const isString = typeof assignTarget === "string";
           const isList = assignTarget instanceof Array;
@@ -240,10 +240,10 @@ class Processor {
           const opTokenType: TokenType = this.code.arg1[this.ip] as TokenType;
           // pop target
           const assignTarget = this.opStack.pop();
-          // pop index
-          const index = this.opStack.pop();
           // pop value
           const operand = this.opStack.pop();
+          // pop index
+          const index = this.opStack.pop();
 
           const isString = typeof assignTarget === "string";
           const isList = assignTarget instanceof Array;

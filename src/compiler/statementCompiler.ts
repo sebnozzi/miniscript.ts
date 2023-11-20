@@ -139,18 +139,19 @@ class StatementCompiler {
 
   private compileAssignmentStatement(s: AssignmentStatement) {
     this.builder.startMapEntry();
-    // Compute the value to be assigned
-    this.compileExpression(s.value);
     // Push bytecodes to complete the assignment
     const target = s.target;
     if (target instanceof IdentifierExpr) {
+      this.compileExpression(s.value);
       this.builder.push(BC.ASSIGN_LOCAL, target.identifier.value);
     } else if (target instanceof IndexedAccessExpr) {
       this.compileExpression(target.indexExpr);
+      this.compileExpression(s.value);
       this.compileExpression(target.accessTarget);
       this.builder.push(BC.ASSIGN_INDEXED);
     } else if (target instanceof DotAccessExpr) {
       // Map to assign into
+      this.compileExpression(s.value);
       this.compileExpression(target.accessTarget);
       this.builder.push(BC.DOT_ASSIGN, target.property.value);   
     } else {
@@ -161,18 +162,18 @@ class StatementCompiler {
 
   private compileMathAssignmentStatement(s: MathAssignmentStatement) {
     this.builder.startMapEntry();
-    // Compute the value to be assigned
-    this.compileExpression(s.value);
     // Push bytecodes to complete the assignment
     const target = s.target;
     if (target instanceof IdentifierExpr) {
+      this.compileExpression(s.value);
       this.builder.push(BC.MATH_ASSIGN_LOCAL, target.identifier.value, s.opToken);
     } else if (target instanceof IndexedAccessExpr) {
       this.compileExpression(target.indexExpr);
+      this.compileExpression(s.value);
       this.compileExpression(target.accessTarget);
       this.builder.push(BC.MATH_ASSIGN_INDEXED, s.opToken);
     } else if (target instanceof DotAccessExpr) {
-      // Map to assign into
+      this.compileExpression(s.value);
       this.compileExpression(target.accessTarget);
       this.builder.push(BC.MATH_DOT_ASSIGN, target.property.value, s.opToken);   
     } else {

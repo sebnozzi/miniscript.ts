@@ -1,5 +1,11 @@
 
 Next steps:
+- Fix "order of operations"
+  - Comparisons
+  - Multiply, divide, modulo
+  - Indexing and slicing
+  - Call operation and statement
+  - List and map literals
 - Make intrinsics not "pollute" the global scope
   They are resolved if anything else fails AFTER the global
   scope is exhausted.
