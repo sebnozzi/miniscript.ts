@@ -494,7 +494,7 @@ class Parser {
   }
 
   private isaComparison(context: ParsingContext): Expression {
-    let expr = this.equalityComparison(context)
+    let expr = this.chainedComparison(context)
 
     while (this.tokenMatch(TokenType.OP_ISA)) {
       const operator = this.previous()
@@ -505,24 +505,15 @@ class Parser {
     return expr
   }
 
-  private equalityComparison(context: ParsingContext): Expression {
-    let expr = this.relativeComparison(context)
-    while (this.tokenMatch(TokenType.OP_NOT_EQUALS, TokenType.OP_EQUALS)) {
-      const operator = this.previous()
-      const right = this.relativeComparison(context)
-      expr = new BinaryExpr(expr, operator, right)
-    }
-
-    return expr
-  }
-
-  private relativeComparison(context: ParsingContext): Expression {
+  private chainedComparison(context: ParsingContext): Expression {
     const expr = this.term(context);
 
     const operands: Expression[] = [expr];
     const operators: Token[] = [];
 
-    while (this.tokenMatch(TokenType.OP_GREATER, TokenType.OP_GREATER_EQUALS, TokenType.OP_LESS, TokenType.OP_LESS_EQUALS)) {
+    while (this.tokenMatch(TokenType.OP_NOT_EQUALS, TokenType.OP_EQUALS, 
+                           TokenType.OP_GREATER, TokenType.OP_GREATER_EQUALS, 
+                           TokenType.OP_LESS, TokenType.OP_LESS_EQUALS)) {
       const operator = this.previous();
       const right = this.term(context);
       operators.push(operator);

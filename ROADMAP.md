@@ -1,7 +1,6 @@
 
 Next steps:
 - Fix "order of operations"
-  - Comparisons
   - Multiply, divide, modulo
   - Indexing and slicing
   - Call operation and statement
@@ -21,9 +20,6 @@ Next steps:
   - string
   - number
   - map
-- Write tests for operator precedence ... could be that the parser has bugs!
-  https://miniscript.org/wiki/Operators
-
 - Implement intrinsics:
   - time
   - wait

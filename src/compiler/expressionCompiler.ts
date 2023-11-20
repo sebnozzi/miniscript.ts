@@ -194,22 +194,30 @@ class ExpressionCompiler {
     // Push operators
     for (let operator of e.operators) {
       switch (operator.tokenType) {
+        case TokenType.OP_EQUALS: {
+          this.builder.push(BC.PUSH, "==");
+          break;
+        }
+        case TokenType.OP_NOT_EQUALS: {
+          this.builder.push(BC.PUSH, "!=");
+          break;
+        }
         case TokenType.OP_GREATER: {
           this.builder.push(BC.PUSH, ">");
           break;
-        }        
+        }   
         case TokenType.OP_GREATER_EQUALS: {
           this.builder.push(BC.PUSH, ">=");
           break;
-        }        
+        } 
         case TokenType.OP_LESS: {
           this.builder.push(BC.PUSH, "<");
           break;
-        }        
+        }
         case TokenType.OP_LESS_EQUALS: {
           this.builder.push(BC.PUSH, "<=");
           break;
-        }        
+        }
         default: {
           throw new CompileTimeError("Invalid operator found");
         }

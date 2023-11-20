@@ -274,11 +274,13 @@ class ChainedComparisonExpr {
     }
     for (let tk of operators) {
       const ttype = tk.tokenType;
-      if (ttype != TokenType.OP_GREATER 
+      if (ttype != TokenType.OP_EQUALS
+          && ttype != TokenType.OP_NOT_EQUALS
+          && ttype != TokenType.OP_GREATER 
           && ttype != TokenType.OP_GREATER_EQUALS 
           && ttype != TokenType.OP_LESS
           && ttype != TokenType.OP_LESS_EQUALS){
-        throw new Error("Invalid token type");
+        throw new Error(`Invalid token type: ${TokenType[ttype]}`);
       }
     }
   }

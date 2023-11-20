@@ -8,6 +8,10 @@ type Concatenable = {
   concat(a: any): any;
 }
 
+function notEquals(a: any, b: any): number {
+  return equals(a, b) == 1 ? 0 : 1; 
+}
+
 function equals(a: any, b: any, recursionDepth: number = 16): number {
   if (recursionDepth < 0) {
     return 1;
@@ -134,7 +138,11 @@ function chainedComparison(values: any[], operators: string[]): number {
     const left = values[i];
     const right = values[i+1];
     let result: number | null;
-    if (operator === ">") {
+    if (operator === "==") {
+      result = equals(left, right);
+    } else if (operator === "!=") {
+      result = notEquals(left, right);
+    } else if (operator === ">") {
       result = greaterThan(left, right);
     } else if (operator === ">=") {
       result = greaterEquals(left, right);
