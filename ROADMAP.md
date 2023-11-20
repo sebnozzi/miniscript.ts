@@ -1,7 +1,5 @@
 
 Next steps:
-- Implement intrinsics:
-  - refEquals(a, b)
 - Make intrinsics not "pollute" the global scope
   They are resolved if anything else fails AFTER the global
   scope is exhausted.
@@ -27,6 +25,10 @@ Next steps:
   - ability for deferred-result intrinsics (like "loadImage", httpGet, etc.)
   - version
   - stackTrace
+- Investigate using JS's "String" objects for strings so that refEquals 
+  behaves like C# miniScript. Right now we are using primitive
+  strings and there is no way to tell one reference from the
+  other. There is no official test for this.
 - Implement importing of modules
 - Scientific notation (big?) numbers 
   - How is this done?
