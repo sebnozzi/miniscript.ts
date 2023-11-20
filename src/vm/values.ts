@@ -416,7 +416,7 @@ function toString(a: any): string {
 
 // Not the same as trying to convert to number (e.g. `val("3")`)
 function toNumberValue(value: any): number {
-  if (typeof value == "number" ) {
+  if (typeof value === "number" ) {
     return value;
   } else {
     return 0;

@@ -668,26 +668,26 @@ function addIntrinsics(p: Processor) {
   });
 
   p.addGlobalIntrinsic("range(start,stop,step=null)", 
-  function(start: number, stop: number, step: number) {
-    checkInt(start, "Argument 'start' should be integer");
-    checkInt(stop, "Argument 'stop' should be integer");
+  function(start: any, stop: any, step: number) {
+    start = toNumberValue(start);
+    stop = toNumberValue(stop);
 
     const result: number[] = [];
 
-    if (start < stop) {
+    if (start <= stop) {
       step = step === null ? 1 : step;
-      checkInt(step, "Argument 'step' should be integer");
+      checkInt(step, "Argument 'step' should be integer", p);
       if (step < 1) {
-        throw new Error("Argument 'step' should be a positive number in this case");
+        throw p.runtimeError("Argument 'step' should be a positive number in this case");
       }
       for (let i = start; i <= stop; i += step) {
         result.push(i);
       }
     } else {
       step = step === null ? -1 : step;
-      checkInt(step, "Argument 'step' should be integer");
+      checkInt(step, "Argument 'step' should be integer", p);
       if (step >= 0) {
-        throw new Error("Argument 'step' should be a negative number in this case");
+        throw p.runtimeError("Argument 'step' should be a negative number in this case");
       }
       for (let i = start; i >= stop; i += step) {
         result.push(i);
