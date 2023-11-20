@@ -288,8 +288,8 @@ class ExpressionCompiler {
   }
 
   private compileIndexedAccessExpression(e: IndexedAccessExpr, context: ECContext) {
-    this.compileExpression(e.indexExpr);
     this.compileExpression(e.accessTarget);
+    this.compileExpression(e.indexExpr);
     // If the indexed-access takes place as a statement INVOKE the function
     // Otherwise return the function value
     let isFuncRef: boolean;
@@ -322,6 +322,8 @@ class ExpressionCompiler {
   }
 
   private compileListSlicingExpression(e: ListSlicingExpr, context: ECContext) {
+    // Push list expression
+    this.compileExpression(e.listTarget);
     // Push start value
     if (e.start) {
       this.compileExpression(e.start);
@@ -334,8 +336,6 @@ class ExpressionCompiler {
     } else {
       this.builder.push(BC.PUSH, null);
     }
-    // Push list expression
-    this.compileExpression(e.listTarget);
     // Push opcode
     this.builder.push(BC.SLICE_SEQUENCE);
   }

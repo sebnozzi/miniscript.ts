@@ -168,13 +168,13 @@ class StatementCompiler {
       this.compileExpression(s.value);
       this.builder.push(BC.MATH_ASSIGN_LOCAL, target.identifier.value, s.opToken);
     } else if (target instanceof IndexedAccessExpr) {
+      this.compileExpression(target.accessTarget);
       this.compileExpression(target.indexExpr);
       this.compileExpression(s.value);
-      this.compileExpression(target.accessTarget);
       this.builder.push(BC.MATH_ASSIGN_INDEXED, s.opToken);
     } else if (target instanceof DotAccessExpr) {
-      this.compileExpression(s.value);
       this.compileExpression(target.accessTarget);
+      this.compileExpression(s.value);
       this.builder.push(BC.MATH_DOT_ASSIGN, target.property.value, s.opToken);   
     } else {
       throw new Error("Assignment target not yet supported: " + s.target.description());

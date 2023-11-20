@@ -238,12 +238,12 @@ class Processor {
         }
         case BC.MATH_ASSIGN_INDEXED: {
           const opTokenType: TokenType = this.code.arg1[this.ip] as TokenType;
-          // pop target
-          const assignTarget = this.opStack.pop();
           // pop value
           const operand = this.opStack.pop();
           // pop index
           const index = this.opStack.pop();
+          // pop target
+          const assignTarget = this.opStack.pop();
 
           const isString = typeof assignTarget === "string";
           const isList = assignTarget instanceof Array;
@@ -272,8 +272,8 @@ class Processor {
         case BC.MATH_DOT_ASSIGN : {
           const propertyName: string = this.code.arg1[this.ip];
           const opTokenType: TokenType = this.code.arg2[this.ip] as TokenType;
-          const assignTarget = this.opStack.pop();
           const operand = this.opStack.pop();
+          const assignTarget = this.opStack.pop();
 
           if (!(assignTarget instanceof HashMap)) {
             throw this.runtimeError(`Assignment target must be a Map`);
@@ -305,8 +305,8 @@ class Processor {
         }
         case BC.INDEXED_ACCESS: {
           const isFuncRef: boolean = this.code.arg1[this.ip];
-          const accessTarget = this.opStack.pop();
           const index = this.opStack.pop();
+          const accessTarget = this.opStack.pop();
 
           const isString = typeof accessTarget === "string";
           const isList = accessTarget instanceof Array;
@@ -390,9 +390,9 @@ class Processor {
         }
         case BC.SLICE_SEQUENCE: {
           // Pop parameters
-          const sliceTarget = this.opStack.pop();
           const endIdx = this.opStack.pop();
           const startIdx = this.opStack.pop();
+          const sliceTarget = this.opStack.pop();
           const newCollection = slice(this, sliceTarget, startIdx, endIdx);
           // Push result
           this.opStack.push(newCollection);

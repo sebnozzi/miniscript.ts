@@ -1,7 +1,6 @@
 
 Next steps:
 - Fix "order of operations"
-  - Indexing and slicing
   - Call operation and statement
   - List and map literals
 - Make intrinsics not "pollute" the global scope
