@@ -42,6 +42,18 @@ class Context {
     }
   }
 
+  // Normally the parent context inside a function.
+  // At the global scope outer == globals.
+  getOuterScopeLocals(vm: Processor): HashMap {
+    let outerContext;
+    if (this.parent) {
+      outerContext = this.parent;
+    } else {
+      outerContext = vm.globalContext;
+    }
+    return outerContext.locals;
+  }
+
   registerForLoop(forLoopNr: number, forLoop: ForLoop) {
     this.forLoops[forLoopNr] = forLoop;
   }

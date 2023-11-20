@@ -294,7 +294,7 @@ class Processor {
           if (optValue !== undefined) {
             this.callOrPushValue(optValue, isFuncRef, null, null);
           } else {
-            // Could not resolve, maybe it's a core-type function
+            // Could not resolve, maybe it's a pseudo-keyword
             const value = this.resolveSpecial(identifier);
             if (value === undefined) {
               throw this.runtimeError(`Undefined Identifier: '${identifier}' is unknown in this context`);
@@ -827,8 +827,10 @@ class Processor {
     }
   }
 
-  private resolveSpecial(identifier: string): BoundFunction|undefined {
-    if (identifier === "string") {
+  private resolveSpecial(identifier: string): any|undefined {
+    if (identifier === "outer") {
+      return this.context.getOuterScopeLocals(this);
+    } else if (identifier === "string") {
       return this.stringCoreTypeMapFn
     } else if (identifier === "number") {
       return this.numberCoreTypeMapFn;

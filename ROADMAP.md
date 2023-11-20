@@ -1,6 +1,7 @@
 
 Next steps:
-- outer
+- Implement intrinsics:
+  - refEquals(a, b)
 - Make intrinsics not "pollute" the global scope
   They are resolved if anything else fails AFTER the global
   scope is exhausted.
@@ -10,8 +11,6 @@ Next steps:
   - Check edge cases
   - Check that indexes in intrinsics are converted to int
   - Check that checkRange is used
-- Implement intrinsics:
-  - refEquals(a, b)
 - Test isa-equality with base-maps:
   - funcRef
   - list
@@ -28,6 +27,7 @@ Next steps:
   - ability for deferred-result intrinsics (like "loadImage", httpGet, etc.)
   - version
   - stackTrace
+- Implement importing of modules
 - Scientific notation (big?) numbers 
   - How is this done?
   - Parsed and stored as doubles
