@@ -26,32 +26,20 @@ class Context {
   }
 
   getOpt(identifier: string): any | undefined {
-    if (identifier === "globals") {
+    if (this.locals.has(identifier)) {
+      const localValue = this.locals.get(identifier);
+      return localValue;
+    } else if (identifier === "globals") {
       return this.globalContext.locals;
     } else if (identifier === "locals") {
       return this.locals;
+    } else if (identifier === "outer") {
+      return this.getOuterLocals();
+    } else if (this.parent) {
+      return this.parent.getOpt(identifier);
     } else {
-      if (this.locals.has(identifier)) {
-        const localValue = this.locals.get(identifier);
-        return localValue;
-      } else if (this.parent) {
-        return this.parent.getOpt(identifier);
-      } else {
-        return undefined;
-      }
+      return undefined;
     }
-  }
-
-  // Normally the parent context inside a function.
-  // At the global scope outer == globals.
-  getOuterScopeLocals(vm: Processor): HashMap {
-    let outerContext;
-    if (this.parent) {
-      outerContext = this.parent;
-    } else {
-      outerContext = vm.globalContext;
-    }
-    return outerContext.locals;
   }
 
   registerForLoop(forLoopNr: number, forLoop: ForLoop) {
@@ -62,6 +50,18 @@ class Context {
   }
   deleteForLoop(forLoopNr: number) {
     delete this.forLoops[forLoopNr];
+  }
+
+  // Normally the parent context inside a function.
+  // At the global scope outer == globals.
+  private getOuterLocals(): HashMap {
+    let outerContext;
+    if (this.parent) {
+      outerContext = this.parent;
+    } else {
+      outerContext = this.globalContext;
+    }
+    return outerContext.locals;
   }
 
 }

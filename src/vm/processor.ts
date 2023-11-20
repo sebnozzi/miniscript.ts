@@ -828,9 +828,7 @@ class Processor {
   }
 
   private resolveSpecial(identifier: string): any|undefined {
-    if (identifier === "outer") {
-      return this.context.getOuterScopeLocals(this);
-    } else if (identifier === "string") {
+    if (identifier === "string") {
       return this.stringCoreTypeMapFn
     } else if (identifier === "number") {
       return this.numberCoreTypeMapFn;
