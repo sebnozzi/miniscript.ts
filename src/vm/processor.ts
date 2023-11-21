@@ -453,8 +453,8 @@ class Processor {
           // Iterate over elements and process key/value
           // Advance by 2, processing in pairs
           for (let i = 0; i < elements.length; i += 2) {
-            const mapValue = elements[i];
-            const mapKey = elements[i+1];
+            const mapKey = elements[i];
+            const mapValue = elements[i+1];
             newMap.set(mapKey, mapValue);
           }
           this.opStack.push(newMap);

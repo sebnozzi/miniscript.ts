@@ -298,8 +298,8 @@ class ExpressionCompiler {
     const elementCount = e.elements.size;
     // Compile all key-value pairs
     for (let [keyExpr, valueExpr] of e.elements) {
-      this.compileExpression(valueExpr);
       this.compileExpression(keyExpr);
+      this.compileExpression(valueExpr);
     }
     // Issue opcode to build map
     this.builder.push(BC.BUILD_MAP, elementCount);

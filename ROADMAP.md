@@ -1,7 +1,5 @@
 
 Next steps:
-- Fix "order of operations"
-  - List and map literals
 - Investigte: convert all calling forms to 
   push expr as funcRef
   push params
