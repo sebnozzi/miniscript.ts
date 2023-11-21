@@ -34,15 +34,11 @@ Next steps:
   strings and there is no way to tell one reference from the
   other. There is no official test for this.
 - Implement importing of modules
-- Scientific notation (big?) numbers 
-  - How is this done?
-  - Parsed and stored as doubles
-  - Formatted accordingly for numbers with lots of digits
 - Optional delimiter for print (print "Hello", "")
   - Difficult to test because we output "per line"
 - `(null)[1] = 1` should throw error
 - Re-introduce debugger?
-- Normalize all errors, check original code.
+- Normalize ALL (!) errors, check original code.
 - Partial parsing ... useful in interactive environments
   - The parser should know if input is "pending" and return
     signalling that it can wait for more input (as in a co-routine)

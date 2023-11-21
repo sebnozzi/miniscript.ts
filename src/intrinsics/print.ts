@@ -9,11 +9,7 @@ function addPrintIntrinsic(p: Processor) {
 function formatValue(value: any, quoteStrings: boolean = false): string {
   let text = "";
   if (typeof value === "number") {
-    const isFloat = !Number.isInteger(value) && Number.isFinite(value);
-    if (isFloat) {
-      value = round(value, 6);
-    }
-    text = "" + value;
+    text = formatNumber(value);
   } else if (value instanceof Array) {
     const formattedValues = [];
     for (const e of value) {
@@ -46,6 +42,24 @@ function formatValue(value: any, quoteStrings: boolean = false): string {
     return `FUNCTION(${joinedArgs})`;
   } else {
     text = "" + value;
+  }
+  return text;
+}
+
+function formatNumber(value: Number): string {
+  const isFloat = !Number.isInteger(value) && Number.isFinite(value);
+  let text: string = "";
+  if (isFloat) {
+    if (value> 1E10 || value < -1E10 || (value < 1E-6 && value > -1E-6)) {
+      // Format very large or small numbers in exponential form
+      text = value.toExponential(6);
+      // Pad exponential with leading zero if only one digit
+      text = text.replace(/[eE]([-+])(\d)$/,"E$10$2")
+    } else {
+      text = "" + (round(value, 6) || 0);
+    }
+  } else {
+    text = value.toString();
   }
   return text;
 }

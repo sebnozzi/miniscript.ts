@@ -2,8 +2,8 @@
 // Used internally by the tokenizer
 class NumberLiteral {
   
-  isInt: boolean
-  numberValue: number
+  public readonly isInt: boolean
+  public readonly numberValue: number
 
   constructor(isInt: boolean, numberValue: number) {
     this.isInt = isInt
@@ -17,7 +17,6 @@ class Tokenizer {
   private readonly source: string | undefined;
   private pos: Pos;
   private startPos: Pos;
-  private tokenLength: number;
   private _currentChar: string = '\u0000'
   private _peek2Str: string = ""
   private _lastTokenIsSpace: boolean = false
@@ -51,7 +50,6 @@ class Tokenizer {
     this.input = input;
     this.pos = new Pos(0, 1, 1);
     this.startPos = this.pos.copy();
-    this.tokenLength = 0;
     this.source = source;
   }
 
@@ -74,7 +72,6 @@ class Tokenizer {
 
   private saveStartPos() {
     this.startPos = this.pos.copy();
-    this.tokenLength = 0;
   }
 
   private location(): SrcLocation {
@@ -145,7 +142,6 @@ class Tokenizer {
     let i = 0;
     while (i < amount) {
       this.pos.advance();
-      this.tokenLength += 1;
       i += 1;
     }
 
@@ -156,7 +152,6 @@ class Tokenizer {
 
   private addToken(newToken: Token) {
     this.tokens.push(newToken);
-    this.tokenLength = 0;
   }
 
   private updateCharAndPeek() {
@@ -178,6 +173,10 @@ class Tokenizer {
 
   private isSpaceChar(ch: string): boolean {
     return ch == ' ' || ch == '\t'
+  }
+
+  private isDigitChar(ch: string): boolean {
+    return ch[0] >= '0' && ch[0] <= '9';
   }
 
   private isIdentifierStartChar(ch: string): boolean {
@@ -434,7 +433,8 @@ class Tokenizer {
     let consumingFloatingPart = false
     let intDigits = ""
     let floatDigits = ""
-    var fetchingChars = true
+    let fetchingChars = true
+    let exponentPart = ""
 
     while (this.hasInput() && fetchingChars) {
       const ch = this.getChar()
@@ -452,19 +452,53 @@ class Tokenizer {
         }
         consumingFloatingPart = true
         this.advance()
+      } else if (ch == 'e' || ch == 'E') {
+        exponentPart = this.parseExponentPart();
+        fetchingChars = false
       } else {
         fetchingChars = false
       }
     }
 
-    const strValue = intDigits
+    let numberValue: number;
+    let isInt: boolean; 
 
-    if (consumingFloatingPart) {
-      const strValueWithFloatPart = strValue + "." + floatDigits
-      return new NumberLiteral(false, parseFloat(strValueWithFloatPart))
+    if (floatDigits.length > 0) {
+      numberValue = parseFloat(`${intDigits}.${floatDigits}${exponentPart}`);
+      isInt = false;
     } else {
-      return new NumberLiteral(true, parseInt(strValue))
+      numberValue = parseInt(`${intDigits}${exponentPart}`);
+      isInt = true;
     }
+
+    return new NumberLiteral(isInt, numberValue);
+  }
+
+  private parseExponentPart(): string {
+    const eChar = this.getChar();
+    this.advance();
+
+    const signChar = this.consumeAny("+", "-");
+    if (!signChar) {
+      throw new Error("Expected +/- after exponential letter");
+    }
+
+    let exponentPart: string = "";
+    
+    while (this.hasInput()) {
+      const optDigit = this.consumeAny('0','1','2','3','4','5','6','7','8','9');
+      if (optDigit) {
+        exponentPart += optDigit;
+      } else {
+        break;
+      }
+    }
+
+    if (exponentPart.length == 0) {
+      throw new Error("Expected exponent in exponential notation");
+    }
+    
+    return `${eChar}${signChar}${exponentPart}`;
   }
 
   /**
@@ -484,6 +518,18 @@ class Tokenizer {
         this.advance()
       }
     }
+  }
+
+  private consumeAny(...chars: string[]): string|undefined {
+    const c = this.getChar();
+    for (let i = 0; i < chars.length; i++) {
+      if (chars[i] === c) {
+        this.advance();
+        return c;
+      }
+    }
+    // No match found
+    return undefined;
   }
 
   private addSimpleToken(tokenType: TokenType) {
