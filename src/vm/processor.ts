@@ -32,10 +32,16 @@ class Processor {
   savedFrames: Stack<Frame>;
   // Counter used to return control back to host.
   cycleCount: number;
+  // Max count of cycles per "burst"
+  maxCount: number = 73681;
   // Callback when processing done
   onFinished: Function;
   // Random number generator
   rndGenerator: Function;
+  // Timestamp when a script starts executing. Used in `time`.
+  executionStartTime: number;
+  // Flag to know when execution is suspended (e.g. waiting on a promise)
+  suspended: boolean = false;
 
   constructor(programCode: Code, public readonly stdoutCallback: TxtCallback, public readonly stderrCallback: TxtCallback) {
     this.code = programCode;
@@ -65,9 +71,11 @@ class Processor {
       return vmThis.mapCoreType;
     });
     this.rndGenerator = newRandomGenerator();
+    this.executionStartTime = 0;
   }
 
   run() {
+    this.executionStartTime = performance.now();
     this.runUntilDone();
   }
 
@@ -112,20 +120,24 @@ class Processor {
     return new RuntimeError(`${msg} [line ${this.getCurrentSrcLineNr()}]`);
   }
 
-  runUntilDone(maxCount: number = 73681) {
+  runUntilDone() {
     if (!this.isFinished()) {
       try {
-        this.executeCycles(maxCount);
+        this.executeCycles();
       } catch(e: any) {
         if (e["message"]) {
           this.stderrCallback(e.message);
         }
         console.error(e);
-        this.forceFinish(maxCount);
+        this.forceFinish();
       }
-      window.setTimeout(() => {
-        this.runUntilDone()
-      }, 0)
+      // If not waiting on a Promise, schedule
+      // the next execution burst.
+      if (!this.suspended) {
+        window.setTimeout(() => {
+          this.runUntilDone()
+        }, 0);
+      }
     } else {
       // Check that stack is balanced (empty)
       if (this.opStack.count() > 0) {
@@ -137,7 +149,8 @@ class Processor {
     }
   }
 
-  executeCycles(maxCount: number) {
+  executeCycles(maxCount: number | null = null) {
+    maxCount = maxCount !== null ? maxCount : this.maxCount;
     this.cycleCount = 0;
     while(this.cycleCount < maxCount) {
       switch (this.code.opCodes[this.ip]) {
@@ -670,7 +683,7 @@ class Processor {
           break;
         }
         case BC.EXIT: {
-          this.forceFinish(maxCount);
+          this.forceFinish();
           break;
         }
         case BC.POP: {
@@ -740,10 +753,20 @@ class Processor {
     return this.ip >= this.code.opCodes.length;
   }
 
-  forceFinish(maxCount: number) {
+  forceFinish() {
     this.opStack.clear();
-    this.cycleCount = maxCount;
+    this.cycleCount = this.maxCount;
     this.ip = this.code.opCodes.length;
+  }
+
+  suspendExecution() {
+    this.cycleCount = this.maxCount;
+    this.suspended = true;
+  }
+
+  resumeExecution() {
+    this.suspended = false;
+    this.runUntilDone();
   }
 
   willExecuteCall(): boolean {
@@ -912,12 +935,20 @@ class Processor {
       }
       // Call with parameters
       const retVal = func.apply(this, paramValues);
-      // Push return value to stack
-      this.opStack.push(retVal);
-      // Advance IP
-      this.ip += 1;
+
+      // Check if returned value is a Promise
+      if (retVal instanceof Promise) {
+        this.suspendUntilPromiseResolved(retVal);
+      } else {
+        // Return value is normal object
+        // Push return value to stack
+        this.opStack.push(retVal);
+        // Advance IP
+        this.ip += 1;
+      }
     } else {
-      // Function is not native.
+      // Function is a miniScript-code function.
+      // (not an intrinsic)
 
       // Let it return to the next bytecode after the call
       this.ip += 1;
@@ -955,6 +986,20 @@ class Processor {
         }
       }
     }    
+  }
+
+  private suspendUntilPromiseResolved(promise: Promise<any>) {
+    // Mark VM for suspension
+    this.suspendExecution();
+    // Deal with promise resolved value
+    promise.then((retVal: any) => {      
+      // Push return value to stack
+      this.opStack.push(retVal);
+      // Advance IP
+      this.ip += 1;
+      // Resume execution
+      this.resumeExecution();
+    });
   }
 
 }

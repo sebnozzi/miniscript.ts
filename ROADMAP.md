@@ -1,5 +1,14 @@
 
 Next steps:
+- Test isa-equality with base-maps:
+  - funcRef
+  - list
+  - string
+  - number
+  - map
+- Implement intrinsics:
+  - version
+  - stackTrace
 - Investigte: convert all calling forms to 
   push expr as funcRef
   push params
@@ -16,19 +25,6 @@ Next steps:
   - Check edge cases
   - Check that indexes in intrinsics are converted to int
   - Check that checkRange is used
-- Test isa-equality with base-maps:
-  - funcRef
-  - list
-  - string
-  - number
-  - map
-- Implement intrinsics:
-  - time
-  - wait
-  - yield
-  - ability for deferred-result intrinsics (like "loadImage", httpGet, etc.)
-  - version
-  - stackTrace
 - Investigate using JS's "String" objects for strings so that refEquals 
   behaves like C# miniScript. Right now we are using primitive
   strings and there is no way to tell one reference from the
