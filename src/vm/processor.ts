@@ -23,11 +23,13 @@ class Processor {
   mapCoreType: HashMap;
   stringCoreType: HashMap;
   numberCoreType: HashMap;
+  funcRefCoreType: HashMap;
   // Core-type access functions
   listCoreTypeMapFn: BoundFunction;
   stringCoreTypeMapFn: BoundFunction;
   numberCoreTypeMapFn: BoundFunction;
   mapCoreTypeMapFn: BoundFunction;
+  funcRefCoreTypeMapFn: BoundFunction;
   // Stack of frames (waiting to be returned to; not the current one).
   savedFrames: Stack<Frame>;
   // Counter used to return control back to host.
@@ -51,6 +53,7 @@ class Processor {
     this.mapCoreType = new HashMap();
     this.stringCoreType = new HashMap();
     this.numberCoreType = new HashMap();
+    this.funcRefCoreType = new HashMap();
     this.context = this.globalContext;
     this.savedFrames = new Stack<Frame>();
     this.opStack = new Stack();
@@ -69,6 +72,9 @@ class Processor {
     });
     this.mapCoreTypeMapFn = this.makeNativeBoundFunction([], [], function() {
       return vmThis.mapCoreType;
+    });
+    this.funcRefCoreTypeMapFn = this.makeNativeBoundFunction([], [], function() {
+      return vmThis.funcRefCoreType;
     });
     this.rndGenerator = newRandomGenerator();
     this.executionStartTime = 0;
@@ -874,6 +880,8 @@ class Processor {
       return this.listCoreTypeMapFn;
     } else if (identifier === "map") {
       return this.mapCoreTypeMapFn;
+    } else if (identifier === "funcRef") {
+      return this.funcRefCoreTypeMapFn;
     } else {
       return undefined;
     }

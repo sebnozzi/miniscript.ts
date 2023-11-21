@@ -85,6 +85,8 @@ function isaEquals(vm: Processor, value: any, type: any): number {
 			}
 			return 0;
     }
+  } else if (value instanceof BoundFunction) {
+    return type === vm.funcRefCoreType ? 1 : 0;
   } else {
     return 0;
   }

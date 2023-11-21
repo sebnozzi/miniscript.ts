@@ -1,4 +1,12 @@
 ======================================================================
+==== funcRef isa equality
+f = function; end function
+print @f isa funcRef
+print {} isa funcRef
+----------------------------------------------------------------------
+1
+0
+======================================================================
 ==== range with one or zero parameters
 print range(4)
 print range()
