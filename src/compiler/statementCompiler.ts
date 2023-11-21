@@ -183,7 +183,7 @@ class StatementCompiler {
   }
 
   private compileReturnStatement(s: ReturnStatement, context: CompilerContext) {
-    if (context instanceof FunctionBodyContext) {
+    if (context.insideFunctionBody()) {
       this.builder.startMapEntry();
       if (s.optValue) {
         this.compileExpression(s.optValue)
