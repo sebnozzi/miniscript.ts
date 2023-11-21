@@ -144,18 +144,33 @@ class Processor {
         case BC.CALL: {
           const funcName: string = this.code.arg1[this.ip] as string;
           const paramCount: number = this.code.arg2[this.ip] as number;
+          // Pop params
+          const params = this.opStack.popN(paramCount);
 
           const optValue: any | undefined = this.context.getOpt(funcName);
           if (optValue === undefined) {
             throw this.runtimeError(`Could not resolve "${funcName}"`);
           }
           const resolvedFunc: any = optValue;
-          this.performCall(resolvedFunc, paramCount);
+          this.performCall(resolvedFunc, params);
           break;
         }
-        case BC.DOT_CALL: {
+        case BC.FUNCREF_CALL: {
           const paramCount: number = this.code.arg1[this.ip] as number;
-          const methodName: string = this.opStack.pop();
+          // Pop params
+          const params = this.opStack.popN(paramCount);
+          // Pop call target
+          const maybeFuncRef: any = this.opStack.pop();
+          this.performCall(maybeFuncRef, params);
+          break;
+        }
+        case BC.PROPERTY_CALL: {
+          const paramCount: number = this.code.arg1[this.ip] as number;
+          // Pop params
+          const params = this.opStack.popN(paramCount);
+          // Pop property name
+          const methodName = this.opStack.pop();
+          // Pop call target
           const callTarget = this.opStack.pop();
 
           let resolvedMethod: any;
@@ -166,7 +181,7 @@ class Processor {
             const baseTypeMap = this.selectCoreTypeMap(callTarget);
             resolvedMethod = this.coreTypeMapAccess(baseTypeMap, methodName);
           }
-          this.performCall(resolvedMethod, paramCount, callTarget);
+          this.performCall(resolvedMethod, params, callTarget);
           break;
         }
         case BC.RETURN: {
@@ -735,7 +750,7 @@ class Processor {
     const op = this.code.opCodes[this.ip];
     // TODO: one could also perform a call when evaluating an identifier
     // that results in a function!
-    const isCall = op == BC.CALL || op == BC.DOT_CALL;
+    const isCall = op == BC.CALL || op == BC.PROPERTY_CALL;
     return isCall;
   }
 
@@ -846,7 +861,7 @@ class Processor {
     // reference, the function should be called.
     // The resulting value will be put in the stack instead.
     if (value instanceof BoundFunction && !isFuncRef) {
-      this.performCall(value, 0, accessSrc, srcMap);
+      this.performCall(value, [], accessSrc, srcMap);
     } else {
       // Otherwise use the value as-is
       this.opStack.push(value)
@@ -854,7 +869,10 @@ class Processor {
     }
   }
 
-  private performCall(maybeFunction: any, paramCount: number = 0, dotCallTarget: any | null = null, srcMap: HashMap | null = null) {
+  private performCall(maybeFunction: any, paramValues: any[], dotCallTarget: any | null = null, srcMap: HashMap | null = null) {
+    
+    const paramCount = paramValues.length;
+
     if (!(maybeFunction instanceof BoundFunction)) {
       if (paramCount > 0) {
         throw this.runtimeError(`Too Many Arguments`);
@@ -873,6 +891,7 @@ class Processor {
       funcArgCount -= 1;
     }
 
+    // If parameters missing, complete with default values
     if (paramCount > funcArgCount) {
       throw this.runtimeError(`Too many parameters calling function.`)
     } else if (paramCount < funcArgCount) {
@@ -880,24 +899,12 @@ class Processor {
       const missingArgCount = funcArgCount - paramCount;
       const defaultValues = funcDef.getLastNEffectiveDefaultValues(missingArgCount);
       for (let value of defaultValues) {
-        this.opStack.push(value);
+        paramValues.push(value);
       }
     }
 
     if (funcDef.isNative()) {
       const func = funcDef.getFunction();
-      // Build parameter list
-      const paramValues = [];
-      // Pop param values from stack (even default ones)
-      let argNames = funcDef.argNames;
-      if (dotCallTarget !== null) {
-        // Ommit the "self" argument
-        argNames = argNames.slice(1);
-      }
-      for (let {} of argNames) {
-        const paramValue = this.opStack.pop();
-        paramValues.unshift(paramValue);
-      }
       // Add dot-call target "manually", if any
       if (dotCallTarget) {
         // The "self" parameter
@@ -910,16 +917,18 @@ class Processor {
       // Advance IP
       this.ip += 1;
     } else {
+      // Function is not native.
+
       // Let it return to the next bytecode after the call
       this.ip += 1;
       this.pushFrame();
 
+      // Setup next frame
       this.code = funcDef.getCode();
       this.context = new Context(this, boundFunc.context);
       this.ip = 0;
 
       // Pop and set parameters as variables
-      const parameterValues = this.opStack.popN(funcArgCount);
       let argNames = funcDef.argNames;
     
       if (dotCallTarget) {
@@ -928,7 +937,7 @@ class Processor {
 
       for (let i = 0; i < argNames.length; i++) {
         const argName = argNames[i];
-        const paramValue = parameterValues[i];
+        const paramValue = paramValues[i];
         this.context.setLocal(argName, paramValue);
       }
       // Add dot-call target if any

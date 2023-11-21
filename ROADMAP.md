@@ -1,8 +1,13 @@
 
 Next steps:
 - Fix "order of operations"
-  - Call operation and statement
   - List and map literals
+- Investigte: convert all calling forms to 
+  push expr as funcRef
+  push params
+  call funcRef with params?
+- Also: do we support expressions that are NOT function calls but
+        evaluate to func-refs with params?
 - Make intrinsics not "pollute" the global scope
   They are resolved if anything else fails AFTER the global
   scope is exhausted.

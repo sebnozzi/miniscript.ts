@@ -79,24 +79,42 @@ class ExpressionCompiler {
   }
 
   compileFuncCallExpr(callTarget: Expression, params: Expression[], context: ECContext) {
-    // Push parameters
-     for (let param of params) {
-      this.compileExpression(param)
-    }
+    const pushParams = () => {
+      // Push parameters
+      for (let param of params) {
+        this.compileExpression(param)
+      }
+    };
     const paramCount = params.length;
     // Resolve and call target
     if (callTarget instanceof IdentifierExpr) {
       const identifier = callTarget.identifier.value;
+      pushParams();
       this.builder.push(BC.CALL, identifier, paramCount);
     } else if(callTarget instanceof DotAccessExpr) {
-      this.compileExpression(callTarget.accessTarget);
       const identifier = callTarget.property.value;
-      this.builder.push(BC.PUSH, identifier);
-      this.builder.push(BC.DOT_CALL, paramCount);
-    } else if(callTarget instanceof IndexedAccessExpr) {
+      // Push call target
       this.compileExpression(callTarget.accessTarget);
+      // Push property
+      this.builder.push(BC.PUSH, identifier);
+      // Push params
+      pushParams();
+      // Push opcode
+      this.builder.push(BC.PROPERTY_CALL, paramCount);
+    } else if(callTarget instanceof IndexedAccessExpr) {
+      // Push call target
+      this.compileExpression(callTarget.accessTarget);
+      // Push property
       this.compileExpression(callTarget.indexExpr);
-      this.builder.push(BC.DOT_CALL, paramCount);    
+      // Push params
+      pushParams();
+      // Push opcode
+      this.builder.push(BC.PROPERTY_CALL, paramCount);
+    } else if(callTarget instanceof FunctionCallExpr) {
+      const ctx = context.enterFunctionReference();
+      this.compileExpression(callTarget, ctx);
+      pushParams();
+      this.builder.push(BC.FUNCREF_CALL, paramCount);
     } else {
       throw new CompileTimeError(`Invalid call target: ${callTarget.toJson()}`)
     }

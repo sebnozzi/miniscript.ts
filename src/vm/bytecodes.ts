@@ -74,8 +74,12 @@ enum BC {
   JUMP_IF_FALSE,
   JUMP_IF_TRUE,
 
+  // Call a stand-alone function directly
   CALL,
-  DOT_CALL,
+  // Used to call both in indexed form or dot-form (e.g m["f"](p1,p2) or m.f(p1,p2) )
+  PROPERTY_CALL,
+  // Invoke the function stored in the func-ref with parameters
+  FUNCREF_CALL,
   RETURN,
   EXIT,
   
