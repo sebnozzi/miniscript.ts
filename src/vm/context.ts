@@ -5,7 +5,6 @@ class Context {
   private readonly locals: HashMap;
   private readonly parent: Context | null;
   private readonly forLoops: {[id: number]: ForLoop};
-  private readonly globalContext: Context;
   private readonly vm: Processor;
 
   constructor(vm: Processor, parent: Context | null = null) {
@@ -13,7 +12,6 @@ class Context {
     this.parent = parent;
     this.forLoops = {};
     this.vm = vm;
-    this.globalContext = vm.globalContext;
   }
 
   setLocal(identifier: string, value: any) {
@@ -30,7 +28,7 @@ class Context {
       const localValue = this.locals.get(identifier);
       return localValue;
     } else if (identifier === "globals") {
-      return this.globalContext.locals;
+      return this.vm.globalContext.locals;
     } else if (identifier === "locals") {
       return this.locals;
     } else if (identifier === "outer") {
@@ -59,7 +57,7 @@ class Context {
     if (this.parent) {
       outerContext = this.parent;
     } else {
-      outerContext = this.globalContext;
+      outerContext = this.vm.globalContext;
     }
     return outerContext.locals;
   }
