@@ -1,11 +1,52 @@
 
 Next steps:
-- Test isa-equality with base-maps:
-  - funcRef
-  - list
-  - string
-  - number
-  - map
+- Write blog-post about it
+  - Describe the architecture
+
+- Use another map implementation for Contexts
+  since we KNOW that the keys are always strings.
+  Associative arrays?
+
+- Slowly re-create SebIDE using miniScript.TS?
+- Show console output on the HTML page
+- Show errors on the HTML page
+
+- Split intrinsics into different files
+- Implement interesting graphics intrinsics to show-off mini-projects
+  - Using HTML Canvas
+  - Drawing shapes (lines, boxes, circles)
+  - Drawing text
+  - Loading images
+  - Drawing images
+  - Reading keys
+  - Reading mouse-clicks
+  - Loading sounds
+  - Playing sounds
+
+- Write some demos
+
+- Re-introduce debugger?
+- Debugger: willExecuteCall is incomplete ... many more opcodes could
+  result in a call. At the end we should offer the "step-in" button for
+  all *potential* calls, but only jump in if there was a real call.
+
+
+- Work on making this public
+  - Upload demo(s)
+  - Publish repo
+
+- Test code with real-world code to expose bugs
+  - Rossetta Code
+  - Benchmark Code
+- Make intrinsics not "pollute" the global scope
+  They are resolved if anything else fails AFTER the global
+  scope is exhausted.
+- Make the amount of cycles to execute per "burst" auto-tune
+  so that we "yield" 60 times per second.
+  - Maybe decide an amount of cycles to "check" for a timeout?
+- Implement importing of modules
+- Optional delimiter for print (print "Hello", "")
+  - Difficult to test because we output "per line"
 - Implement intrinsics:
   - version
   - stackTrace
@@ -15,10 +56,6 @@ Next steps:
   call funcRef with params?
 - Also: do we support expressions that are NOT function calls but
         evaluate to func-refs with params?
-- Make intrinsics not "pollute" the global scope
-  They are resolved if anything else fails AFTER the global
-  scope is exhausted.
-- Split intrinsics into different files
 - Split parser into different files / classes
 - Do a code review and compare intrinsics impl. with official one
   - Check type conversions
@@ -29,11 +66,8 @@ Next steps:
   behaves like C# miniScript. Right now we are using primitive
   strings and there is no way to tell one reference from the
   other. There is no official test for this.
-- Implement importing of modules
-- Optional delimiter for print (print "Hello", "")
-  - Difficult to test because we output "per line"
-- `(null)[1] = 1` should throw error
-- Re-introduce debugger?
+
+
 - Normalize ALL (!) errors, check original code.
 - Partial parsing ... useful in interactive environments
   - The parser should know if input is "pending" and return
@@ -43,8 +77,6 @@ Next steps:
     This should be easily doable because these cases are of the type
     "expected X found EOF". Not so simple - counter-example:
     print a["name",
-- Debugger: willExecuteCall is incomplete ... many more opcodes could
-  result in a call
 - Introduce a "strict-mode". Don't allow:
   - Repeated arguments of the same name
   - Putting a "self" argument anywhere but in the first position
