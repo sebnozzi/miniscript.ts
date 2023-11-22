@@ -42,10 +42,10 @@ class CompilerContext {
 
 class WhileContext extends CompilerContext {
 
-  public readonly startLabel: string;
-  public readonly endLabel: string;
+  public readonly startLabel: AddrLabel;
+  public readonly endLabel: AddrLabel;
 
-  constructor(parent: CompilerContext, startLabel: string, endLabel: string) {
+  constructor(parent: CompilerContext, startLabel: AddrLabel, endLabel: AddrLabel) {
     super();
     this.parent = parent;
     this.startLabel = startLabel;
@@ -301,7 +301,7 @@ class StatementCompiler {
     } else if (context.insideForLoop() && context instanceof ForLoopContext) {
       this.builder.startMapEntry();
       // Break out of for-loop
-      this.builder.push_unresolved(BC.BREAK_FOR_LOOP, context.getForLoopNr());
+      this.builder.push(BC.BREAK_FOR_LOOP, context.getForLoopNr());
       this.builder.endMapEntry(s.location());
     } else {
       throw new Error("break outside while / for loop");
@@ -317,7 +317,7 @@ class StatementCompiler {
     } else if (context.insideForLoop() && context instanceof ForLoopContext) {
       this.builder.startMapEntry();
       // Trigger a "continue" in for-loop (jump to header address)
-      this.builder.push_unresolved(BC.CONTINUE_FOR_LOOP, context.getForLoopNr());
+      this.builder.push(BC.CONTINUE_FOR_LOOP, context.getForLoopNr());
       this.builder.endMapEntry(s.location());
     } else {
       throw new Error("continue outside while / for loop");

@@ -1,19 +1,26 @@
 
+class AddrLabel {
+  constructor(public readonly idx: number) {
+  }
+}
+
 class CodeBuilder {
 
   prg: Code;
   ip: number;
-  addresses: {[label: string]: number};
+  addresses: Map<AddrLabel, number>;
   unresolvedIdx = 0;
   unresolved: number[];
 
   srcMapIpStart: number;
   srcMap: SourceMap;
 
+  private readonly labelPrefix = "@@addr_";
+
   constructor() {
     this.prg = new Code();
     this.ip = 0;
-    this.addresses = {}
+    this.addresses = new Map();
     this.unresolved = [];
 
     this.srcMapIpStart = -1;
@@ -26,13 +33,18 @@ class CodeBuilder {
   }
   
   push_unresolved(opCode: BC, arg1: any = null, arg2: any = null) {
+    if (!(arg1 instanceof AddrLabel) && !(arg2 instanceof AddrLabel)) {
+      throw new Error("Expected one of the parameters to be an address label");
+    }
     this.prg.push(opCode, arg1, arg2);
     this.unresolved.push(this.ip);
     this.ip++;
   }
 
   newLabel() {
-    return `addr_${this.unresolvedIdx++}`;
+    const addLabel = new AddrLabel(this.unresolvedIdx);
+    this.unresolvedIdx += 1;
+    return addLabel;
   }
 
   startMapEntry() {
@@ -67,8 +79,8 @@ class CodeBuilder {
     return false;
   }
 
-  define_address(label: string) {
-    this.addresses[label] = this.ip;
+  define_address(label: AddrLabel) {
+    this.addresses.set(label, this.ip);
   }
 
   build(): Code {
@@ -79,20 +91,27 @@ class CodeBuilder {
   }
 
   private resolveAddresses() {
-    for (let uaddr of this.unresolved) {
-      let label_1 = this.prg.arg1[uaddr];
-      if (label_1) {
-        let addr_1 = this.addresses[label_1];
-        if (addr_1) {
-          this.prg.arg1[uaddr] = addr_1;
+    const resolveAddr = (uaddr: number, argArray: Array<any>) => {
+      let label = argArray[uaddr];
+      if (label instanceof AddrLabel) {
+        let prgAddr = this.addresses.get(label);
+        if (prgAddr === undefined) {
+          throw new Error(`No address for label ${label} at address ${uaddr}`);
         }
+        // Replace with resolved address
+        argArray[uaddr] = prgAddr;
+        return 1;
+      } else {
+        return 0;
       }
-      let label_2 = this.prg.arg2[uaddr];
-      if (label_2) {
-        let addr_2 = this.addresses[label_2];
-        if (addr_2) {
-          this.prg.arg2[uaddr] = addr_2;
-        }
+    }
+
+    for (let uaddr of this.unresolved) {
+      let resolvedCount = 0;
+      resolvedCount += resolveAddr(uaddr, this.prg.arg1);
+      resolvedCount += resolveAddr(uaddr, this.prg.arg2);
+      if (resolvedCount === 0) {
+        throw new Error("No addresses resolved for " + uaddr);
       }
     }
   }
