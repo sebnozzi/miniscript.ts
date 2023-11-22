@@ -140,7 +140,7 @@ class Processor {
       // If not waiting on a Promise, schedule
       // the next execution burst.
       if (!this.suspended) {
-        window.setTimeout(() => {
+        setTimeout(() => {
           this.runUntilDone()
         }, 0);
       }
