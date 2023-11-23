@@ -1,21 +1,8 @@
 
 Next steps:
 
-- Write blog-post about it
-  - Describe the architecture
-
-- Use another map implementation for Contexts
-  since we KNOW that the keys are always strings.
-  Associative arrays?
-  => Using JS {} objects renders a speed increase
-     of 30%! Consider this for contexts, but switch
-     back to HashMap as soon as a key is not a string.
-
-- Slowly re-create SebIDE using miniScript.TS?
-- Show console output on the HTML page
-- Show errors on the HTML page
-
 - Split intrinsics into different files
+
 - Implement interesting graphics intrinsics to show-off mini-projects
   - Using HTML Canvas
   - Drawing shapes (lines, boxes, circles)
@@ -26,6 +13,13 @@ Next steps:
   - Reading mouse-clicks
   - Loading sounds
   - Playing sounds
+
+- Write blog-post about it
+  - Describe the architecture
+
+- Slowly re-create SebIDE using miniScript.TS?
+- Show console output on the HTML page
+- Show errors on the HTML page
 
 - Write some demos
 
