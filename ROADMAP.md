@@ -1,8 +1,5 @@
 
 Next steps:
-- Solve the issues revealed by the RosettaCode programs:
-  - Bacon_cipher: "len" is missing and src-line-number is null 
-    (srcmap entry missig!)
 
 - Write blog-post about it
   - Describe the architecture
