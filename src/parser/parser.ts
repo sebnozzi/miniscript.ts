@@ -369,7 +369,7 @@ class Parser {
         optReturnValue = undefined
         fullLocation = openingToken.location;
       } else {
-        optReturnValue = this.expression(context) as Expression;
+        optReturnValue = this.functionBodyOrExpr(context) as Expression;
         fullLocation = openingToken.location.upTo(optReturnValue.location());
       }      
       return new ReturnStatement(optReturnValue, fullLocation);
@@ -775,6 +775,8 @@ class Parser {
       msg = "'end while' without matching 'while'";
     } else if (found === TokenType.KW_END_FUNCTION) {
       msg = "'end function' without matching 'function'";
+    } else if (found === TokenType.KW_FUNCTION) {
+      msg = "unexpected keyword 'function' at start of line";
     } else {
       msg = "Expected expression. Found: " + TokenType[found];
     }
