@@ -18,6 +18,9 @@ class ForLoop {
     } else if (values instanceof HashMap) {
       this.values = Array.from(values.keys());
       this.mapObj = values;
+    } else if (typeof values === "string") {
+      this.values = Array.from(values);
+      this.mapObj = null;
     } else {
       this.values = [];
       this.mapObj = null;

@@ -1,4 +1,16 @@
 ======================================================================
+==== Iterate over chars in a for-loop
+s = "HELLO"
+for ch in s
+    print ch
+end for
+----------------------------------------------------------------------
+H
+E
+L
+L
+O
+======================================================================
 ==== Invalid range step
 ==== Should result in an empty range
 // Should not throw an error but result in an empty range
