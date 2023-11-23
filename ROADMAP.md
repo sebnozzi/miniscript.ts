@@ -2,7 +2,6 @@
 Next steps:
 - Solve the issues revealed by the RosettaCode programs:
   - range(10,9,1) should deliver an empty range, not throw error
-  - trim not implemented
   - Float list indexes should be "floored", a[3.2] ==> a[3]
   - `val` not defined for string? "8".val
   - print( str( floor (ceil (43) / 7) ) )
