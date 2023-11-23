@@ -54,11 +54,13 @@
     <script type="text/javascript" src="build/vm.js"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/ace-builds@1.14.0/src-min/ace.js" type="text/javascript" charset="utf-8"></script>
+    <script type="text/javascript" src="static/js/mode-miniscript.js"></script>
+
     <script>
         var editor = ace.edit("editor");
-        editor.setTheme("ace/theme/monokai");
+        editor.setTheme("ace/theme/tomorrow_night_bright");
         var Range = ace.require("ace/range").Range;
-        // editor.session.setMode("ace/mode/javascript");
+        editor.session.setMode("ace/mode/miniscript");
     </script>
 
     <script>
