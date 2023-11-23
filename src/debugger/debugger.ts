@@ -120,7 +120,7 @@ class Debugger {
 
   highlightSource() {
     const sme = this.getCurrentSrcMapEntry()
-    if (sme) {
+    if (sme !== null) {
       this.onSrcChange(sme);
     }
   }

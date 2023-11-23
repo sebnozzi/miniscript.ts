@@ -27,12 +27,12 @@ class CodeBuilder {
     this.srcMap = new SourceMap();
   }
 
-  push(opCode: BC, arg1: any = null, arg2: any = null) {
+  push(opCode: BC, arg1: any = undefined, arg2: any = undefined) {
     this.prg.push(opCode, arg1, arg2);
     this.ip++;
   }
   
-  push_unresolved(opCode: BC, arg1: any = null, arg2: any = null) {
+  push_unresolved(opCode: BC, arg1: any = undefined, arg2: any = undefined) {
     if (!(arg1 instanceof AddrLabel) && !(arg2 instanceof AddrLabel)) {
       throw new Error("Expected one of the parameters to be an address label");
     }

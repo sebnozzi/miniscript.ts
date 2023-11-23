@@ -487,7 +487,7 @@ class Tokenizer {
     
     while (this.hasInput()) {
       const optDigit = this.consumeAny('0','1','2','3','4','5','6','7','8','9');
-      if (optDigit) {
+      if (optDigit !== undefined) {
         exponentPart += optDigit;
       } else {
         break;

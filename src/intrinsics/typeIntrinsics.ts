@@ -11,7 +11,7 @@ function addBaseTypesIntrinsics(p: Processor) {
 
   const getFn = (name: string): BoundFunction => {
     const optFn = p.globalContext.getOpt(name);
-    if (optFn) {
+    if (optFn !== undefined) {
       return optFn;
     } else {
       throw new Error("Intrinsic not found: " + name);

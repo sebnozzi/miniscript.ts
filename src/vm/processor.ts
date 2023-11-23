@@ -328,14 +328,14 @@ class Processor {
           const isFuncRef: boolean = this.code.arg2[this.ip];
           const optValue = this.context.getOpt(identifier);
           if (optValue !== undefined) {
-            this.callOrPushValue(optValue, isFuncRef, null, null);
+            this.callOrPushValue(optValue, isFuncRef);
           } else {
             // Could not resolve, maybe it's a pseudo-keyword
             const value = this.resolveSpecial(identifier);
             if (value === undefined) {
               throw this.runtimeError(`Undefined Identifier: '${identifier}' is unknown in this context`);
             }
-            this.callOrPushValue(value, isFuncRef, null, null);
+            this.callOrPushValue(value, isFuncRef);
           }
           break;
         }
@@ -889,7 +889,7 @@ class Processor {
     }
   }
 
-  private callOrPushValue(value: any, isFuncRef: boolean, accessSrc: any | null, srcMap: HashMap | null) {
+  private callOrPushValue(value: any, isFuncRef: boolean, accessSrc: any | undefined = undefined, srcMap: HashMap | null = null) {
     // If it's a function and we are not dealing with a function
     // reference, the function should be called.
     // The resulting value will be put in the stack instead.
@@ -902,7 +902,7 @@ class Processor {
     }
   }
 
-  private performCall(maybeFunction: any, paramValues: any[], dotCallTarget: any | null = null, srcMap: HashMap | null = null) {
+  private performCall(maybeFunction: any, paramValues: any[], dotCallTarget: any | undefined = undefined, srcMap: HashMap | null = null) {
     
     const paramCount = paramValues.length;
 
@@ -920,7 +920,7 @@ class Processor {
     let funcArgCount = funcDef.argNames.length;
 
     // Subtract one argument for a native dot-call
-    if (funcDef.isNative() && dotCallTarget !== null) {
+    if (funcDef.isNative() && dotCallTarget !== undefined) {
       funcArgCount -= 1;
     }
 
@@ -939,7 +939,7 @@ class Processor {
     if (funcDef.isNative()) {
       const func = funcDef.getFunction();
       // Add dot-call target "manually", if any
-      if (dotCallTarget) {
+      if (dotCallTarget !== undefined) {
         // The "self" parameter
         paramValues.unshift(dotCallTarget);
       }
@@ -972,7 +972,7 @@ class Processor {
       // Pop and set parameters as variables
       let argNames = funcDef.argNames;
     
-      if (dotCallTarget) {
+      if (dotCallTarget !== undefined) {
         argNames = argNames.filter((n:string) => n !== "self");
       }
 
@@ -982,15 +982,15 @@ class Processor {
         this.context.setLocal(argName, paramValue);
       }
       // Add dot-call target if any
-      if (dotCallTarget) {
+      if (dotCallTarget !== undefined) {
         // The "self" value
         this.context.setLocal("self", dotCallTarget);
         // The "super" value
-        if(srcMap) {
+        if(srcMap !== null) {
           // The "source map" is where the bound-function was found.
           // Any calls to "super" refer to the isa-map above this one.
           const isaMap = srcMap.get("__isa");
-          if (isaMap) {
+          if (isaMap !== undefined) {
             this.context.setLocal("super", isaMap);
           }
         }

@@ -1,7 +1,6 @@
 
 Next steps:
 - Solve the issues revealed by the RosettaCode programs:
-  - print "".len == 0 // is false, "".len returns null right now!
   - range(10,9,1) should deliver an empty range, not throw error
   - trim not implemented
   - Float list indexes should be "floored", a[3.2] ==> a[3]
@@ -19,8 +18,6 @@ Next steps:
 
 - Write blog-post about it
   - Describe the architecture
-
-- Add a license (MIT?)
 
 - Use another map implementation for Contexts
   since we KNOW that the keys are always strings.
