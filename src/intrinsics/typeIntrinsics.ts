@@ -5,7 +5,7 @@ function addBaseTypesIntrinsics(p: Processor) {
     "sort", "push", "pull", "pop", "values", "insert", "remove", "replace",
     "join", "shuffle"];
   const stringIntrinsicNames = ["len", "indexOf", "indexes", "hasIndex", "upper", 
-    "lower", "values", "insert", "remove", "replace", "split"];
+    "lower", "values", "insert", "remove", "replace", "split", "val"];
   const mapIntrinsicNames = ["len", "indexOf", "indexes", "hasIndex", "sum",
     "push", "pull", "pop", "values", "remove", "replace", "shuffle"];
 
