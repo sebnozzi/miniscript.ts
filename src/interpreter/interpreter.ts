@@ -38,9 +38,7 @@ class Interpreter {
 
     let p = new Processor(prgCode, this.stdoutCallback, this.stderrCallback);
 
-    addIntrinsics(p);
-    addPrintIntrinsic(p);
-    addBaseTypesIntrinsics(p);
+    addStandardIntrinsics(p);
     addGraphicIntrinsics(p);
 
     const interpThis = this;

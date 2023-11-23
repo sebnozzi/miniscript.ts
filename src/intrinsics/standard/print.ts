@@ -1,8 +1,9 @@
 
-// Accumulate text-parts here until a newline is processed
-let stdoutBuffer: string[] = [];
-
 function addPrintIntrinsic(p: Processor) {
+
+  // Accumulate text-parts here until a newline is processed
+  let stdoutBuffer: string[] = [];
+
   p.addGlobalIntrinsic('print(s="",delimiter=null)', 
   function(value: any, delimiter: any) {
     if (delimiter === null) {
@@ -46,6 +47,7 @@ function addPrintIntrinsic(p: Processor) {
       }
     }
   });
+
 }
 
 function formatValue(value: any, quoteStrings: boolean = false): string {
