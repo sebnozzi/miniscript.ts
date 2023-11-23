@@ -31,6 +31,12 @@ class ParsingContext {
     return copy;
   }
 
+  leaveParsingStatementExpr(): ParsingContext {
+    const copy = this.copy();
+    copy.parsingStatementExpr = false;
+    return copy;
+  }
+
   private copy(): ParsingContext {
     return new ParsingContext(
       this.insideFunction,
@@ -633,7 +639,10 @@ class Parser {
       // before it, it should be treated as a grouping-expression. Without 
       // a space it should be treated as a parameter-list.
       if (context.parsingStatementExpr && this.matchesNonAfterSpaces(TokenType.OPEN_ROUND)) {
-        expr = this.finishCall(expr, context)
+        // Force "leaving" the "statement-parsing" context, so that subsequent
+        // opening parentheses are treated as in normal expressions.
+        const nonStatementExprContext = context.leaveParsingStatementExpr();
+        expr = this.finishCall(expr, nonStatementExprContext)
       // When outside of the statement-parsing level (parsing "pure" expressions)
       // we can match opening "(" as parameter-lists, regardless of whether they
       // have a space before them or not.

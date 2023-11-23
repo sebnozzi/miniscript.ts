@@ -2,7 +2,6 @@
 Next steps:
 - Solve the issues revealed by the RosettaCode programs:
   - range(10,9,1) should deliver an empty range, not throw error
-  - print( str( floor (ceil (43) / 7) ) )
   - "function" is not part of expression when parsing? 
     f = function
       return function(x)
