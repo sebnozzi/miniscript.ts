@@ -1,11 +1,33 @@
 
 Next steps:
+- Solve the issues revealed by the RosettaCode programs:
+  - range(10,9,1) should deliver an empty range, not throw error
+  - print + delimiter
+  - trim not implemented
+  - print( str( floor (ceil (43) / 7) ) )
+  - Bacon_cipher: "len" is missing and src-line-number is null 
+    (srcmap entry missig!)
+  - print "".len == 0 // is false, "".len returns null right now!
+  - "function" is not part of expression when parsing? 
+    f = function
+      return function(x)
+          print x
+      end function
+    end function
+  - Float list indexes should be "floored", a[3.2] ==> a[3]
+  - `val` not defined for string? "8".val
+
 - Write blog-post about it
   - Describe the architecture
+
+- Add a license (MIT?)
 
 - Use another map implementation for Contexts
   since we KNOW that the keys are always strings.
   Associative arrays?
+  => Using JS {} objects renders a speed increase
+     of 30%! Consider this for contexts, but switch
+     back to HashMap as soon as a key is not a string.
 
 - Slowly re-create SebIDE using miniScript.TS?
 - Show console output on the HTML page
@@ -29,10 +51,15 @@ Next steps:
 - Debugger: willExecuteCall is incomplete ... many more opcodes could
   result in a call. At the end we should offer the "step-in" button for
   all *potential* calls, but only jump in if there was a real call.
+  It is probably also obsolete (or should be). Let the sourcemap decide
+  whether an entry contains a call or not (like it's the case right now).
+  Remove method from Processor. Beware: "containsCall" in CodeBuilder is
+  incomplete!
 
 
 - Work on making this public
   - Upload demo(s)
+  - Add license
   - Publish repo
 
 - Test code with real-world code to expose bugs
