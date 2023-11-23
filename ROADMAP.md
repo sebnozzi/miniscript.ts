@@ -2,7 +2,6 @@
 Next steps:
 - Solve the issues revealed by the RosettaCode programs:
   - range(10,9,1) should deliver an empty range, not throw error
-  - print + delimiter
   - Bacon_cipher: "len" is missing and src-line-number is null 
     (srcmap entry missig!)
 
@@ -59,8 +58,6 @@ Next steps:
   so that we "yield" 60 times per second.
   - Maybe decide an amount of cycles to "check" for a timeout?
 - Implement importing of modules
-- Optional delimiter for print (print "Hello", "")
-  - Difficult to test because we output "per line"
 - Implement intrinsics:
   - version
   - stackTrace

@@ -1,4 +1,13 @@
 ======================================================================
+==== Print with delimiter
+print "Hello", "-"
+print "Another", ""
+print " & another"
+print "END"
+----------------------------------------------------------------------
+Hello-Another & another
+END
+======================================================================
 ==== Function as expression (return value)
 f = function
 	return function(x)
