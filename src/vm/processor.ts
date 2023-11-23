@@ -228,7 +228,7 @@ class Processor {
 
           if (isList) {
             // Check and compute index
-            checkInt(index, "Index must be an integer");
+            checkInt(index, "Index must be an integer", this);
             const effectiveIndex = computeAccessIndex(this, assignTarget, index);
             assignTarget[effectiveIndex] = valueToAssign;
           } else if(isMap) {
@@ -285,7 +285,7 @@ class Processor {
 
           if (isList) {
             // Check and compute index
-            checkInt(index, "Index must be an integer");
+            checkInt(index, "Index must be an integer", this);
             const effectiveIndex = computeAccessIndex(this, assignTarget, index);
             const currentValue = assignTarget[effectiveIndex];
             const finalValue = computeMathAssignValue(currentValue, opTokenType, operand);
@@ -351,7 +351,7 @@ class Processor {
 
           if (isList || isString) {
             if (typeof index === "number") {
-              checkInt(index, `Index must be an integer`);
+              checkInt(index, `Index must be an integer`, this);
               const effectiveIndex = computeAccessIndex(this, accessTarget, index);
               value = accessTarget[effectiveIndex];
             } else if (isList) {
