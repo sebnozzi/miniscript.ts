@@ -1,7 +1,6 @@
 
 Next steps:
 - Solve the issues revealed by the RosettaCode programs:
-  - range(10,9,1) should deliver an empty range, not throw error
   - Bacon_cipher: "len" is missing and src-line-number is null 
     (srcmap entry missig!)
 

@@ -705,7 +705,7 @@ function addIntrinsics(p: Processor) {
       step = step === null ? 1 : step;
       checkInt(step, "Argument 'step' should be integer", p);
       if (step < 1) {
-        throw p.runtimeError("Argument 'step' should be a positive number in this case");
+        return new Array();
       }
       for (let i = start; i <= stop; i += step) {
         result.push(i);
@@ -714,7 +714,7 @@ function addIntrinsics(p: Processor) {
       step = step === null ? -1 : step;
       checkInt(step, "Argument 'step' should be integer", p);
       if (step >= 0) {
-        throw p.runtimeError("Argument 'step' should be a negative number in this case");
+        return new Array();
       }
       for (let i = start; i >= stop; i += step) {
         result.push(i);
