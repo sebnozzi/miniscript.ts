@@ -222,15 +222,13 @@ class Processor {
           // pop value
           const valueToAssign = this.opStack.pop();
           // pop index
-          const index = this.opStack.pop();
+          let index = this.opStack.pop();
 
           const isString = typeof assignTarget === "string";
           const isList = assignTarget instanceof Array;
           const isMap = assignTarget instanceof HashMap;
 
           if (isList) {
-            // Check and compute index
-            checkInt(index, "Index must be an integer", this);
             const effectiveIndex = computeAccessIndex(this, assignTarget, index);
             assignTarget[effectiveIndex] = valueToAssign;
           } else if(isMap) {
@@ -277,7 +275,7 @@ class Processor {
           // pop value
           const operand = this.opStack.pop();
           // pop index
-          const index = this.opStack.pop();
+          let index = this.opStack.pop();
           // pop target
           const assignTarget = this.opStack.pop();
 
@@ -286,8 +284,6 @@ class Processor {
           const isMap = assignTarget instanceof HashMap;
 
           if (isList) {
-            // Check and compute index
-            checkInt(index, "Index must be an integer", this);
             const effectiveIndex = computeAccessIndex(this, assignTarget, index);
             const currentValue = assignTarget[effectiveIndex];
             const finalValue = computeMathAssignValue(currentValue, opTokenType, operand);
@@ -341,7 +337,7 @@ class Processor {
         }
         case BC.INDEXED_ACCESS: {
           const isFuncRef: boolean = this.code.arg1[this.ip];
-          const index = this.opStack.pop();
+          let index = this.opStack.pop();
           const accessTarget = this.opStack.pop();
 
           const isString = typeof accessTarget === "string";
@@ -353,7 +349,6 @@ class Processor {
 
           if (isList || isString) {
             if (typeof index === "number") {
-              checkInt(index, `Index must be an integer`, this);
               const effectiveIndex = computeAccessIndex(this, accessTarget, index);
               value = accessTarget[effectiveIndex];
             } else if (isList) {

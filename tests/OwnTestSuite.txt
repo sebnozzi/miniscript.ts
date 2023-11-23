@@ -1,4 +1,34 @@
 ======================================================================
+==== Writing with floats as indexes
+==== The index-value should be truncated
+a = [1,2,3,4]
+// Change values
+a[0.9] = "A"
+a[1.2] = "B"
+a[-2.7] = "C"
+a[-1.8] = "D"
+// Also for indexed math-assignment
+a[-1] += "E"
+// Print
+print a
+----------------------------------------------------------------------
+["A", "B", "C", "DE"]
+======================================================================
+==== Accessing with floats as indexes
+==== The index-value should be truncated
+a = [1,2,3,4]
+print a[0.9]   // same as a[0] --> 1
+print a[2.7]   // same as a[2] --> 3
+print a[-0.0]  // same as a[0] --> 1
+print a[-3.7]  // same as a[-3] --> 2
+print a[-100.123]  // error!
+----------------------------------------------------------------------
+1
+3
+1
+2
+Runtime Error: Index Error (list index -100.123 out of range) [line 6]
+======================================================================
 ==== Length of empty string
 print "".len
 ----------------------------------------------------------------------

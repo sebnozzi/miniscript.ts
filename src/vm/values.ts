@@ -348,8 +348,9 @@ function slice(vm: Processor, sliceTarget: any, startIdx: number, endIdx: number
 
 // Here it's important that the index is valid and within the access-target
 function computeAccessIndex(vm: Processor, accessTarget: IndexedCollection, index: number): number {
+  const intIdx = toIntegerValue(index);
   // Compute effective index
-  const effectiveIndex = (index < 0) ? index + accessTarget.length : index;
+  const effectiveIndex = (intIdx < 0) ? intIdx + accessTarget.length : intIdx;
   // Check bounds
   if (effectiveIndex < 0 || effectiveIndex >= accessTarget.length) {
     throw new RuntimeError(`Index Error (list index ${index} out of range) [line ${vm.getCurrentSrcLineNr()}]`);
@@ -427,7 +428,7 @@ function toNumberValue(value: any): number {
 
 function toIntegerValue(value: any): number {
   if (typeof value == "number" ) {
-    return Math.floor(value);
+    return Math.trunc(value);
   } else {
     return 0;
   }
