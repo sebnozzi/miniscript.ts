@@ -2,10 +2,15 @@
 function addGraphicIntrinsics(p: Processor) {
 
   // clear
-  p.addGlobalIntrinsic("clear", function() {
+  p.addGlobalIntrinsic("clear(color=null)", 
+  function(color: any) {
     const canvas = document.getElementById("gfx") as HTMLCanvasElement;
     const gfx = canvas.getContext("2d") as CanvasRenderingContext2D;
     gfx.clearRect(0,0,canvas.width,canvas.height);
+    if (color !== null) {
+      gfx.fillStyle = color;
+      gfx.fillRect(0,0,canvas.width,canvas.height);
+    }
   });
 
   // fillEllipse x,y,w,h,c
