@@ -44,6 +44,8 @@ class Processor {
   executionStartTime: number;
   // Flag to know when execution is suspended (e.g. waiting on a promise)
   suspended: boolean = false;
+  // Maximum depth of call stack
+  maxCallStackDepth: number = 2000;
 
   constructor(programCode: Code, public readonly stdoutCallback: TxtCallback, public readonly stderrCallback: TxtCallback) {
     this.code = programCode;
@@ -787,8 +789,8 @@ class Processor {
     const frame = new Frame(this.code, this.ip, this.context);
     this.savedFrames.push(frame);
     // Remove at some point?
-    if (this.savedFrames.count() > 100) {
-      throw this.runtimeError("Too much recursion");
+    if (this.savedFrames.count() > this.maxCallStackDepth) {
+      throw this.runtimeError("Call stack too deep");
     }
   }
 
