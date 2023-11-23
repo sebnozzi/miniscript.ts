@@ -1,6 +1,6 @@
 /// <reference path="./frame.ts"/>
 /// <reference path="./code.ts"/>
-/// <reference path="./values.ts"/>
+/// <reference path="./runtime.ts"/>
 
 type TxtCallback = (txt: string) => any;
 

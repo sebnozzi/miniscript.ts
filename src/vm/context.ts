@@ -1,4 +1,4 @@
-/// <reference path="./values.ts"/>
+/// <reference path="./runtime.ts"/>
 
 class Context {
 

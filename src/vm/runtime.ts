@@ -1,5 +1,11 @@
 /// <reference path="./code.ts"/>
 
+class RuntimeError extends Error {
+  constructor(message: string) {
+    super(`Runtime Error: ${message}`);
+  }
+}
+
 type IndexedCollection = {
   length: number;
 }
@@ -506,6 +512,16 @@ function getRandomInt(vm: Processor, max: number): number {
 function checkRange(i: number, min: number, max: number, desc: string = "index") {
   if (i < min || i > max) {
     throw new RuntimeError(`Index Error: ${desc} (${i}) out of range (${min} to ${max})`);
+  }
+}
+
+function checkInt(arg: any, errorMsg: string, vm: Processor|null = null) {
+  if (Number.isInteger(arg)) {
+    return;
+  } else if (vm instanceof Processor) {
+    throw vm.runtimeError(errorMsg);
+  } else {
+    throw new RuntimeError(errorMsg);
   }
 }
 
