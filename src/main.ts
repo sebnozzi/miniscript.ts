@@ -6,7 +6,7 @@ function setupIde() {
   const savedPrg = loadProgram();
   // Restore previous code
   if (savedPrg) {
-    e.setValue(savedPrg);
+    e.setValue(savedPrg, -1);
   } else {
     const sampleCode = [
       "fib = function(n)",
@@ -19,7 +19,7 @@ function setupIde() {
       "end function",
       "print fib(5)"
     ].join("\n");
-    e.setValue(sampleCode);
+    e.setValue(sampleCode, -1);
   }
   const runBtn: HTMLButtonElement = document.getElementById("runBtn") as HTMLButtonElement;
   runBtn.addEventListener("click", () => {
