@@ -1,7 +1,7 @@
 
 function addCharIntrinsics(p: Processor) {
   
-  p.addGlobalIntrinsic("code(x)", 
+  p.addIntrinsic("code(x)", 
   function(x: any): number | null {
     if (x !== null) {
       const s = toString(x);
@@ -15,7 +15,7 @@ function addCharIntrinsics(p: Processor) {
     }
   });
 
-  p.addGlobalIntrinsic("char(n)", 
+  p.addIntrinsic("char(n)", 
   function(x: any): string {
     if (typeof x === "number" && x > 0) {
       const s = String.fromCharCode(x)

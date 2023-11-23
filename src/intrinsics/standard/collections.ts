@@ -1,7 +1,7 @@
 
 function addCollectionIntrinsics(p: Processor) {
 
-  p.addGlobalIntrinsic("range(start,stop,step=null)", 
+  p.addIntrinsic("range(start,stop,step=null)", 
   function(start: any, stop: any, step: number) {
     start = toNumberValue(start);
     stop = toNumberValue(stop);
@@ -31,7 +31,7 @@ function addCollectionIntrinsics(p: Processor) {
     return result;
   });
 
-  p.addGlobalIntrinsic("len(self)",
+  p.addIntrinsic("len(self)",
   function(self: any): number | null {
     if (self instanceof Array || typeof self === "string") {
       return self.length;
@@ -42,7 +42,7 @@ function addCollectionIntrinsics(p: Processor) {
     }
   });
 
-  p.addGlobalIntrinsic("sum(self)", 
+  p.addIntrinsic("sum(self)", 
   function(self: any): number {
     let list: any[];
     if (self instanceof Array) {
@@ -59,7 +59,7 @@ function addCollectionIntrinsics(p: Processor) {
     return total;
   });
 
-  p.addGlobalIntrinsic("insert(self,index,value)", 
+  p.addIntrinsic("insert(self,index,value)", 
   function(self: any, index: number, value: any): any | null {
     if (index === null) {
       throw new RuntimeError("index argument required");
@@ -83,7 +83,7 @@ function addCollectionIntrinsics(p: Processor) {
     }
   });
 
-  p.addGlobalIntrinsic("remove(self,k)", 
+  p.addIntrinsic("remove(self,k)", 
   function(self: any, k: any): any {
     if (self instanceof HashMap) {
       if (self.has(k)) {
@@ -118,7 +118,7 @@ function addCollectionIntrinsics(p: Processor) {
     throw new RuntimeError("Type Error: 'remove' requires map, list, or string");
   });
 
-  p.addGlobalIntrinsic("replace(self,oldVal,newVal,maxCount=null)",
+  p.addIntrinsic("replace(self,oldVal,newVal,maxCount=null)",
   function(self: any, oldVal: any, newVal: any, maxCountVal: any): any {
     if (self === null) {
       throw new RuntimeError("argument to 'replace' must not be null");
@@ -183,13 +183,13 @@ function addCollectionIntrinsics(p: Processor) {
     throw new RuntimeError("Type Error: 'replace' requires map, list, or string");
   });
 
-  p.addGlobalIntrinsic("slice(seq,from=0,to=null)",
+  p.addIntrinsic("slice(seq,from=0,to=null)",
   function(sequence: any, fromIdx: any, toIdx: any,): any {
     const newCollection = slice(p, sequence, fromIdx, toIdx);
     return newCollection;
   });
 
-  p.addGlobalIntrinsic("split(self,delimiter=\" \",maxCount=-1)",
+  p.addIntrinsic("split(self,delimiter=\" \",maxCount=-1)",
   function(self: any, delimiter: any, maxCount: any,): Array<string> {
     self = toString(self);
     delimiter = toString(delimiter);
@@ -228,7 +228,7 @@ function addCollectionIntrinsics(p: Processor) {
 		return result;
   });
 
-  p.addGlobalIntrinsic("indexOf(self,value,after=null)", 
+  p.addIntrinsic("indexOf(self,value,after=null)", 
   function(self: any, value: any, after: number | null): number | null {
     if (self instanceof Array || typeof self === "string") {
       let afterIdx = after !== null ? after : -1;
@@ -259,7 +259,7 @@ function addCollectionIntrinsics(p: Processor) {
     }
   });
 
-  p.addGlobalIntrinsic("join(self,delimiter=\" \")",
+  p.addIntrinsic("join(self,delimiter=\" \")",
   function(self: any, delimiter: any): string {
     const delim = toString(delimiter);
     if (!(self instanceof Array)) {
@@ -278,7 +278,7 @@ function addCollectionIntrinsics(p: Processor) {
     }
   });
 
-  p.addGlobalIntrinsic("hasIndex(self,index)", 
+  p.addIntrinsic("hasIndex(self,index)", 
   function(self: any, index: any): number | null {
     if (self instanceof HashMap) {
       return self.has(index) ? 1 : 0;
@@ -293,7 +293,7 @@ function addCollectionIntrinsics(p: Processor) {
     }
   });
 
-  p.addGlobalIntrinsic("pop(self)", 
+  p.addIntrinsic("pop(self)", 
   function(self: any): any | null {
     if (self instanceof Array) {
       if (self.length < 1) {
@@ -317,7 +317,7 @@ function addCollectionIntrinsics(p: Processor) {
     }
   });
 
-  p.addGlobalIntrinsic("pull(self)", 
+  p.addIntrinsic("pull(self)", 
   function(self: any): any | null {
     if (self instanceof Array) {
       if (self.length < 1) {
@@ -343,7 +343,7 @@ function addCollectionIntrinsics(p: Processor) {
     }
   });
 
-  p.addGlobalIntrinsic("push(self,value)", 
+  p.addIntrinsic("push(self,value)", 
   function(self: any, value: any): any | null {
     if (self instanceof Array) {
       self.push(value);
@@ -356,7 +356,7 @@ function addCollectionIntrinsics(p: Processor) {
     }
   });
 
-  p.addGlobalIntrinsic("indexes(self)", 
+  p.addIntrinsic("indexes(self)", 
   function(self: any): any[] | null {
     if (self instanceof HashMap) {
       const keys = Array.from( self.keys() );
@@ -372,7 +372,7 @@ function addCollectionIntrinsics(p: Processor) {
     }
   });
 
-  p.addGlobalIntrinsic("values(self)", 
+  p.addIntrinsic("values(self)", 
   function(self: any): any {
     if (self instanceof HashMap) {
       const values = Array.from( self.values() );
@@ -386,7 +386,7 @@ function addCollectionIntrinsics(p: Processor) {
   });
 
   // Sorts IN PLACE!
-  p.addGlobalIntrinsic("sort(self,byKey=null,ascending=1)", 
+  p.addIntrinsic("sort(self,byKey=null,ascending=1)", 
   function(self: any, byKey: any | null, ascending: any): any {
     type KeyedValue = {
       sortKey: any,

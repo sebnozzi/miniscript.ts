@@ -4,7 +4,7 @@ function addPrintIntrinsic(p: Processor) {
   // Accumulate text-parts here until a newline is processed
   let stdoutBuffer: string[] = [];
 
-  p.addGlobalIntrinsic('print(s="",delimiter=null)', 
+  p.addIntrinsic('print(s="",delimiter=null)', 
   function(value: any, delimiter: any) {
     if (delimiter === null) {
       delimiter = "\n";

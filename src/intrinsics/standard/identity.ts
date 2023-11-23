@@ -1,12 +1,12 @@
 
 function addIdentityIntrinsics(p: Processor) {
 
-  p.addGlobalIntrinsic("hash(obj)", 
+  p.addIntrinsic("hash(obj)", 
   function(obj: any): number {
     return hashCode(obj);
   });
 
-  p.addGlobalIntrinsic("refEquals(a,b",
+  p.addIntrinsic("refEquals(a,b",
   function(a: any, b: any): number {
     let result: boolean = false;
     if (a === null) {

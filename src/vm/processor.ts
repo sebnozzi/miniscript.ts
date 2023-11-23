@@ -18,6 +18,8 @@ class Processor {
   context: Context;
   // The global context.
   globalContext: Context;
+  // Intrinsics stored here
+  intrinsicsMap: Map<string, BoundFunction>;
   // Core-types
   listCoreType: HashMap;
   mapCoreType: HashMap;
@@ -51,6 +53,7 @@ class Processor {
     this.code = programCode;
     this.ip = 0;
     this.globalContext = new Context(this);
+    this.intrinsicsMap = new Map();
     this.listCoreType = new HashMap();
     this.mapCoreType = new HashMap();
     this.stringCoreType = new HashMap();
@@ -87,10 +90,10 @@ class Processor {
     this.runUntilDone();
   }
 
-  addGlobalIntrinsic(signature: string, impl: Function) {
+  addIntrinsic(signature: string, impl: Function) {
     const [fnName, argNames, defaultValues] = parseSignature(signature);
     const boundFunc = this.makeNativeBoundFunction(argNames, defaultValues, impl);
-    this.globalContext.setLocal(fnName, boundFunc);
+    this.intrinsicsMap.set(fnName, boundFunc);
   }
 
   addCoreTypeIntrinsic(target: HashMap, name: string, boundFunc: BoundFunction) {
@@ -326,7 +329,7 @@ class Processor {
           if (optValue !== undefined) {
             this.callOrPushValue(optValue, isFuncRef);
           } else {
-            // Could not resolve, maybe it's a pseudo-keyword
+            // Could not resolve, maybe it's an intrinsic or pseudo-keyword
             const value = this.resolveSpecial(identifier);
             if (value === undefined) {
               throw this.runtimeError(`Undefined Identifier: '${identifier}' is unknown in this context`);
@@ -866,6 +869,11 @@ class Processor {
     } else {
       return this.mapAccessOpt(this.mapCoreType, key, depth + 1); 
     }
+  }
+
+  resolveIntrinsic(identifier: string): BoundFunction|undefined {
+    const optIntrinsicFn = this.intrinsicsMap.get(identifier);
+    return optIntrinsicFn;
   }
 
   private resolveSpecial(identifier: string): any|undefined {

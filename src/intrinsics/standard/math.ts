@@ -1,7 +1,7 @@
 
 function addMathIntrinsics(p: Processor) {
 
-  p.addGlobalIntrinsic("abs(x)", 
+  p.addIntrinsic("abs(x)", 
   function(x: any): number {
     if (typeof x === "number") {
       return Math.abs(x);
@@ -10,7 +10,7 @@ function addMathIntrinsics(p: Processor) {
     }
   });
   
-  p.addGlobalIntrinsic("floor(n)", 
+  p.addIntrinsic("floor(n)", 
   function(n: any): number {
     if (typeof n === "number") {
       return Math.floor(n);
@@ -19,7 +19,7 @@ function addMathIntrinsics(p: Processor) {
     }
   });
 
-  p.addGlobalIntrinsic("ceil(n)", 
+  p.addIntrinsic("ceil(n)", 
   function(n: any): number {
     if (typeof n === "number") {
       return Math.ceil(n);
@@ -28,7 +28,7 @@ function addMathIntrinsics(p: Processor) {
     }
   });
 
-  p.addGlobalIntrinsic("round(n,decimalPlaces=0)", 
+  p.addIntrinsic("round(n,decimalPlaces=0)", 
   function(n: any, decimalPlaces: any): number {
     const result = round(n, decimalPlaces);
     if (result !== undefined ) {
@@ -38,42 +38,42 @@ function addMathIntrinsics(p: Processor) {
     }
   });
 
-  p.addGlobalIntrinsic("pi", 
+  p.addIntrinsic("pi", 
   function(): number {
     return Math.PI;
   });
 
-  p.addGlobalIntrinsic("sin(x)", 
+  p.addIntrinsic("sin(x)", 
   function(x: any): number {
     return Math.sin(x);
   });
 
-  p.addGlobalIntrinsic("cos(x)", 
+  p.addIntrinsic("cos(x)", 
   function(x: any): number {
     return Math.cos(x);
   });
 
-  p.addGlobalIntrinsic("tan(x)", 
+  p.addIntrinsic("tan(x)", 
   function(x: any): number {
     return Math.tan(x);
   });
 
-  p.addGlobalIntrinsic("asin(x)", 
+  p.addIntrinsic("asin(x)", 
   function(x: any): number {
     return Math.asin(x);
   });
 
-  p.addGlobalIntrinsic("acos(x)", 
+  p.addIntrinsic("acos(x)", 
   function(x: any): number {
     return Math.acos(x);
   });
 
-  p.addGlobalIntrinsic("atan(x)", 
+  p.addIntrinsic("atan(x)", 
   function(x: any): number {
     return Math.atan(x);
   });
 
-  p.addGlobalIntrinsic("sign(n)", 
+  p.addIntrinsic("sign(n)", 
   function(n: any): number {
     if (typeof n === "number") {
       if (n > 0) {
@@ -85,7 +85,7 @@ function addMathIntrinsics(p: Processor) {
     return 0;
   });
 
-  p.addGlobalIntrinsic("log(x,base=10)", 
+  p.addIntrinsic("log(x,base=10)", 
   function(x: any, base: any): number {
     if (typeof x === "number" && typeof base === "number") {
       return Math.log(x) / Math.log(base);
@@ -93,7 +93,7 @@ function addMathIntrinsics(p: Processor) {
     return 0;
   });
 
-  p.addGlobalIntrinsic("sqrt(x)", 
+  p.addIntrinsic("sqrt(x)", 
   function(x: any): number {
     if (typeof x === "number") {
       return Math.sqrt(x);

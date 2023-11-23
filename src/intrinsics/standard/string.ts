@@ -1,7 +1,7 @@
 
 function addStringIntrinsics(p: Processor) {
 
-  p.addGlobalIntrinsic("upper(self)", 
+  p.addIntrinsic("upper(self)", 
   function(value: any): string | any {
     if (typeof value === "string") {
       return value.toUpperCase();
@@ -10,7 +10,7 @@ function addStringIntrinsics(p: Processor) {
     }
   });
 
-  p.addGlobalIntrinsic("lower(self)", 
+  p.addIntrinsic("lower(self)", 
   function(value: any): string | any {
     if (typeof value === "string") {
       return value.toLowerCase();

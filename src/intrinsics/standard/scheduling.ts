@@ -1,14 +1,14 @@
 
 function addSchedulingIntrinsics(p: Processor) {
 
-  p.addGlobalIntrinsic("time", 
+  p.addIntrinsic("time", 
   function(): number {
     const t0 = p.executionStartTime;
     const t1 = performance.now();
     return (t1 - t0) / 1000.0;
   });
 
-  p.addGlobalIntrinsic("wait(seconds=1.0)", 
+  p.addIntrinsic("wait(seconds=1.0)", 
   function(seconds: number): Promise<any> {
     seconds = toNumberValue(seconds);
     const milliseconds = seconds * 1000;
@@ -20,7 +20,7 @@ function addSchedulingIntrinsics(p: Processor) {
     });
   });
 
-  p.addGlobalIntrinsic("yield", 
+  p.addIntrinsic("yield", 
   function(): Promise<any> {
     return new Promise<any>((resolve, reject) => {
       setTimeout(() => {

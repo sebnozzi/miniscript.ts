@@ -1,7 +1,7 @@
 
 function addRandomnessIntrinsics(p: Processor) {
 
-  p.addGlobalIntrinsic("rnd(seed)", 
+  p.addIntrinsic("rnd(seed)", 
   function(seed: any): number {
     if (seed !== null) {
       seed = toIntegerValue(seed);
@@ -10,7 +10,7 @@ function addRandomnessIntrinsics(p: Processor) {
     return p.random();
   });
 
-  p.addGlobalIntrinsic("shuffle(self)", 
+  p.addIntrinsic("shuffle(self)", 
   function(self: any): any {  
     if (self instanceof Array) {
       for (let idx = self.length - 1; idx >= 1; idx--) {

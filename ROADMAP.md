@@ -1,8 +1,6 @@
 
 Next steps:
 
-- Split intrinsics into different files
-
 - Implement interesting graphics intrinsics to show-off mini-projects
   - Using HTML Canvas
   - Drawing shapes (lines, boxes, circles)
@@ -32,18 +30,11 @@ Next steps:
   Remove method from Processor. Beware: "containsCall" in CodeBuilder is
   incomplete!
 
-
 - Work on making this public
   - Upload demo(s)
   - Add license
   - Publish repo
 
-- Test code with real-world code to expose bugs
-  - Rossetta Code
-  - Benchmark Code
-- Make intrinsics not "pollute" the global scope
-  They are resolved if anything else fails AFTER the global
-  scope is exhausted.
 - Make the amount of cycles to execute per "burst" auto-tune
   so that we "yield" 60 times per second.
   - Maybe decide an amount of cycles to "check" for a timeout?

@@ -1,14 +1,14 @@
 
 function addConversionIntrinsics(p: Processor) {
 
-  p.addGlobalIntrinsic("str(self)", 
+  p.addIntrinsic("str(self)", 
   function(value: any): string {
     const result: string = formatValue(value);
     return result;
   });
 
   // Try to convert to a number
-  p.addGlobalIntrinsic("val(x)", 
+  p.addIntrinsic("val(x)", 
   function(x: any): number | null {
     if (typeof x === "number") {
       return x;

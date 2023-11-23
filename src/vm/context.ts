@@ -36,7 +36,7 @@ class Context {
     } else if (this.parent) {
       return this.parent.getOpt(identifier);
     } else {
-      return undefined;
+      return this.vm.resolveIntrinsic(identifier);
     }
   }
 
