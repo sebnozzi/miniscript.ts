@@ -65,12 +65,12 @@ class Debugger {
       }
 
       if (sourceLocationChanged) {
-        console.log("Src Location changed");
         break;
-      } else {
-        console.log("Src Location did not change");
       }
     } while(true);
+
+    // Advance until we are at a concrete srcMap entry
+    this.stepUntilSrcMapEntryFound();
 
     this.notifyChanges();
   }
@@ -80,24 +80,27 @@ class Debugger {
   // Stop at first instruction of new frame.
   stepInto() {
     const initialCount = this.vm.savedFrames.count();
-    let frameWasAdded = false;
+    let stepInSuccessful = false;
     do {
       const nextOpIsCall = this.vm.couldResultInCall();
       this.vm.executeCycles(1);
       const currentCount = this.vm.savedFrames.count();
       if (currentCount > initialCount) {
         // A function call has been made, since a new frame was pushed
-        frameWasAdded = true;
+        stepInSuccessful = true;
       } else if (nextOpIsCall && currentCount == initialCount) {
         // A call should have been made, but was not.
         // Probably because a primitive was called.
         // Abandon the whole attempt.
         break;
       }
-      if (this.vm.isFinished() || frameWasAdded) {
+      if (this.vm.isFinished() || stepInSuccessful) {
         break;
       }
     } while(true);
+
+    this.stepUntilSrcMapEntryFound();
+
     this.notifyChanges();
   }
 
@@ -107,19 +110,32 @@ class Debugger {
   // Execute code until current frame is popped (which means a return)
   stepOut() {
     const initialCount = this.vm.savedFrames.count();
-    let frameWasRemoved = false;
+    let stepOutSuccessful = false;
     do {
       this.vm.executeCycles(1);
       const currentCount = this.vm.savedFrames.count();
       if (currentCount < initialCount) {
         // A return from a call has been made, since a frame was removed
-        frameWasRemoved = true;
+        stepOutSuccessful = true;
       }
-      if (this.vm.isFinished() || frameWasRemoved) {
+      if (this.vm.isFinished() || stepOutSuccessful) {
         break;
       }
     } while(true);
+
+    // We might have stepped-out, but are in the middle of "nowhere"
+    // Advance until we are at a concrete srcMap entry
+    this.stepUntilSrcMapEntryFound();
+
     this.notifyChanges();
+  }
+
+  stepUntilSrcMapEntryFound() {
+    let currentEntry = this.getCurrentSrcMapEntry();
+    while (currentEntry === null && this.vm.isRunning()) {
+      this.vm.executeCycles(1);
+      currentEntry = this.getCurrentSrcMapEntry();
+    }
   }
 
   notifyChanges() {

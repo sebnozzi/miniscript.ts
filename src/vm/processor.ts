@@ -756,6 +756,10 @@ class Processor {
     } // while
   } // executeCycles
 
+  isRunning(): boolean {
+    return !this.isFinished() && !this.isSuspended();
+  }
+
   isFinished(): boolean {
     return this.ip >= this.code.opCodes.length;
   }
