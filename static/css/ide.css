@@ -28,7 +28,7 @@ body {
   background-color: white;
 }
 /* Necessary so that the whole line is marked */
-._ace_marker-layer {
+.ace_marker-layer {
   > div:not(.ace_selection){
     width: 100% !important;
     border-radius: unset !important;
