@@ -1,7 +1,7 @@
 
 Next steps:
 
-- Re-introduce debugger
+- Re-introduce the debugger
 - Debugger: willExecuteCall is incomplete ... many more opcodes could
   result in a call. At the end we should offer the "step-in" button for
   all *potential* calls, but only jump in if there was a real call.
@@ -9,6 +9,14 @@ Next steps:
   whether an entry contains a call or not (like it's the case right now).
   Remove method from Processor. Beware: "containsCall" in CodeBuilder is
   incomplete!
+  - Test that srcMap entries are contiguous (should they be?)
+
+- Separate projects
+  - miniScript.ts - which exposes an API to compile/run MS code
+  - an IDE project that makes use of it
+- Adapt SebIDE to use miniScript.ts
+
+- Learn about nodejs-managed web-projects (sigh) and do things "properly"?
 
 - Implement interesting graphics intrinsics to show-off mini-projects
   - Reading keys
@@ -27,7 +35,6 @@ Next steps:
 
 - Work on making this public
   - Upload demo(s)
-  - Add license
   - Publish repo
 
 - Interace with https://pijs.org/ ?
