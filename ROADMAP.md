@@ -2,11 +2,6 @@
 Next steps:
 
 - Implement interesting graphics intrinsics to show-off mini-projects
-  - Using HTML Canvas
-  - Drawing shapes (lines, boxes, circles)
-  - Drawing text
-  - Loading images
-  - Drawing images
   - Reading keys
   - Reading mouse-clicks
   - Loading sounds
@@ -34,6 +29,8 @@ Next steps:
   - Upload demo(s)
   - Add license
   - Publish repo
+
+- Interace with https://pijs.org/ ?
 
 - Make the amount of cycles to execute per "burst" auto-tune
   so that we "yield" 60 times per second.
