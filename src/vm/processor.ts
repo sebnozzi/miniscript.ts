@@ -164,6 +164,11 @@ class Processor {
     maxCount = maxCount !== null ? maxCount : this.maxCount;
     this.cycleCount = 0;
     while(this.cycleCount < maxCount) {
+      // Finish if IP > len(opcodes)
+      if (this.ip >= this.code.opCodes.length) {
+        break
+      }
+      // Process OpCode
       switch (this.code.opCodes[this.ip]) {
         case BC.CALL: {
           const funcName: string = this.code.arg1[this.ip] as string;
@@ -688,10 +693,6 @@ class Processor {
           this.ip = this.code.arg1[this.ip]
           break;
         }
-        case BC.EXIT: {
-          this.forceFinish();
-          break;
-        }
         case BC.POP: {
           // Pop and discard value
           this.opStack.pop();
@@ -759,6 +760,10 @@ class Processor {
     return this.ip >= this.code.opCodes.length;
   }
 
+  isSuspended(): boolean {
+    return this.suspended;
+  }
+
   forceFinish() {
     this.opStack.clear();
     this.cycleCount = this.maxCount;
@@ -777,15 +782,8 @@ class Processor {
 
   couldResultInCall(): boolean {
     const op = this.code.opCodes[this.ip];
-    const hasCallPotential = (op === BC.CALL 
-      || op === BC.PROPERTY_CALL
-      || op === BC.DOT_ACCESS
-      || op === BC.FUNCREF_CALL
-      || op === BC.EVAL_ID
-      || op === BC.INDEXED_ACCESS
-      || op === BC.SUPER_DOT_ACCESS
-    );
-    return hasCallPotential;
+    const result = hasCallPotential(op);
+    return result;
   }
 
   pushFrame() {

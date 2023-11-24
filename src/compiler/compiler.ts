@@ -14,7 +14,7 @@ class Compiler {
   compile(): Code {
     const context = new CompilerContext();
     this.statementCompiler.compileStatements(this.statements, context);
-    this.builder.push(BC.EXIT);
+    //this.builder.push(BC.EXIT);
     const prg = this.builder.build();
     return prg
   }

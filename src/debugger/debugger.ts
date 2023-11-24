@@ -1,9 +1,10 @@
+
 class Debugger {
 
   constructor(private vm: Processor) {}
 
-  onSrcChange = (sme: SourceMapEntry) => {};
-  onFihished = () => {};
+  onSrcChange = () => {};
+  onFinished = () => {};
 
   // Move to first instruction
   start() {
@@ -46,20 +47,28 @@ class Debugger {
         continue;
       }
 
-      if (this.vm.isFinished()) {
+      if (this.vm.isFinished() || this.vm.isSuspended()) {
         break;
       }
 
       const currentEntry = this.getCurrentSrcMapEntry();
-      if (initialEntry === null && currentEntry !== null) {
+
+      if (initialEntry === null && currentEntry !== null) {
         sourceLocationChanged = true;
       } else if(initialEntry !== null && currentEntry === null) {
-        sourceLocationChanged = true;
+        // Skipping until non-null current-entry is found
+        continue;
       } else if(initialEntry !== null && currentEntry !== null) {
-        sourceLocationChanged = (initialEntry.srcLoc.start.idx !== currentEntry.srcLoc.start.idx);
+        const initialLoc = initialEntry.srcLoc.start.row;
+        const currentLoc = currentEntry.srcLoc.start.row;
+        sourceLocationChanged = (initialLoc !== currentLoc);
       }
+
       if (sourceLocationChanged) {
+        console.log("Src Location changed");
         break;
+      } else {
+        console.log("Src Location did not change");
       }
     } while(true);
 
@@ -121,13 +130,13 @@ class Debugger {
   highlightSource() {
     const sme = this.getCurrentSrcMapEntry()
     if (sme !== null) {
-      this.onSrcChange(sme);
+      this.onSrcChange();
     }
   }
 
   notifyFinished() {
     if (this.vm.isFinished()) {
-      this.onFihished();
+      this.onFinished();
     }
   }
 

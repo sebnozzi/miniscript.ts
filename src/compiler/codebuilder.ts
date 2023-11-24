@@ -72,8 +72,7 @@ class CodeBuilder {
   containsCall(ipStart: number, ipEnd: number): boolean {
     for(let idx = ipStart; idx <= ipEnd; idx++) {
       const opCode = this.prg.opCodes[idx];
-      // TODO: this is incomplete!
-      if (opCode == BC.CALL) {
+      if (hasCallPotential(opCode)) {
         return true;
       }
     }

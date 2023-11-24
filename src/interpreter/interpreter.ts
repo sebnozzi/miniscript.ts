@@ -1,4 +1,9 @@
 
+type DebuggerCallbacks = {
+  onSrcChange: (d: Debugger) => void, 
+  onFinished: (d: Debugger) => void
+}
+
 class Interpreter {
 
   public onStarted = () => {};
@@ -10,6 +15,23 @@ class Interpreter {
   }
 
   runSrcCode(srcCode: string) {
+    const code = this.compileSrcCode(srcCode);
+    if (code) {
+      this.runCompiledCode(code);
+    }
+  }
+
+  debugSrcCode(srcCode: string, callbacks: DebuggerCallbacks): Debugger | null {
+    const code = this.compileSrcCode(srcCode);
+    if (code) {
+      const d = this.debugCompiledCode(code, callbacks);
+      return d;
+    } else {
+      return null;
+    }
+  }
+
+  private compileSrcCode(srcCode: string): Code | null {
     let parsedStatements: Statement[] = [];
 
     try {
@@ -26,14 +48,14 @@ class Interpreter {
       const compiler = new Compiler(parsedStatements);
       const code = compiler.compile();
       this.onCompiled(code);
-      this.runCompiledCode(code);
+      return code;
     } else {
       this.onFinished();
+      return null;
     }
-
   }
 
-  runCompiledCode(prgCode: Code) {
+  private runCompiledCode(prgCode: Code) {
     this.onStarted();
 
     let p = new Processor(prgCode, this.stdoutCallback, this.stderrCallback);
@@ -48,6 +70,32 @@ class Interpreter {
     }
     
     p.run();
+  }
+
+  private debugCompiledCode(prgCode: Code, callbacks: DebuggerCallbacks): Debugger {
+    this.onStarted();
+
+    let p = new Processor(prgCode, this.stdoutCallback, this.stderrCallback);
+    const d = new Debugger(p);
+    
+    d.onSrcChange = () => {
+      callbacks.onSrcChange(d);
+    };
+    d.onFinished = () => {
+      callbacks.onFinished(d);
+    }
+
+    addStandardIntrinsics(p);
+    addGraphicIntrinsics(p);
+
+    const interpThis = this;
+
+    p.onFinished = function() {
+      interpThis.onFinished();
+    }
+    
+    d.start();
+    return d;
   }
 
 }

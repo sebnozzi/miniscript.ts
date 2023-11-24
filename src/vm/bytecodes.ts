@@ -81,7 +81,6 @@ enum BC {
   // Invoke the function stored in the func-ref with parameters
   FUNCREF_CALL,
   RETURN,
-  EXIT,
   
   POP,
   PRINT_TOP,
@@ -91,3 +90,14 @@ enum BC {
   BREAK_FOR_LOOP,
   CONTINUE_FOR_LOOP,
 };
+
+function hasCallPotential(op: BC): boolean {
+  return (op === BC.CALL 
+    || op === BC.PROPERTY_CALL
+    || op === BC.DOT_ACCESS
+    || op === BC.FUNCREF_CALL
+    || op === BC.EVAL_ID
+    || op === BC.INDEXED_ACCESS
+    || op === BC.SUPER_DOT_ACCESS
+  );
+}
