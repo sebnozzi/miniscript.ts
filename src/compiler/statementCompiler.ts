@@ -133,8 +133,8 @@ class StatementCompiler {
     // Compile expression and discard result
     this.builder.startMapEntry();    
     this.expressionCompiler.compileExpression(s.expression, exprCompilerContext);
-    this.builder.push(BC.POP)
     this.builder.endMapEntry(s.location());
+    this.builder.push(BC.POP)
   }
 
   private compileAssignmentStatement(s: AssignmentStatement) {
@@ -327,10 +327,9 @@ class StatementCompiler {
   private compileFunctionCallStatement(s: FunctionCallStatement) {
     this.builder.startMapEntry();
     this.expressionCompiler.compileFuncCall(s.callTarget, s.args);
+    this.builder.endMapEntry(s.location());
     // Discard returned value, since it's a statement
     this.builder.push(BC.POP)
-    this.builder.endMapEntry(s.location());
-    // TODO: discard return value ... we need a flag to indicate that something was returned
   }
 
 }
