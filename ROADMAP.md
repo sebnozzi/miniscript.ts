@@ -1,6 +1,15 @@
 
 Next steps:
 
+- Re-introduce debugger
+- Debugger: willExecuteCall is incomplete ... many more opcodes could
+  result in a call. At the end we should offer the "step-in" button for
+  all *potential* calls, but only jump in if there was a real call.
+  It is probably also obsolete (or should be). Let the sourcemap decide
+  whether an entry contains a call or not (like it's the case right now).
+  Remove method from Processor. Beware: "containsCall" in CodeBuilder is
+  incomplete!
+
 - Implement interesting graphics intrinsics to show-off mini-projects
   - Reading keys
   - Reading mouse-clicks
@@ -15,15 +24,6 @@ Next steps:
 - Show errors on the HTML page
 
 - Write some demos
-
-- Re-introduce debugger?
-- Debugger: willExecuteCall is incomplete ... many more opcodes could
-  result in a call. At the end we should offer the "step-in" button for
-  all *potential* calls, but only jump in if there was a real call.
-  It is probably also obsolete (or should be). Let the sourcemap decide
-  whether an entry contains a call or not (like it's the case right now).
-  Remove method from Processor. Beware: "containsCall" in CodeBuilder is
-  incomplete!
 
 - Work on making this public
   - Upload demo(s)
