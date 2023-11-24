@@ -775,12 +775,17 @@ class Processor {
     this.runUntilDone();
   }
 
-  willExecuteCall(): boolean {
+  couldResultInCall(): boolean {
     const op = this.code.opCodes[this.ip];
-    // TODO: one could also perform a call when evaluating an identifier
-    // that results in a function!
-    const isCall = op == BC.CALL || op == BC.PROPERTY_CALL;
-    return isCall;
+    const hasCallPotential = (op === BC.CALL 
+      || op === BC.PROPERTY_CALL
+      || op === BC.DOT_ACCESS
+      || op === BC.FUNCREF_CALL
+      || op === BC.EVAL_ID
+      || op === BC.INDEXED_ACCESS
+      || op === BC.SUPER_DOT_ACCESS
+    );
+    return hasCallPotential;
   }
 
   pushFrame() {

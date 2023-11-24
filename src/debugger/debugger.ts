@@ -73,7 +73,7 @@ class Debugger {
     const initialCount = this.vm.savedFrames.count();
     let frameWasAdded = false;
     do {
-      const nextOpIsCall = this.vm.willExecuteCall();
+      const nextOpIsCall = this.vm.couldResultInCall();
       this.vm.executeCycles(1);
       const currentCount = this.vm.savedFrames.count();
       if (currentCount > initialCount) {
