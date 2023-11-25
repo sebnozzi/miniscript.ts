@@ -1,6 +1,129 @@
 /// <reference path="../vm/processor.ts"/>
 /// <reference path="../intrinsics/intrinsics.ts"/>
 
+class DebugUI {
+
+  private stepOverBtn: HTMLButtonElement;
+  private stepIntoBtn: HTMLButtonElement;
+  private stepOutBtn: HTMLButtonElement;
+  private editor: any;
+  private _d: Debugger | null = null;
+
+  constructor() {
+    this.stepOverBtn = document.getElementById("stepOverBtn") as HTMLButtonElement;
+    this.stepIntoBtn = document.getElementById("stepIntoBtn") as HTMLButtonElement;
+    this.stepOutBtn = document.getElementById("stepOutBtn") as HTMLButtonElement;
+    this.editor = globalThis.editor;
+  }
+
+  setup() {
+    this.stepOverBtn.addEventListener("click", () => {
+      this.debugOrStepOver();
+    });
+    this.stepIntoBtn.addEventListener("click", () => {
+      this.stepInto();
+    });
+    this.stepOutBtn.addEventListener("click", () => {
+      this.stepOut();
+    });
+  }
+
+  debugger(): Debugger {
+    if (this._d === null) {
+      throw new Error("Debugger not initialized");
+    }
+    return this._d;
+  }
+
+  debugOrStepOver() {
+    if (this._d === null) {
+      this.start();
+    } else {
+      this.stepOver();
+    }
+  }
+
+  start() {
+    setButtonLabel(this.stepOverBtn, "Step Over ");
+
+    const interp = buildInterpreter();
+
+    interp.onCompiled = (code: Code) => {
+      console.log("Compiled code:", code);
+    }
+
+    const callbacks = this.makeCallbacks();
+  
+    const srcCode = this.editor.getValue();
+    this._d = interp.debugSrcCode(srcCode, callbacks);
+  }
+
+  finish() {
+    console.log("Finished");
+    this._d = null;
+    removeMarkers(this.editor);
+    setTimeout(() => {
+      enableButton(this.stepOverBtn);
+      setButtonLabel(this.stepOverBtn, "Debug");
+      disableButton(this.stepIntoBtn);
+      disableButton(this.stepOutBtn);
+    }, 0);
+  }
+
+  stepOver() {
+    this.debugger().stepOver();
+  }
+  
+  stepInto() {
+    this.debugger().stepInto();
+  }
+
+  stepOut() {
+    this.debugger().stepOut();
+  }
+
+  makeCallbacks(): DebuggerCallbacks {
+    const outerThis = this;
+
+    const onSrcChange = (d: Debugger):void => {
+
+      const sme = d.getCurrentSrcMapEntry();
+
+      if (sme != null) {
+        removeMarkers(this.editor);
+        const Range = globalThis.ace.require("ace/range").Range;
+        const srcLoc = sme.srcLoc;
+        const srow = srcLoc.start.row - 1;
+        outerThis.editor.session.addMarker(new Range(srow, 0, srow, 500), "blue", "text");
+      }
+
+      if (d.canStepIn()) {
+        enableButton(outerThis.stepIntoBtn);
+      } else {
+        disableButton(outerThis.stepIntoBtn);
+      }
+
+      if (d.canStepOut()) {
+        enableButton(outerThis.stepOutBtn);
+      } else {
+        disableButton(outerThis.stepOutBtn);
+      }
+    };
+
+    const onFinished = (_: Debugger):void => {
+      outerThis.finish();
+    };
+
+    const callbacks: DebuggerCallbacks = {
+      onSrcChange: onSrcChange,
+      onFinished: onFinished
+    }
+
+    return callbacks;
+  }
+
+}
+
 function setupIde() {
   const e = globalThis.editor;
   const savedPrg = loadProgram();
@@ -23,98 +146,33 @@ function setupIde() {
   }
 
   const runBtn = document.getElementById("runBtn") as HTMLButtonElement;
-  const stepOverBtn = document.getElementById("stepOverBtn") as HTMLButtonElement;
   const stepIntoBtn = document.getElementById("stepIntoBtn") as HTMLButtonElement;
   const stepOutBtn = document.getElementById("stepOutBtn") as HTMLButtonElement;
 
   disableButton(stepIntoBtn);
   disableButton(stepOutBtn);
 
-  const txtCallback = (txt: string) => {
-    console.log(txt);
-  };
-
-  const interp = new Interpreter(txtCallback, txtCallback);
-  let optDebugger: Debugger | null = null;
-  let debugging = false;
+  const debugUi = new DebugUI();
+  debugUi.setup();
 
   runBtn.addEventListener("click", () => {
     storeProgram();
-    runCode(interp);
+    runCode();
   });
-  stepOverBtn.addEventListener("click", () => {
-    if(!debugging) {
-      // Start debugging session
-      debugging = true;
-      // Setup callbacks
-      const onSrcChange = (d: Debugger):void => {
-        const sme = d.getCurrentSrcMapEntry();
 
-        let start = "";
-        let stop = "";
-        if (sme !== null) {
-          start = `[line ${sme.srcLoc.start.row}, col ${sme.srcLoc.start.col}]`;
-          stop = `[line ${sme.srcLoc.end.row}, col ${sme.srcLoc.end.col}]`;
-        }
-        //console.log(`Source code location changed: from ${start} to ${stop}`);
-
-        if (sme != null) {
-          removeMarkers(e);
-          const Range = globalThis.ace.require("ace/range").Range;
-          const srcLoc = sme.srcLoc;
-          const srow = srcLoc.start.row - 1;
-          const scol = srcLoc.start.col - 1;
-          const erow = srcLoc.end.row - 1;
-          const ecol = srcLoc.end.col - 1;
-          e.session.addMarker(new Range(srow, 0, srow, 500), "blue", "text");
-        }
-
-        if (d.canStepIn()) {
-          enableButton(stepIntoBtn);
-        } else {
-          disableButton(stepIntoBtn);
-        }
-
-        if (d.canStepOut()) {
-          enableButton(stepOutBtn);
-        } else {
-          disableButton(stepOutBtn);
-        }
-      };
-      const onFinished = (d: Debugger):void => {
-        console.log("Finished");
-        debugging = false;
-        removeMarkers(e);
-        enableButton(stepOverBtn);
-        setButtonLabel(stepOverBtn, "Debug");
-        disableButton(stepIntoBtn);
-        disableButton(stepOutBtn);
-      };
-      const callbacks: DebuggerCallbacks = {
-        onSrcChange: onSrcChange,
-        onFinished: onFinished
-      }
-
-      const d: Debugger | null = startDebugging(interp, callbacks);
-      if (d) {
-        optDebugger = d;
-        setButtonLabel(stepOverBtn, "Step Over");
-        stepIntoBtn.addEventListener("click", () => {
-          d.stepInto();
-        });
-        stepOutBtn.addEventListener("click", () => {
-          d.stepOut();
-        });
-      }
-    } else {
-      optDebugger?.stepOver();
-    }
-  });
 }
 
-function runCode(interp: Interpreter) {
+function buildInterpreter(): Interpreter {
+  const txtCallback = (txt: string) => { console.log(txt); };
+  const interp = new Interpreter(txtCallback, txtCallback);
+  return interp;
+}
+
+function runCode() {
   
   const t0 = performance.now();
+
+  const interp = buildInterpreter();
 
   interp.onStarted = () => {
     console.log("Starting")
@@ -130,19 +188,6 @@ function runCode(interp: Interpreter) {
   const e = globalThis.editor;
   const srcCode = e.getValue();
   interp.runSrcCode(srcCode);  
-}
-
-function startDebugging(interp: Interpreter, callbacks: DebuggerCallbacks): Debugger | null {
-  
-  interp.onCompiled = (code: Code) => {
-    console.log("Compiled code:", code);
-  }
-
-  const e = globalThis.editor;
-  const srcCode = e.getValue();
-  const d = interp.debugSrcCode(srcCode, callbacks);
-
-  return d;
 }
 
 function storeProgram() {

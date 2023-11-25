@@ -80,21 +80,20 @@ class Debugger {
   // Stop at first instruction of new frame.
   stepInto() {
     const initialCount = this.vm.savedFrames.count();
-    let stepInSuccessful = false;
     do {
       const nextOpIsCall = this.vm.couldResultInCall();
       this.vm.executeCycles(1);
       const currentCount = this.vm.savedFrames.count();
       if (currentCount > initialCount) {
         // A function call has been made, since a new frame was pushed
-        stepInSuccessful = true;
+        break;
       } else if (nextOpIsCall && currentCount == initialCount) {
         // A call should have been made, but was not.
         // Probably because a primitive was called.
         // Abandon the whole attempt.
         break;
       }
-      if (this.vm.isFinished() || stepInSuccessful) {
+      if (this.vm.isFinished()) {
         break;
       }
     } while(true);
