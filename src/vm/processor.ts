@@ -47,8 +47,8 @@ class Processor {
   // Maximum depth of call stack
   maxCallStackDepth: number = 2000;
 
-  constructor(programCode: Code, public readonly stdoutCallback: TxtCallback, public readonly stderrCallback: TxtCallback) {
-    this.code = programCode;
+  constructor(public readonly stdoutCallback: TxtCallback, public readonly stderrCallback: TxtCallback) {
+    this.code = new Code();
     this.ip = 0;
     this.globalContext = new Context(this);
     this.intrinsicsMap = new Map();
@@ -72,6 +72,15 @@ class Processor {
 
     this.rndGenerator = newRandomGenerator();
     this.executionStartTime = 0;
+  }
+
+  setCode(code: Code) {
+    this.code = code;
+    this.ip = 0;
+    this.cycleCount = 0;
+    this.context = this.globalContext;
+    this.savedFrames = new Stack<Frame>();
+    this.opStack = new Stack();
   }
 
   run() {

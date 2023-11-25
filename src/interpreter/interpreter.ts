@@ -10,10 +10,18 @@ class Interpreter {
   public onCompiled = (code: Code) => {};
   public onFinished = () => {};
 
-  private optVm: Processor | null = null;
+  private vm: Processor;
 
-  constructor(private stdoutCallback: TxtCallback, 
+  constructor(
+    stdoutCallback: TxtCallback, 
     private stderrCallback: TxtCallback) {
+      this.vm = new Processor(stdoutCallback, stderrCallback);
+      const interpThis = this;
+      this.vm.onFinished = function() {
+        interpThis.onFinished();
+      }
+      addStandardIntrinsics(this.vm);
+      addGraphicIntrinsics(this.vm);
   }
 
   runSrcCode(srcCode: string) {
@@ -34,9 +42,7 @@ class Interpreter {
   }
 
   stopExecution() {
-    if (this.optVm) {
-      this.optVm.stopRunning();
-    }
+    this.vm.stopRunning();
   }
 
   private compileSrcCode(srcCode: string): Code | null {
@@ -65,29 +71,15 @@ class Interpreter {
 
   private runCompiledCode(prgCode: Code) {
     this.onStarted();
-
-    let p = new Processor(prgCode, this.stdoutCallback, this.stderrCallback);
-    this.optVm = p;
-
-    addStandardIntrinsics(p);
-    addGraphicIntrinsics(p);
-
-    const interpThis = this;
-
-    p.onFinished = function() {
-      interpThis.onFinished();
-    }
     
-    p.run();
+    this.vm.setCode(prgCode);
+    this.vm.run();
   }
 
   private debugCompiledCode(prgCode: Code, callbacks: DebuggerCallbacks): Debugger {
     this.onStarted();
 
-    let p = new Processor(prgCode, this.stdoutCallback, this.stderrCallback);
-    this.optVm = p;
-
-    const d = new Debugger(p);
+    const d = new Debugger(this.vm);
     
     d.onSrcChange = () => {
       callbacks.onSrcChange(d);
@@ -95,16 +87,8 @@ class Interpreter {
     d.onFinished = () => {
       callbacks.onFinished(d);
     }
-
-    addStandardIntrinsics(p);
-    addGraphicIntrinsics(p);
-
-    const interpThis = this;
-
-    p.onFinished = function() {
-      interpThis.onFinished();
-    }
     
+    this.vm.setCode(prgCode);
     d.start();
     return d;
   }
