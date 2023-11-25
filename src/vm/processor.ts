@@ -781,6 +781,7 @@ class Processor {
   }
 
   forceFinish() {
+    this.onPromiseResolved = () => {};
     this.opStack.clear();
     this.cycleCount = this.maxCount;
     this.ip = this.code.opCodes.length;
@@ -1024,8 +1025,9 @@ class Processor {
   private suspendUntilPromiseResolved(promise: Promise<any>) {
     // Mark VM for suspension
     this.suspendExecution();
+    
     // Deal with promise resolved value
-    promise.then((retVal: any) => {      
+    promise.then((retVal: any) => {   
       // Push return value to stack
       this.opStack.push(retVal);
       // Advance IP

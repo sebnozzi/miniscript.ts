@@ -25,6 +25,10 @@ class Debugger {
     this.notifyChanges();
   }
 
+  stop() {
+    this.vm.forceFinish();
+  }
+
   getCurrentSrcMapEntry(): SourceMapEntry | null {
     return this._srcMap().findEntry(this.vm.ip);
   }

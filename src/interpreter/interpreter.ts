@@ -10,6 +10,8 @@ class Interpreter {
   public onCompiled = (code: Code) => {};
   public onFinished = () => {};
 
+  private optVm: Processor | null = null;
+
   constructor(private stdoutCallback: TxtCallback, 
     private stderrCallback: TxtCallback) {
   }
@@ -29,6 +31,13 @@ class Interpreter {
     } else {
       return null;
     }
+  }
+
+  stopExecution() {
+    if (this.optVm) {
+      this.optVm.forceFinish();
+    }
+    this.onFinished();
   }
 
   private compileSrcCode(srcCode: string): Code | null {
@@ -59,6 +68,7 @@ class Interpreter {
     this.onStarted();
 
     let p = new Processor(prgCode, this.stdoutCallback, this.stderrCallback);
+    this.optVm = p;
 
     addStandardIntrinsics(p);
     addGraphicIntrinsics(p);
@@ -76,6 +86,8 @@ class Interpreter {
     this.onStarted();
 
     let p = new Processor(prgCode, this.stdoutCallback, this.stderrCallback);
+    this.optVm = p;
+
     const d = new Debugger(p);
     
     d.onSrcChange = () => {

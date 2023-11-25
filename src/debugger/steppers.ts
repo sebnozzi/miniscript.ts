@@ -41,6 +41,13 @@ class StepOverStepper extends Stepper {
 
   step() {
 
+    if (this.vm.isSuspended()) {
+      // Just return, the debugger will be notified
+      // when the Promise is resolved and continue 
+      // the process here.
+      return;
+    }
+
     this.vm.executeCycles(1);
     
     // If we went "deeper" into the call stack, execute cycles until we are "back".
@@ -53,13 +60,6 @@ class StepOverStepper extends Stepper {
 
     if (this.vm.isFinished()) {
       this.finish();
-      return;
-    }
-
-    if (this.vm.isSuspended()) {
-      // Just return, the debugger will be notified
-      // when the Promise is resolved and continue 
-      // the process here.
       return;
     }
 
@@ -99,6 +99,12 @@ class StepIntoStepper extends Stepper {
   }
 
   step() {
+    if (this.vm.isSuspended()) {
+      // Just return, the debugger will be notified
+      // when the Promise is resolved and continue 
+      // the process here.
+      return;
+    }
 
     const nextOpIsCall = this.vm.couldResultInCall();
     this.vm.executeCycles(1);
@@ -124,12 +130,6 @@ class StepIntoStepper extends Stepper {
       this.finish();
       return;
     }
-    if (this.vm.isSuspended()) {
-      // Just return, the debugger will be notified
-      // when the Promise is resolved and continue 
-      // the process here.
-      return;
-    }
 
     // Otherwise ...
     this.scheduleNext();
@@ -147,6 +147,12 @@ class StepOutStepper extends Stepper {
   }
 
   step() {
+    if (this.vm.isSuspended()) {
+      // Just return, the debugger will be notified
+      // when the Promise is resolved and continue 
+      // the process here.
+      return;
+    }
 
     this.vm.executeCycles(1);
 
@@ -155,10 +161,6 @@ class StepOutStepper extends Stepper {
     if (currentCount < this.initialCount) {
       // A return from a call has been made, since a frame was removed
       this.finish();
-      return;
-    }
-
-    if (this.vm.isSuspended()) {
       return;
     }
     
