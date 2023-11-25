@@ -1,3 +1,8 @@
-clear
+clear "white"
 
-drawRect 1,1,100,100,"red"
+print "Hello"
+
+drawRect 50,50,50,50,"blue",5
+fillRect 100,100,50,50,"red"
+
+drawText "Hello",40,40,"black",32
