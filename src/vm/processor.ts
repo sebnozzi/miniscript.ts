@@ -26,12 +26,6 @@ class Processor {
   stringCoreType: HashMap;
   numberCoreType: HashMap;
   funcRefCoreType: HashMap;
-  // Core-type access functions
-  listCoreTypeMapFn: BoundFunction;
-  stringCoreTypeMapFn: BoundFunction;
-  numberCoreTypeMapFn: BoundFunction;
-  mapCoreTypeMapFn: BoundFunction;
-  funcRefCoreTypeMapFn: BoundFunction;
   // Stack of frames (waiting to be returned to; not the current one).
   savedFrames: Stack<Frame>;
   // Counter used to return control back to host.
@@ -76,23 +70,6 @@ class Processor {
       this.runUntilDone();
     };
 
-    // Add core-type map-accessing functions
-    const vmThis = this;
-    this.listCoreTypeMapFn = this.makeNativeBoundFunction([], [], function() {
-      return vmThis.listCoreType;
-    });
-    this.stringCoreTypeMapFn = this.makeNativeBoundFunction([], [], function() {
-      return vmThis.stringCoreType;
-    });
-    this.numberCoreTypeMapFn = this.makeNativeBoundFunction([], [], function() {
-      return vmThis.numberCoreType;
-    });
-    this.mapCoreTypeMapFn = this.makeNativeBoundFunction([], [], function() {
-      return vmThis.mapCoreType;
-    });
-    this.funcRefCoreTypeMapFn = this.makeNativeBoundFunction([], [], function() {
-      return vmThis.funcRefCoreType;
-    });
     this.rndGenerator = newRandomGenerator();
     this.executionStartTime = 0;
   }
@@ -104,15 +81,15 @@ class Processor {
 
   addIntrinsic(signature: string, impl: Function) {
     const [fnName, argNames, defaultValues] = parseSignature(signature);
-    const boundFunc = this.makeNativeBoundFunction(argNames, defaultValues, impl);
-    this.intrinsicsMap.set(fnName, boundFunc);
+    const intrinsicFn = this.makeIntrinsicFn(impl, argNames, defaultValues);
+    this.intrinsicsMap.set(fnName, intrinsicFn);
   }
 
-  addCoreTypeIntrinsic(target: HashMap, name: string, boundFunc: BoundFunction) {
+  addMapIntrinsic(target: HashMap, name: string, boundFunc: BoundFunction) {
     target.set(name, boundFunc);
   }
 
-  makeNativeBoundFunction(argNames: string[], defaultValues: any[], impl: Function): BoundFunction {
+  makeIntrinsicFn(impl: Function, argNames: string[] = [], defaultValues: any[] = []): BoundFunction {
     const args = [];
     const argCount = impl.length;
 
@@ -344,12 +321,7 @@ class Processor {
           if (optValue !== undefined) {
             this.callOrPushValue(optValue, isFuncRef);
           } else {
-            // Could not resolve, maybe it's an intrinsic or pseudo-keyword
-            const value = this.resolveSpecial(identifier);
-            if (value === undefined) {
-              throw this.runtimeError(`Undefined Identifier: '${identifier}' is unknown in this context`);
-            }
-            this.callOrPushValue(value, isFuncRef);
+            throw this.runtimeError(`Undefined Identifier: '${identifier}' is unknown in this context`);
           }
           break;
         }
@@ -908,22 +880,6 @@ class Processor {
   resolveIntrinsic(identifier: string): BoundFunction|undefined {
     const optIntrinsicFn = this.intrinsicsMap.get(identifier);
     return optIntrinsicFn;
-  }
-
-  private resolveSpecial(identifier: string): any|undefined {
-    if (identifier === "string") {
-      return this.stringCoreTypeMapFn
-    } else if (identifier === "number") {
-      return this.numberCoreTypeMapFn;
-    } else if (identifier === "list") {
-      return this.listCoreTypeMapFn;
-    } else if (identifier === "map") {
-      return this.mapCoreTypeMapFn;
-    } else if (identifier === "funcRef") {
-      return this.funcRefCoreTypeMapFn;
-    } else {
-      return undefined;
-    }
   }
 
   private callOrPushValue(value: any, isFuncRef: boolean, accessSrc: any | undefined = undefined, srcMap: HashMap | null = null) {

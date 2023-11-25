@@ -2,6 +2,8 @@
 
 function addStandardIntrinsics(p: Processor) {
   addPrintIntrinsic(p);
+  
+  addCoreTypesIntrinsics(p);
 
   addMathIntrinsics(p);
   addBitOperationIntrinsics(p);
@@ -40,7 +42,7 @@ function addBaseTypesIntrinsics(p: Processor) {
   const importIntrinsics = (targetList: HashMap, intrinsicNames: string[]) => {
     for (let fnName of intrinsicNames) {
       const boundFn = getFn(fnName);
-      p.addCoreTypeIntrinsic(targetList, fnName, boundFn);
+      p.addMapIntrinsic(targetList, fnName, boundFn);
     }
   };
 
