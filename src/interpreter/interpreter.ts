@@ -35,9 +35,8 @@ class Interpreter {
 
   stopExecution() {
     if (this.optVm) {
-      this.optVm.forceFinish();
+      this.optVm.stopRunning();
     }
-    this.onFinished();
   }
 
   private compileSrcCode(srcCode: string): Code | null {

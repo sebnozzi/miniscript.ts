@@ -144,7 +144,7 @@ class Processor {
   }
 
   runUntilDone() {
-    if (!this.isFinished()) {
+    if (this.isRunning()) {
       try {
         this.executeCycles();
       } catch(e: any) {
@@ -152,23 +152,21 @@ class Processor {
           this.stderrCallback(e.message);
         }
         console.error(e);
-        this.forceFinish();
+        this.stopRunning();
+        return;
       }
-      // If not waiting on a Promise, schedule
-      // the next execution burst.
-      if (!this.suspended) {
+      // If not waiting on a Promise or finished
+      // running, schedule the next execution burst.
+      if (this.isRunning()) {
         setTimeout(() => {
           this.runUntilDone()
         }, 0);
       }
-    } else {
-      // Check that stack is balanced (empty)
-      if (this.opStack.count() > 0) {
-        console.info("Stack: ", this.opStack);
-        throw this.runtimeError("Stack was not empty!")
-      }
-      // Invoke callback
-      this.onFinished();
+    }
+
+    if (this.isFinished()) {
+      // Call after program ends normally
+      this.cleanupAfterRunning();
     }
   }
 
@@ -780,11 +778,26 @@ class Processor {
     return this.suspended;
   }
 
+  stopRunning() {
+    this.forceFinish();
+    this.cleanupAfterRunning();
+  }
+
   forceFinish() {
     this.onPromiseResolved = () => {};
     this.opStack.clear();
     this.cycleCount = this.maxCount;
     this.ip = this.code.opCodes.length;
+  }
+
+  cleanupAfterRunning() {
+    // Check that stack is balanced (empty)
+    if (this.opStack.count() > 0) {
+      console.info("Stack: ", this.opStack);
+      throw this.runtimeError("Stack was not empty!")
+    }
+    // Invoke callback
+    this.onFinished();
   }
 
   suspendExecution() {

@@ -1,14 +1,15 @@
 class DebugUI {
 
-
   private stepOverBtn: HTMLButtonElement;
   private stepIntoBtn: HTMLButtonElement;
   private stepOutBtn: HTMLButtonElement;
+  private runBtn: HTMLButtonElement;
+  private stopBtn: HTMLButtonElement;
   private editor: any;
   private _d: Debugger | null = null;
-  private stopBtn: HTMLButtonElement;
 
   constructor() {
+    this.runBtn = document.getElementById("runBtn") as HTMLButtonElement;
     this.stepOverBtn = document.getElementById("stepOverBtn") as HTMLButtonElement;
     this.stepIntoBtn = document.getElementById("stepIntoBtn") as HTMLButtonElement;
     this.stepOutBtn = document.getElementById("stepOutBtn") as HTMLButtonElement;
@@ -46,13 +47,17 @@ class DebugUI {
 
   start() {
     setButtonLabel(this.stepOverBtn, "Step Over ");
+    disableButton(this.runBtn);
     enableButton(this.stopBtn);
 
     const interp = buildInterpreter();
 
+    interp.onStarted = () => {
+      console.log("Started Debugging.");
+    };
     interp.onCompiled = (code: Code) => {
       console.log("Compiled code:", code);
-    }
+    };
 
     const callbacks = this.makeCallbacks();
   
@@ -68,10 +73,11 @@ class DebugUI {
   }
 
   finish() {
-    console.log("Finished");
+    console.log("Finished Debugging.");
     this._d = null;
     removeMarkers(this.editor);
     setTimeout(() => {
+      enableButton(this.runBtn);
       enableButton(this.stepOverBtn);
       setButtonLabel(this.stepOverBtn, "Debug");
       disableButton(this.stepIntoBtn);

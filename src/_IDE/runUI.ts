@@ -31,11 +31,12 @@ class RunUI {
     this.interp = interp;
   
     interp.onStarted = () => {
-      console.log("Starting")
+      console.log("Started Running.")
     }
     interp.onFinished = () => {
       const t1 = performance.now();
-      console.log("Finished.", t1 - t0, "ms");
+      this.interp = null;
+      console.log("Finished Running.", t1 - t0, "ms");
       disableButton(this.stopBtn);
       enableButton(this.runBtn);
       enableButton(this.debugBtn);
@@ -52,11 +53,6 @@ class RunUI {
   stop() {
     if (this.interp) {
       this.interp.stopExecution();
-      /*
-      disableButton(this.stopBtn);
-      enableButton(this.runBtn);
-      enableButton(this.debugBtn);
-      */
     }
   }
 

@@ -26,7 +26,7 @@ class Debugger {
   }
 
   stop() {
-    this.vm.forceFinish();
+    this.vm.stopRunning();
   }
 
   getCurrentSrcMapEntry(): SourceMapEntry | null {
