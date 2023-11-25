@@ -5,7 +5,9 @@ function addGraphicIntrinsics(p: Processor) {
   function(color: any) {
     const canvas = document.getElementById("gfx") as HTMLCanvasElement;
     const gfx = canvas.getContext("2d") as CanvasRenderingContext2D;
-    gfx.clearRect(0,0,canvas.width,canvas.height);
+    gfx.clearRect(0, 0, canvas.width, canvas.height);
+    gfx.fillStyle = "rgba(0, 0, 0, 0)";
+    gfx.fillRect(0,0,canvas.width,canvas.height);
     if (color !== null) {
       gfx.fillStyle = color;
       gfx.fillRect(0,0,canvas.width,canvas.height);
