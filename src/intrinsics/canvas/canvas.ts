@@ -34,16 +34,17 @@ function addGraphicIntrinsics(p: Processor) {
   function(x:number,y:number,width:number,height:number,color:string,penSize:number) {
     const canvas = document.getElementById("gfx") as HTMLCanvasElement;
     const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
+    ctx.save();
     ctx.strokeStyle = color;
     ctx.lineWidth = penSize;
-    ctx.rect(x,y,width,height);
+    ctx.strokeRect(x, y, width, height);
+    ctx.restore();
   });
 
   p.addIntrinsic("drawLine(x0,y0,x1,y1,color,penSize=1)",
   function(x0:any,y0:any,x1:any,y1:any,color:any,penSize:any) {
     const canvas = document.getElementById("gfx") as HTMLCanvasElement;
     const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
-    ctx.strokeStyle = color;
     ctx.save();
     ctx.beginPath();
     ctx.moveTo(x0, y0);

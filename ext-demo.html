@@ -3,19 +3,23 @@
 <link rel="shortcut icon" href="#">
 <head>
   <meta charset="UTF-8">
-  <title>MiniScript.TS - PlayGround</title>
+  <title>External File Demo</title>
   <link rel='stylesheet' href='static/css/ext-demo.css' type='text/css' media='all'>
 </head>
 <body>
 
   <div id="mainWrapper">
     <div id="resultArea">
-      <canvas id="gfx" width="960" height="640"></canvas>
+      <div id="canvasContainer">
+        <canvas id="gfx" width="960" height="640"></canvas>
+      </div>
     </div>
   </div>
 
   <script type="text/javascript" src="build/miniscript.js"></script>
-  <script type="text/miniscript" src="ms/ext-demo.ms"></script>
+  <script type="text/javascript" src="static/js/ext-demo.js"></script>
+
+  <script type="text/miniscript" src="static/ms/ext-demo.ms"></script>
 
 </body>
 </html>

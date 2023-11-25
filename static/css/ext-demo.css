@@ -10,7 +10,18 @@ body {
   justify-content: center;
   width: 100%;
 }
-#gfx {
+#canvasContainer {
+  width: 960px;
+  height: 640px;
+  padding: 10px;
   background-color: black;
   border-radius: 10px;
+  border-top: inset 4px gray;
+  border-left: inset 4px gray;
+  border-right: inset 4px gray;
+  border-bottom: inset 4px gray;
+
+}
+#gfx {
+
 }
