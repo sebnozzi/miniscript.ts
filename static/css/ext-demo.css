@@ -1,0 +1,16 @@
+body {
+  background-color: #D1CAB2;
+}
+#mainWrapper {
+  display: flex;
+}
+#resultArea {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+#gfx {
+  background-color: black;
+  border-radius: 10px;
+}
