@@ -8,7 +8,7 @@ function addConversionIntrinsics(p: Processor) {
   });
 
   // Try to convert to a number
-  p.addIntrinsic("val(x)", 
+  p.addIntrinsic("val(self)", 
   function(x: any): number | null {
     if (typeof x === "number") {
       return x;

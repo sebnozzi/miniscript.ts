@@ -42,7 +42,11 @@ function addBaseTypesIntrinsics(p: Processor) {
   const importIntrinsics = (targetList: HashMap, intrinsicNames: string[]) => {
     for (let fnName of intrinsicNames) {
       const boundFn = getFn(fnName);
-      p.addMapIntrinsic(targetList, fnName, boundFn);
+      const argNames = boundFn.funcDef.argNames;
+      if (argNames.length < 1 || argNames[0] !== "self") {
+        throw new Error(`First parameter of ${fnName} must be 'self'. Found: ${argNames}`);
+      }
+      p.attachExistingIntrinsic(targetList, fnName, boundFn);
     }
   };
 
