@@ -40,6 +40,10 @@ class Processor {
   maxCount: number = 73681;
   // Callback when processing done
   onFinished: Function;
+  // Callback when suspended until a Promise delivers a result
+  onSuspendedByPromise: Function;
+  // Callback when the result Promise is resolved
+  onPromiseResolved: Function;
   // Random number generator
   rndGenerator: Function;
   // Timestamp when a script starts executing. Used in `time`.
@@ -64,6 +68,14 @@ class Processor {
     this.opStack = new Stack();
     this.cycleCount = 0;
     this.onFinished = function() {};
+    this.onSuspendedByPromise = function() {};
+    this.onPromiseResolved = function() {
+      // By default, continue running after a Promise is 
+      // resolved. Alternate runners would want to change
+      // this. For example a debugger.
+      this.runUntilDone();
+    };
+
     // Add core-type map-accessing functions
     const vmThis = this;
     this.listCoreTypeMapFn = this.makeNativeBoundFunction([], [], function() {
@@ -777,11 +789,12 @@ class Processor {
   suspendExecution() {
     this.cycleCount = this.maxCount;
     this.suspended = true;
+    this.onSuspendedByPromise();
   }
 
   resumeExecution() {
     this.suspended = false;
-    this.runUntilDone();
+    this.onPromiseResolved();
   }
 
   couldResultInCall(): boolean {
