@@ -46,7 +46,7 @@ function setupIde() {
 
 function buildInterpreter(): Interpreter {
   const txtCallback = (txt: string) => { console.log(txt); };
-  const interp = new Interpreter(txtCallback, txtCallback);
+  const interp = new DemoInterpreter(txtCallback, txtCallback);
   return interp;
 }
 

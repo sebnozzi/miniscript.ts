@@ -39,7 +39,7 @@ function runCode(srcCode) {
 
 function buildInterpreter() {
   const txtCallback = (txt) => { console.log(txt); };
-  const interp = new Interpreter(txtCallback, txtCallback);
+  const interp = new DemoInterpreter(txtCallback, txtCallback);
   return interp;
 }
 

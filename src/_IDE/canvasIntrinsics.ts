@@ -1,5 +1,5 @@
 
-function addGraphicIntrinsics(p: Processor) {
+function addCanvasIntrinsics(p: Processor) {
 
   p.addIntrinsic("clear(color=null)", 
   function(color: any) {

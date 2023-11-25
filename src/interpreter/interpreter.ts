@@ -10,7 +10,7 @@ class Interpreter {
   public onCompiled = (code: Code) => {};
   public onFinished = () => {};
 
-  private vm: Processor;
+  protected vm: Processor;
 
   constructor(
     stdoutCallback: TxtCallback, 
@@ -21,7 +21,6 @@ class Interpreter {
         interpThis.onFinished();
       }
       addStandardIntrinsics(this.vm);
-      addGraphicIntrinsics(this.vm);
   }
 
   runSrcCode(srcCode: string) {
