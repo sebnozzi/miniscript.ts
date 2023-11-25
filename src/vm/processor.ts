@@ -94,7 +94,13 @@ class Processor {
     this.intrinsicsMap.set(fnName, intrinsicFn);
   }
 
-  addMapIntrinsic(target: HashMap, name: string, boundFunc: BoundFunction) {
+  addMapIntrinsic(target: HashMap, signature: string, impl: Function) {
+    const [fnName, argNames, defaultValues] = parseSignature(signature);
+    const intrinsicFn = this.makeIntrinsicFn(impl, argNames, defaultValues);
+    target.set(fnName, intrinsicFn);
+  }
+
+  attachExistingIntrinsic(target: HashMap, name: string, boundFunc: BoundFunction) {
     target.set(name, boundFunc);
   }
 
@@ -921,8 +927,15 @@ class Processor {
 
     let funcArgCount = funcDef.argNames.length;
 
-    // Subtract one argument for a native dot-call
-    if (funcDef.isNative() && dotCallTarget !== undefined) {
+    let isNativeSelfFunction = (
+      funcDef.isNative() 
+      && dotCallTarget !== undefined
+      && funcDef.argNames.length > 0
+      && funcDef.argNames[0] === "self"
+    );
+
+    // Subtract one argument for instrinsic self-functions
+    if (isNativeSelfFunction) {
       funcArgCount -= 1;
     }
 
@@ -940,8 +953,8 @@ class Processor {
 
     if (funcDef.isNative()) {
       const func = funcDef.getFunction();
-      // Add dot-call target "manually", if any
-      if (dotCallTarget !== undefined) {
+      // Add dot-call target "manually", if self-function
+      if (isNativeSelfFunction) {
         // The "self" parameter
         paramValues.unshift(dotCallTarget);
       }
