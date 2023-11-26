@@ -18,7 +18,7 @@ class Interpreter {
       this.vm = new Processor(stdoutCallback, stderrCallback);
       const interpThis = this;
       this.vm.onFinished = function() {
-        interpThis.onFinished();
+        interpThis.processOnFinished();
       }
       addStandardIntrinsics(this.vm);
   }
@@ -44,6 +44,21 @@ class Interpreter {
     this.vm.stopRunning();
   }
 
+  // Override in subclass if necessary
+  protected processOnStarted() {
+    this.onStarted();
+  }
+
+  // Override in subclass if necessary
+  protected processOnCompiledCode(code: Code) {
+    this.onCompiled(code);
+  }
+
+  // Override in subclass if necessary
+  protected processOnFinished() {
+    this.onFinished();
+  }
+
   private compileSrcCode(srcCode: string): Code | null {
     let parsedStatements: Statement[] = [];
 
@@ -63,33 +78,35 @@ class Interpreter {
       this.onCompiled(code);
       return code;
     } else {
-      this.onFinished();
+      this.processOnFinished();
       return null;
     }
   }
 
   private runCompiledCode(prgCode: Code) {
-    this.onStarted();
+    this.processOnStarted();
     
     this.vm.setCode(prgCode);
     this.vm.run();
   }
 
   private debugCompiledCode(prgCode: Code, callbacks: DebuggerCallbacks): Debugger {
-    this.onStarted();
+    this.processOnStarted();
 
     const d = new Debugger(this.vm);
-    
+    const outerThis = this;
+
     d.onSrcChange = () => {
       callbacks.onSrcChange(d);
     };
     d.onFinished = () => {
       callbacks.onFinished(d);
+      outerThis.processOnFinished();
     }
     
     this.vm.setCode(prgCode);
     d.start();
     return d;
-  }
+  } 
 
 }

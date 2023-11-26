@@ -48,35 +48,25 @@ class EventHandler {
   mouseButtonsDown: boolean[] = [];
   mouseX: number = -1;
   mouseY: number = -1;
+  eventListeners: { [eventName: string]: (e: any ) => void };
+  canvas: HTMLCanvasElement;
 
   constructor(canvasId: string) {
 
-    const canvas = document.getElementById(canvasId) as HTMLCanvasElement;
+    this.canvas = document.getElementById(canvasId) as HTMLCanvasElement;
     const outerThis = this;
 
-    canvas.addEventListener("keydown", function(e: KeyboardEvent) {
-      outerThis.handleKeyDown(e);
-    });
-    canvas.addEventListener("keyup", function(e: KeyboardEvent) {
-      outerThis.handleKeyUp(e);
-    });
+    this.eventListeners = {
+      "keydown": (e: KeyboardEvent) => { outerThis.handleKeyDown(e); },
+      "keyup": (e: KeyboardEvent) => { outerThis.handleKeyUp(e); },
+      "mousemove": (e: MouseEvent) => { outerThis.handleMouseMove(e); },
+      "mousedown": (e: MouseEvent) => { outerThis.handleMouseDown(e); },
+      "mouseup": (e: MouseEvent) => { outerThis.handleMouseUp(e); },
+      "mouseenter": (e: MouseEvent) => { outerThis.handleMouseEnter(e); },
+      "mouseleave": (e: MouseEvent) => { outerThis.handleMouseLeave(e); },
+    };
 
-    canvas.addEventListener("mousemove", function(e: MouseEvent) {
-      outerThis.handleMouseMove(e, canvas);
-    });
-    canvas.addEventListener("mousedown", function(e: MouseEvent) {
-      outerThis.handleMouseDown(e);
-    });
-    canvas.addEventListener("mouseup", function(e: MouseEvent) {
-      outerThis.handleMouseUp(e);
-    });
-    canvas.addEventListener("mouseenter", function(e: MouseEvent) {
-      outerThis.handleMouseEnter(e);
-    });
-    canvas.addEventListener("mouseleave", function(e: MouseEvent) {
-      outerThis.handleMouseLeave(e);
-    });
-
+    this.addEventListeners();
   }
 
   reset() {
@@ -91,6 +81,18 @@ class EventHandler {
 
   isMouseDown(buttonNr: number): boolean {
     return this.mouseButtonsDown[buttonNr];
+  }
+
+  addEventListeners() {
+    for (let [eventName, callback] of Object.entries(this.eventListeners)) {
+      this.canvas.addEventListener(eventName, callback as any);
+    }
+  }
+
+  removeEventListeners() {
+    for (let [eventName, callback] of Object.entries(this.eventListeners)) {
+      this.canvas.removeEventListener(eventName, callback as any);
+    }
   }
   
   private handleKeyDown(e: KeyboardEvent) {
@@ -109,7 +111,8 @@ class EventHandler {
     e.preventDefault();
   }
 
-  private handleMouseMove(e: MouseEvent, canvas: HTMLCanvasElement) {
+  private handleMouseMove(e: MouseEvent) {
+    const canvas = this.canvas;
     const rect = canvas.getBoundingClientRect()
 
     const elementRelativeX = e.clientX - rect.left;
@@ -151,10 +154,68 @@ class EventHandler {
 
 }
 
+class SoundManager {
+
+  playingSounds: Set<HTMLAudioElement>;
+
+  constructor(private vm: Processor, private soundMap: HashMap) {
+    this.playingSounds = new Set();
+  }
+
+  play(self: any) {
+    const outerThis = this;
+    const optSnd = this.getNativeSound(self);
+    if (optSnd) {
+      const playPromise = optSnd.play();
+      playPromise.then(() => {
+        outerThis.playingSounds.add(optSnd);
+        optSnd.addEventListener("ended", () => {
+          outerThis.playingSounds.delete(optSnd);
+        })
+      })
+    }
+  }
+
+  private getNativeSound(self: any): HTMLAudioElement | null {
+    if (self instanceof HashMap) {
+      if (isaEquals(this.vm, self, this.soundMap)) {
+        return self.get("__nativeSnd");
+      }
+    }
+    return null;
+  }
+
+  isPlaying(self: any): number {
+    const optSnd = this.getNativeSound(self);
+    if (optSnd) {
+      return this.playingSounds.has(optSnd) ? 1 : 0;
+    }
+    return 0;
+  }
+
+  stop(self: any) {
+    const optSnd = this.getNativeSound(self);
+    if (optSnd) {
+      optSnd.pause();
+      this.playingSounds.delete(optSnd);
+    }
+  }
+
+  stopAll() {
+    for (let snd of this.playingSounds) {
+      snd.pause();
+      this.playingSounds.delete(snd);
+    }
+  }
+
+}
+
 class MMLikeInterpreter extends Interpreter {
 
   private remotePath: string = "";
   private eventHandler: EventHandler;
+  private soundMap = new HashMap();
+  private soundMgr: SoundManager;
 
   constructor(stdoutCallback: TxtCallback, stderrCallback: TxtCallback) {
       super(stdoutCallback,stderrCallback);
@@ -168,9 +229,23 @@ class MMLikeInterpreter extends Interpreter {
       this.addUserInteractionAPI();
       this.addKeyAPI();
       this.addMouseAPI();
+      this.addSoundAPI();
 
       this.eventHandler = new EventHandler("gfx");
+      this.soundMgr = new SoundManager(this.vm, this.soundMap);
+
       this.vm.onBeforeCycles = () => { this.callbackBeforeCycles() };
+  }
+
+  protected processOnFinished(): void {
+    if (this.soundMgr) {
+      this.soundMgr.stopAll();
+    }
+    if (this.eventHandler) {
+      this.eventHandler.removeEventListeners();
+    }
+
+    super.processOnFinished();
   }
 
   setScriptUrl(scriptUrl: string) {
@@ -184,6 +259,37 @@ class MMLikeInterpreter extends Interpreter {
 
   private callbackBeforeCycles() {
     this.eventHandler.reset();
+  }
+
+  private addSoundAPI() {
+    const vm = this.vm;
+    const outerThis = this;
+
+    vm.addIntrinsic('Sound', 
+    function(): HashMap {
+      return outerThis.soundMap;
+    });
+
+    vm.addMapIntrinsic(this.soundMap, "stopAll",
+    function() {
+      outerThis.soundMgr.stopAll();
+    });
+
+    vm.addMapIntrinsic(this.soundMap, "play(self)",
+    function(self: any) {
+      outerThis.soundMgr.play(self);
+    });
+
+    vm.addMapIntrinsic(this.soundMap, "stop(self)",
+    function(self: any) {
+      outerThis.soundMgr.stop(self);
+    });
+
+    vm.addMapIntrinsic(this.soundMap, "isPlaying(self)",
+    function(self: any): number {
+      return outerThis.soundMgr.isPlaying(self);
+    });
+
   }
 
   private addUserInteractionAPI() {
@@ -244,10 +350,6 @@ class MMLikeInterpreter extends Interpreter {
       return result;
     });
 
-    // key.available
-    // key.get
-    // key.clear
-    // key.keyNames
   }
 
   private addFileAPI() {
@@ -269,6 +371,23 @@ class MMLikeInterpreter extends Interpreter {
       }
       const gfPrim = new GfxPrimitives();
       return gfPrim.loadImage(fullPath);
+    });
+
+    vm.addMapIntrinsic(fileMap, 'loadSound(path="")',
+    function(path: string): Promise<HashMap | null> {
+      const fullPath = `${outerThis.remotePath}${path}`;
+      const sound = document.createElement("audio");
+      const promise = new Promise<HashMap | null>((resolve) => {
+        sound.addEventListener("canplaythrough", () => {
+          const soundMap = outerThis.toSoundMap(sound);
+          resolve(soundMap);
+        });
+        sound.addEventListener("error", (event) => {
+          resolve(null);
+        });
+      });
+      sound.src = fullPath;
+      return promise;
     });
 
     return fileMap;
@@ -317,6 +436,13 @@ class MMLikeInterpreter extends Interpreter {
       return "#" + hex2(r) + hex2(g) + hex2(b) + hex2(a)
     end function`;
     this.runSrcCode(code);
+  }
+
+  private toSoundMap(nativeSound: HTMLAudioElement): HashMap {
+    const instance = new HashMap();
+    instance.set("__isa", this.soundMap);
+    instance.set("__nativeSnd", nativeSound);
+    return instance;
   }
 
   private addGfxAPI() {
