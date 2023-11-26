@@ -16,6 +16,13 @@ function addCanvasIntrinsics(p: Processor) {
 
 class GfxPrimitives {
 
+  toTop(bottom: number, height: number = 0): number {
+    const canvas = document.getElementById("gfx") as HTMLCanvasElement;
+    const canvasHeight = canvas.height;
+    const y = canvasHeight - bottom - height;
+    return y;
+  }
+
   clear(color: any) {
     const canvas = document.getElementById("gfx") as HTMLCanvasElement;
     const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
