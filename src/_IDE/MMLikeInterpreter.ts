@@ -5,18 +5,27 @@ type KeyInfo = {
   key: string,
   // usually ASCII code
   asciiCode: number,
-  // as on a keyboard
+  // as on a keyboard, prefer this when possible
   keyName: string,
   // as understood by MiniMicro
   mmName: string,
 }
 
+const mmKeyNames = [
+  {mmName: "space", "keyName": "Space"},
+  {mmName: "left", "keyName": "ArrowLeft"},
+  {mmName: "right", "keyName": "ArrowRight"},
+  {mmName: "up", "keyName": "ArrowUp"},
+  {mmName: "down", "keyName": "ArrowDown"},
+];
+
 function toMMKeyName(e: KeyboardEvent): string {
-  if (e.key === " ") {
-    return "space";
-  } else {
-    return e.key.toLowerCase();
+  for (let entry of mmKeyNames) {
+    if (entry.keyName === e.code) {
+      return entry.mmName;
+    }
   }
+    return e.key.toLowerCase();
 }
 
 class KeyInfoSet {
