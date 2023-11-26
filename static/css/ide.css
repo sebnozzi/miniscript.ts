@@ -26,6 +26,8 @@ body {
 #gfx {
   border: 2px solid gray;
   background-color: white;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
 }
 /* Necessary so that the whole line is marked */
 .ace_marker-layer {

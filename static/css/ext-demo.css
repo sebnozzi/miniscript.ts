@@ -20,5 +20,8 @@ body {
   border-left: inset 4px gray;
   border-right: inset 4px gray;
   border-bottom: inset 4px gray;
-
+}
+#gfx {
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
 }
