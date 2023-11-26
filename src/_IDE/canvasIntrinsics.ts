@@ -82,7 +82,7 @@ class GfxPrimitives {
 
   loadImage(url: string): Promise<HTMLImageElement | null> {
     const img = document.createElement("img");
-    const promise = new Promise<HTMLImageElement | null>((resolve, reject) => {
+    const promise = new Promise<HTMLImageElement | null>((resolve) => {
       img.onload = () => {
         resolve(img);
       };
