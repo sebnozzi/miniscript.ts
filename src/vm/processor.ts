@@ -34,6 +34,8 @@ class Processor {
   maxCount: number = 73681;
   // Callback when processing done
   onFinished: Function;
+  // Callback before executing cycles
+  onBeforeCycles: Function;
   // Callback when suspended until a Promise delivers a result
   onSuspendedByPromise: Function;
   // Callback when the result Promise is resolved
@@ -61,6 +63,7 @@ class Processor {
     this.savedFrames = new Stack<Frame>();
     this.opStack = new Stack();
     this.cycleCount = 0;
+    this.onBeforeCycles = function() {};
     this.onFinished = function() {};
     this.onSuspendedByPromise = function() {};
     this.onPromiseResolved = function() {
@@ -165,6 +168,7 @@ class Processor {
   executeCycles(maxCount: number | null = null) {
     maxCount = maxCount !== null ? maxCount : this.maxCount;
     this.cycleCount = 0;
+    this.onBeforeCycles();
     while(this.cycleCount < maxCount) {
       // Finish if IP > len(opcodes)
       if (this.ip >= this.code.opCodes.length) {
