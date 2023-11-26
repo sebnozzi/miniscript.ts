@@ -2,6 +2,8 @@
 
 class DemoInterpreter extends Interpreter {
 
+  private remotePath: string = "";
+
   constructor(stdoutCallback: TxtCallback, stderrCallback: TxtCallback) {
       super(stdoutCallback,stderrCallback);
 
@@ -15,7 +17,17 @@ class DemoInterpreter extends Interpreter {
       this.addKeyHandling();
   }
 
-  private addKeyHandling() {
+  setScriptUrl(scriptUrl: string) {
+    const regex = /(?<path>(?:.*\/)?)(?<fileName>\w+\.ms$)/gm;
+    const matches = regex.exec(scriptUrl,);
+    if (matches && matches.groups) {
+      const path = matches.groups["path"];
+      this.remotePath = path;
+      console.log("Setting remote path to:", this.remotePath);
+    }
+  }
+
+  private addKeyHandling(): void {
     console.log("Regisering key events");
     const canvas = document.getElementById("gfx") as HTMLCanvasElement;
     canvas.addEventListener("keydown", function(e: KeyboardEvent) {
@@ -29,20 +41,22 @@ class DemoInterpreter extends Interpreter {
   private addFileAPI() {
     const vm = this.vm;
     const fileMap = new HashMap();
-    
+    const outerThis = this;
+
     vm.addIntrinsic("file", function() {
       return fileMap;
     })
 
     vm.addMapIntrinsic(fileMap, 'loadImage(path="")',
-    function(path:string): Promise<HTMLImageElement | null> {
+    function(path: string): Promise<HTMLImageElement | null> {
+      const fullPath = `${outerThis.remotePath}${path}`;
       if (path === null || path === "") {
         return new Promise((resolve) => {
           resolve(null);
         });
       }
       const gfPrim = new GfxPrimitives();
-      return gfPrim.loadImage(path);
+      return gfPrim.loadImage(fullPath);
     });
 
     return fileMap;

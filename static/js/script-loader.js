@@ -10,19 +10,19 @@ addEventListener("DOMContentLoaded", (event) => {
   }
 });
 
-function fetchAndRunScript(url) {
-  fetch(url)
+function fetchAndRunScript(scriptUrl) {
+  fetch(scriptUrl)
   .then(response => response.text())
   .then(srcCode => {
     console.log(srcCode);
-    runCode(srcCode);
+    runCode(srcCode, scriptUrl);
   });
 }
 
-function runCode(srcCode) {
+function runCode(srcCode, scriptUrl) {
   const t0 = performance.now();
 
-  const interp = buildInterpreter();
+  const interp = buildInterpreter(scriptUrl);
   interp.onStarted = () => {
     console.log("Started Running.")
   }
@@ -37,9 +37,10 @@ function runCode(srcCode) {
   interp.runSrcCode(srcCode);  
 }
 
-function buildInterpreter() {
+function buildInterpreter(scriptUrl) {
   const txtCallback = (txt) => { console.log(txt); };
   const interp = new DemoInterpreter(txtCallback, txtCallback);
+  interp.setScriptUrl(scriptUrl);
   return interp;
 }
 
