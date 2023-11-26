@@ -73,14 +73,15 @@ class GfxPrimitives {
     ctx.restore();
   }
 
-  loadImage(url: string): Promise<HTMLImageElement> {
+  loadImage(url: string): Promise<HTMLImageElement | null> {
     const img = document.createElement("img");
-    const promise = new Promise<HTMLImageElement>((resolve, reject) => {
+    const promise = new Promise<HTMLImageElement | null>((resolve, reject) => {
       img.onload = () => {
         resolve(img);
       };
       img.onerror = () => {
-        reject(`Could not load ${url}`);
+        console.error(`Could not load image ${url}`);
+        resolve(null);
       }
     });
     img.src = url;  
