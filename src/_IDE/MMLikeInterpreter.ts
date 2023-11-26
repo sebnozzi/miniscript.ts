@@ -25,7 +25,7 @@ function toMMKeyName(e: KeyboardEvent): string {
       return entry.mmName;
     }
   }
-    return e.key.toLowerCase();
+  return e.key.toLowerCase();
 }
 
 class KeyInfoSet {
@@ -108,16 +108,21 @@ class EventHandler {
     const keyInfo = this.toKeyInfo(e);
     this.keyDown = keyInfo;
     this.keysPressed.add(keyInfo);
-    e.stopPropagation();
-    e.preventDefault();
+    console.log("Down:", e.key, e.code, keyInfo);
+    if (!e.metaKey && !e.ctrlKey) {
+      e.stopPropagation();
+      e.preventDefault();
+    }
   }
 
   private handleKeyUp(e: KeyboardEvent) {
     const keyInfo = this.toKeyInfo(e);
     this.keyUp = keyInfo;
     this.keysPressed.delete(keyInfo);
-    e.stopPropagation();
-    e.preventDefault();
+    if (!e.metaKey && !e.ctrlKey) {
+      e.stopPropagation();
+      e.preventDefault();
+    }
   }
 
   private handleMouseMove(e: MouseEvent) {
