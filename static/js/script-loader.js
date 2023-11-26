@@ -8,6 +8,8 @@ addEventListener("DOMContentLoaded", (event) => {
     const url = scriptUrls[0];
     fetchAndRunScript(url);
   }
+  const canvas = document.getElementById("gfx");
+  canvas.focus();
 });
 
 function fetchAndRunScript(scriptUrl) {
