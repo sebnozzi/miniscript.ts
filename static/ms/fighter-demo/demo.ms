@@ -1,6 +1,7 @@
 clear
 
 img = file.loadImage("Fighter-small.png")
+snd = file.loadSound("pew.wav")
 
 x = 300
 y = 300
@@ -19,6 +20,11 @@ while true
   if key.pressed("right") then x += v
   if key.pressed("up") then y += v
   if key.pressed("down") then y -= v
+
+  if key.available then
+    k = key.get
+    if k == " " then snd.play
+  end if
 
   x = keepWithin(x, 20, 880)
   y = keepWithin(y, 20, 570)

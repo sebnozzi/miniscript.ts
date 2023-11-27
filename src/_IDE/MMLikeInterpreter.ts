@@ -52,6 +52,7 @@ class KeyInfoSet {
 class EventHandler {
   
   keysPressed = new KeyInfoSet();
+  keysBuffer = new Array<KeyInfo>();
   keyUp: KeyInfo | null = null;
   keyDown: KeyInfo | null = null;
   mouseButtonsDown: boolean[] = [];
@@ -59,6 +60,7 @@ class EventHandler {
   mouseY: number = -1;
   eventListeners: { [eventName: string]: (e: any ) => void };
   canvas: HTMLCanvasElement;
+  lastKeyBufferAdditionTs: number = 0;
 
   constructor(canvasId: string) {
 
@@ -88,6 +90,18 @@ class EventHandler {
     return result;
   }
 
+  isBufferKeyAvailable(): boolean {
+    return this.keysBuffer.length > 0;
+  }
+
+  clearBuffer() {
+    this.keysBuffer = [];
+  }
+
+  popKeyFromBuffer(): KeyInfo | null {
+    return this.keysBuffer.pop() || null;
+  }
+
   isMouseDown(buttonNr: number): boolean {
     return this.mouseButtonsDown[buttonNr];
   }
@@ -103,13 +117,35 @@ class EventHandler {
       this.canvas.removeEventListener(eventName, callback as any);
     }
   }
+
+  private addKeyToBuffer(k: KeyInfo) {
+    const now = performance.now();
+    const deltaTs = now - this.lastKeyBufferAdditionTs;
+    let shouldAdd = false;
+    if (this.keysBuffer.length === 0) {
+      shouldAdd = true;
+    } else if (deltaTs > 200) {
+      shouldAdd = true;
+    } else {
+      const lastElement = this.keysBuffer[0];
+      if (lastElement.key !== k.key) {
+        shouldAdd = true;
+      }
+    }
+    if (shouldAdd) {
+      console.log("Added to buffer")
+      this.keysBuffer.unshift(k);
+      this.lastKeyBufferAdditionTs = performance.now();
+    }
+  }
   
   private handleKeyDown(e: KeyboardEvent) {
     const keyInfo = this.toKeyInfo(e);
     this.keyDown = keyInfo;
     this.keysPressed.add(keyInfo);
+    this.addKeyToBuffer(keyInfo);
     console.log("Down:", e.key, e.code, keyInfo);
-    if (!e.metaKey && !e.ctrlKey) {
+    if (e.code === "Space") {
       e.stopPropagation();
       e.preventDefault();
     }
@@ -119,7 +155,8 @@ class EventHandler {
     const keyInfo = this.toKeyInfo(e);
     this.keyUp = keyInfo;
     this.keysPressed.delete(keyInfo);
-    if (!e.metaKey && !e.ctrlKey) {
+    this.lastKeyBufferAdditionTs = 0;
+    if (e.code === "Space") {
       e.stopPropagation();
       e.preventDefault();
     }
@@ -170,24 +207,34 @@ class EventHandler {
 
 class SoundManager {
 
-  playingSounds: Set<HTMLAudioElement>;
+  playingSounds: Map<HTMLAudioElement, Array<HTMLAudioElement>>;
 
   constructor(private vm: Processor, private soundMap: HashMap) {
-    this.playingSounds = new Set();
+    this.playingSounds = new Map();
   }
 
   play(self: any) {
     const outerThis = this;
     const optSnd = this.getNativeSound(self);
     if (optSnd) {
-      const playPromise = optSnd.play();
+      const soundClone = optSnd.cloneNode() as HTMLAudioElement;
+      const playPromise = soundClone.play();
       playPromise.then(() => {
-        outerThis.playingSounds.add(optSnd);
+        outerThis.addPlayingClone(optSnd, soundClone);
         optSnd.addEventListener("ended", () => {
-          outerThis.playingSounds.delete(optSnd);
-        })
-      })
+          outerThis.stop(optSnd);
+        });
+      });
     }
+  }
+
+  private addPlayingClone(original: HTMLAudioElement, clone: HTMLAudioElement) {
+    let playingClones = this.playingSounds.get(original);
+    if (playingClones === undefined) {
+      playingClones = new Array();
+      this.playingSounds.set(original, playingClones);
+    }
+    playingClones.unshift(clone);
   }
 
   private getNativeSound(self: any): HTMLAudioElement | null {
@@ -210,15 +257,27 @@ class SoundManager {
   stop(self: any) {
     const optSnd = this.getNativeSound(self);
     if (optSnd) {
-      optSnd.pause();
-      this.playingSounds.delete(optSnd);
+      this.stopNative(optSnd);
     }
   }
 
   stopAll() {
-    for (let snd of this.playingSounds) {
-      snd.pause();
-      this.playingSounds.delete(snd);
+    const originalSounds = Array.from(this.playingSounds.keys());
+    for (let snd of originalSounds) {
+      while (this.playingSounds.has(snd)) {
+        this.stopNative(snd);
+      }
+    }
+  }
+
+  private stopNative(originalSnd: HTMLAudioElement) {
+    const playingClones = this.playingSounds.get(originalSnd);
+    if (playingClones && playingClones.length > 0) {
+      const oldestClone = playingClones.pop();
+      oldestClone?.pause();
+      if (playingClones.length === 0) {
+        this.playingSounds.delete(originalSnd);
+      }
     }
   }
 
@@ -362,6 +421,31 @@ class MMLikeInterpreter extends Interpreter {
     function(keyName: string): number {
       const result = outerThis.eventHandler.isKeyPressed(keyName) ? 1 : 0;
       return result;
+    });
+
+    vm.addMapIntrinsic(keyMap, 'available',
+    function(): number {
+      const result = outerThis.eventHandler.isBufferKeyAvailable() ? 1 : 0;
+      return result;
+    });
+
+    vm.addMapIntrinsic(keyMap, 'get',
+    function(): Promise<string> {
+      const promise = new Promise<string>((resolve) => {
+        const action = () => {
+          const optKey = outerThis.eventHandler.popKeyFromBuffer();
+          if (optKey) {
+            resolve(optKey.key);
+          } else {
+            // Retry
+            setTimeout(() => {
+              action();
+            }, 10);
+          }
+        };
+        action();
+      });
+      return promise;
     });
 
   }
