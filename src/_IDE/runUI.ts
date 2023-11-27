@@ -47,7 +47,10 @@ class RunUI {
   
     const e = globalThis.editor;
     const srcCode = e.getValue();
-    interp.runSrcCode(srcCode);  
+    interp.runSrcCode(srcCode);
+
+    const canvas = document.getElementById("gfx") as HTMLCanvasElement;
+    canvas.focus();
   }
 
   stop() {
