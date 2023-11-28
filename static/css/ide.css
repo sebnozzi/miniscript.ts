@@ -25,7 +25,7 @@ body {
 }
 #gfx {
   border: 2px solid gray;
-  background-color: white;
+  background-color: black;
   image-rendering: pixelated;
   image-rendering: crisp-edges;
   outline: none;
