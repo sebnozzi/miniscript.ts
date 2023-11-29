@@ -6,7 +6,7 @@ class MMLikeGfx {
   }
 
   addGfxAPI() {
-    const gfPrim = new GfxPrimitives();
+    const gfPrim = new GfxPrimitives("gfx");
     const vm = this.vm;
     const gfxMap = new HashMap();
 
@@ -15,7 +15,9 @@ class MMLikeGfx {
       return gfxMap;
     });
 
-    vm.addMapIntrinsic(gfxMap, "clear(color=null)", gfPrim.clear);
+    vm.addMapIntrinsic(gfxMap, "clear(color=null)", function(color:any) {
+      gfPrim.clear(color);
+    });
     
     vm.addMapIntrinsic(gfxMap, "drawImage(img,left,bottom)", 
     function(img:HTMLImageElement, x:number, bottom:number) {
@@ -29,10 +31,15 @@ class MMLikeGfx {
       gfPrim.fillRect(x, y, width, height, color);
     });
 
+    vm.addMapIntrinsic(gfxMap, "drawRect(left,bottom,width,height,color,penSize)", 
+    function(x:number, bottom:number, width:number, height:number, color:string, penSize: number) {
+      let y = gfPrim.toTop(bottom, height);
+      gfPrim.drawRect(x, y, width, height, color, penSize);
+    });
+
     vm.addMapIntrinsic(gfxMap, "fillEllipse(left,bottom,width,height,color)", 
     function(x:number, bottom:number, width:number, height:number, color:string) {
       let y = gfPrim.toTop(bottom, height);
-      //y -= height * 2;
       x += width;
       gfPrim.fillEllipse(x, y, width, height, color);
     });
@@ -51,7 +58,7 @@ class MMLikeGfx {
       } else {
         fontSize = 16;
       }
-      let y = gfPrim.toTop(bottom, fontSize);
+      let y = gfPrim.toTop(bottom, 0);
       gfPrim.drawText(str, x, y, color, fontSize);
     });
 

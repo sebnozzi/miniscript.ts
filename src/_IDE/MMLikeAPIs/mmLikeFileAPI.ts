@@ -29,7 +29,7 @@ class MMLikeFileAPI {
           resolve(null);
         });
       }
-      const gfPrim = new GfxPrimitives();
+      const gfPrim = new GfxPrimitives("gfx");
       return gfPrim.loadImage(fullPath);
     });
 

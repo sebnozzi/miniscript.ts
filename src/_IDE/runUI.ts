@@ -49,7 +49,7 @@ class RunUI {
     const srcCode = e.getValue();
     interp.runSrcCode(srcCode);
 
-    const canvas = document.getElementById("gfx") as HTMLCanvasElement;
+    const canvas = document.getElementById("userEventLayer") as HTMLCanvasElement;
     canvas.focus();
   }
 

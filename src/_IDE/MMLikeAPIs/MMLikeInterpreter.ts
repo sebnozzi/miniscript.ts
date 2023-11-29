@@ -7,11 +7,14 @@ class MMLikeInterpreter extends Interpreter {
   private fileAPI: MMLikeFileAPI;
   private gfxAPI: MMLikeGfx;
   private userInteractionAPI: MMLikeUserInteractionAPI;
+  private initializing: boolean = false;
+  private spritesMgr: MMLikeSpritesMgr;
 
   constructor(stdoutCallback: TxtCallback, stderrCallback: TxtCallback) {
       super(stdoutCallback,stderrCallback);
+      this.initializing = true;
 
-      addCanvasIntrinsics(this.vm);
+      //addCanvasIntrinsics(this.vm);
 
       this.gfxAPI = new MMLikeGfx(this.vm);
       this.gfxAPI.addGfxAPI();
@@ -19,7 +22,7 @@ class MMLikeInterpreter extends Interpreter {
       this.userInteractionAPI = new MMLikeUserInteractionAPI(this.vm);
       this.userInteractionAPI.addUserInteractionAPI();
 
-      this.eventHandler = new EventHandler(this.vm, "gfx");
+      this.eventHandler = new EventHandler(this.vm);
       this.eventHandler.addKeyAPI();
       this.eventHandler.addMouseAPI();
 
@@ -29,15 +32,25 @@ class MMLikeInterpreter extends Interpreter {
       this.fileAPI = new MMLikeFileAPI(this.vm, this.soundMgr);
       this.fileAPI.addFileAPI();
 
+      this.spritesMgr = new MMLikeSpritesMgr(this.vm);
+      this.spritesMgr.addSpriteAPI();
+
       // Run scripts to create definitions / APIs
       this.defineHex2();
       this.addColorAPI();
 
       // Hook the callback to be run before cycles execution
       this.vm.onBeforeCycles = () => { this.callbackBeforeCycles() };
+
+      this.initializing = false;
   }
 
   protected processOnFinished(): void {
+    if (this.initializing) {
+      // Only clean up after initializing
+      return;
+    }
+
     if (this.soundMgr) {
       this.soundMgr.stopAll();
     }
@@ -58,7 +71,11 @@ class MMLikeInterpreter extends Interpreter {
   }
 
   private callbackBeforeCycles() {
+    if (this.initializing) {
+      return;
+    }
     this.eventHandler.reset();
+    this.spritesMgr.updateDisplay();
   }
 
   private defineHex2() {

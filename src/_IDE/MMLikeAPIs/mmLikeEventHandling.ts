@@ -58,13 +58,19 @@ class EventHandler {
   mouseX: number = -1;
   mouseY: number = -1;
   eventListeners: { [eventName: string]: (e: any ) => void };
-  canvas: HTMLCanvasElement;
+  eventLayer: HTMLElement;
+  canvasWidth: number = 0;
+  canvasHeight: number = 0;
   lastKeyBufferAdditionTs: number = 0;
 
-  constructor(private vm: Processor, canvasId: string) {
+  constructor(private vm: Processor) {
 
-    this.canvas = document.getElementById(canvasId) as HTMLCanvasElement;
+    this.eventLayer = document.getElementById("userEventLayer") as HTMLElement;
     const outerThis = this;
+    
+    const canvas = document.getElementById("gfx") as HTMLCanvasElement;
+    this.canvasWidth = canvas.width;
+    this.canvasHeight = canvas.height;
 
     this.eventListeners = {
       "keydown": (e: KeyboardEvent) => { outerThis.handleKeyDown(e); },
@@ -95,7 +101,9 @@ class EventHandler {
 
     vm.addMapIntrinsic(mouseMap, 'y',
     function(): number {
-      return outerThis.mouseY;
+      const domY = outerThis.mouseY;
+      const y = outerThis.canvasHeight - domY;
+      return y;
     });
 
     vm.addMapIntrinsic(mouseMap, 'button(which=0)',
@@ -175,13 +183,13 @@ class EventHandler {
 
   addEventListeners() {
     for (let [eventName, callback] of Object.entries(this.eventListeners)) {
-      this.canvas.addEventListener(eventName, callback as any);
+      this.eventLayer.addEventListener(eventName, callback as any);
     }
   }
 
   removeEventListeners() {
     for (let [eventName, callback] of Object.entries(this.eventListeners)) {
-      this.canvas.removeEventListener(eventName, callback as any);
+      this.eventLayer.removeEventListener(eventName, callback as any);
     }
   }
 
@@ -200,7 +208,6 @@ class EventHandler {
       }
     }
     if (shouldAdd) {
-      console.log("Added to buffer")
       this.keysBuffer.unshift(k);
       this.lastKeyBufferAdditionTs = performance.now();
     }
@@ -211,7 +218,6 @@ class EventHandler {
     this.keyDown = keyInfo;
     this.keysPressed.add(keyInfo);
     this.addKeyToBuffer(keyInfo);
-    console.log("Down:", e.key, e.code, keyInfo);
     if (e.code === "Space") {
       e.stopPropagation();
       e.preventDefault();
@@ -230,16 +236,19 @@ class EventHandler {
   }
 
   private handleMouseMove(e: MouseEvent) {
-    const canvas = this.canvas;
-    const rect = canvas.getBoundingClientRect()
+    const rect = this.eventLayer.getBoundingClientRect()
 
     const elementRelativeX = e.clientX - rect.left;
     const elementRelativeY = e.clientY - rect.top;
-    const canvasRelativeX = elementRelativeX * canvas.width / rect.width;
-    const canvasRelativeY = elementRelativeY * canvas.height / rect.height;
+    const canvasRelativeX = elementRelativeX * this.canvasWidth / rect.width;
+    const canvasRelativeY = elementRelativeY * this.canvasHeight / rect.height;
 
-    this.mouseX = Math.floor(canvasRelativeX);
-    this.mouseY = Math.floor(canvasRelativeY);
+    // Real DOM coordinates, not translated to MM
+    const domX = Math.floor(canvasRelativeX);
+    const domY = Math.floor(canvasRelativeY);
+
+    this.mouseX = domX
+    this.mouseY = domY
   }
 
   private handleMouseDown(e: MouseEvent) {

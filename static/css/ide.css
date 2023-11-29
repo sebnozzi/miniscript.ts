@@ -23,12 +23,29 @@ body {
   justify-content: center;
   width: 100%;
 }
-#gfx {
-  border: 2px solid gray;
+#canvasContainer {
   background-color: black;
+  border: 2px solid gray;
+  width: 640px;
+  height: 480px;
+}
+.mmDisplay {
+  position: absolute;
   image-rendering: pixelated;
   image-rendering: crisp-edges;
-  outline: none;
+  outline: none; 
+}
+#userEventLayer {
+  position: absolute;
+  z-index: 999;
+  width: 640px;
+  height: 480px;
+}
+#gfx {
+  z-index: 1;
+}
+#sprd {
+  z-index: 2;
 }
 /* Necessary so that the whole line is marked */
 .ace_marker-layer {

@@ -12,8 +12,9 @@ body {
 }
 #canvasContainer {
   width: 960px;
-  height: 640px;
+  height: 640px;  
   padding: 10px;
+  cursor: pointer;
   background-color: black;
   border-radius: 10px;
   border-top: inset 4px gray;
@@ -21,8 +22,23 @@ body {
   border-right: inset 4px gray;
   border-bottom: inset 4px gray;
 }
-#gfx {
+.mmDisplay {
+  position: absolute;
+  outline: none; 
+}
+canvas.mmDisplay {
   image-rendering: pixelated;
   image-rendering: crisp-edges;
-  outline: none;
+}
+#gfx {
+  z-index: 1;
+}
+#sprd {
+  z-index: 2;
+}
+#userEventLayer {
+  /* position: absolute; */
+  z-index: 999;
+  width: 960px;
+  height: 640px;
 }

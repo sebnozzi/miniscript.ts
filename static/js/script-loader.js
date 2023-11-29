@@ -8,7 +8,7 @@ addEventListener("DOMContentLoaded", (event) => {
     const url = scriptUrls[0];
     fetchAndRunScript(url);
   }
-  const canvas = document.getElementById("gfx");
+  const canvas = document.getElementById("userEventLayer");
   canvas.focus();
 });
 
