@@ -47,6 +47,8 @@ for i in range(1,7)
   rocks.push rock
 end for
 
+text.setCell "A", 0, 0
+
 while true
   for r in rocks
     r.update

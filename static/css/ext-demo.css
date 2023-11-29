@@ -36,6 +36,9 @@ canvas.mmDisplay {
 #sprd {
   z-index: 2;
 }
+#txtDsp {
+  z-index: 3;
+}
 #userEventLayer {
   /* position: absolute; */
   z-index: 999;

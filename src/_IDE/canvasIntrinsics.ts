@@ -80,6 +80,12 @@ class GfxPrimitives {
     ctx.fillRect(x,y,width-1,height-1);
   }
 
+  clearRect(x:number,y:number,width:number,height:number) {
+    const canvas = this.canvas;
+    const ctx = this.ctx;
+    ctx.clearRect(x,y,width-1,height-1);
+  }
+
   drawRect(x:number,y:number,width:number,height:number,color:string,penSize:number) {
     const canvas = this.canvas;
     const ctx = this.ctx;
@@ -124,7 +130,7 @@ class GfxPrimitives {
     ctx.save();
     ctx.font = `${size}px monospace`;
     ctx.fillStyle = color;
-    ctx.textBaseline = "alphabetic";
+    ctx.textBaseline = "bottom";
     ctx.fillText(txt,x,y);
     ctx.restore();
   }

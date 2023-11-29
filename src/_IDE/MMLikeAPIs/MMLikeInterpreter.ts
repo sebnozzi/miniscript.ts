@@ -9,6 +9,7 @@ class MMLikeInterpreter extends Interpreter {
   private userInteractionAPI: MMLikeUserInteractionAPI;
   private initializing: boolean = false;
   private spritesMgr: MMLikeSpritesMgr;
+  private txtDsp: MMLikeTxtDisp;
 
   constructor(stdoutCallback: TxtCallback, stderrCallback: TxtCallback) {
       super(stdoutCallback,stderrCallback);
@@ -25,6 +26,9 @@ class MMLikeInterpreter extends Interpreter {
       this.eventHandler = new EventHandler(this.vm);
       this.eventHandler.addKeyAPI();
       this.eventHandler.addMouseAPI();
+
+      this.txtDsp = new MMLikeTxtDisp(this.vm);
+      this.txtDsp.addTextAPI();
 
       this.soundMgr = new SoundManager(this.vm);
       this.soundMgr.addSoundAPI();
