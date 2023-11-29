@@ -47,6 +47,7 @@ class GfxPrimitives {
   clear(color: any) {
     const canvas = this.canvas;
     const ctx = this.ctx;
+    this.ctx.translate(-1,-1);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = "rgba(0, 0, 0, 0)";
     ctx.fillRect(0,0,canvas.width,canvas.height);
@@ -54,6 +55,7 @@ class GfxPrimitives {
       ctx.fillStyle = color;
       ctx.fillRect(0,0,canvas.width,canvas.height);
     }
+    this.ctx.translate(1,1);
   }
 
   drawImage(img: HTMLImageElement,x:number,y:number) {

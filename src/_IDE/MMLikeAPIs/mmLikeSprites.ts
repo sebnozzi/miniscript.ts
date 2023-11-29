@@ -47,9 +47,8 @@ class MMLikeSpritesMgr {
   }
 
   updateDisplay() {
-    const ctx = this.ctx;
     // Clear display
-    ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    this.gfxPrim.clear(null);
     // Draw each sprite
     const sprites = this.sprdMap.get("sprites");
     if (sprites instanceof Array) {
