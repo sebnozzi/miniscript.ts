@@ -952,7 +952,7 @@ class Parser {
   private failParsing(message: string): ParserError {
     let pos = this.peek().location.start;
     // Pretend that the end of file is at a new line.
-    // The official miniScript parser apparently operates so.
+    // The official MiniScript parser apparently operates so.
     // We need this so that the line-nr matches in the error message.
     if (this.peek().tokenType === TokenType.EOF && pos.col !== 0) {
       pos = pos.copy();

@@ -14,7 +14,7 @@ function addIdentityIntrinsics(p: Processor) {
     } else if (typeof a === "number") {
       result = (typeof b === "number" && a === b);
     } else if (typeof a === "string") {
-      // NOTE: this does not behave like C# miniScript, where String objects
+      // NOTE: this does not behave like C# MiniScript, where String objects
       // can have different references. This would suppose a major implementation
       // change (and possibly peformance loss) and no official test covers this. 
       // So we let it stay for now.

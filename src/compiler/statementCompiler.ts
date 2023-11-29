@@ -128,7 +128,7 @@ class StatementCompiler {
     let exprCompilerContext = new ExpressionCompilerContext();
     // Mark context as "statement". Let the expression compiler
     // know that the expression is an statement-expression.
-    // miniScript sometimes behaves differently in this case. 
+    // MiniScript sometimes behaves differently in this case. 
     exprCompilerContext = exprCompilerContext.enterStatement();
     // Compile expression and discard result
     this.builder.startMapEntry();    

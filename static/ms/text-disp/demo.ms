@@ -36,7 +36,7 @@ wait 1
 clear
 
 print "Hello"
-print "miniScript!"
+print "MiniScript!"
 
 wait 1
 

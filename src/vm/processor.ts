@@ -976,7 +976,7 @@ class Processor {
         this.ip += 1;
       }
     } else {
-      // Function is a miniScript-code function.
+      // Function is a MiniScript-code function.
       // (not an intrinsic)
 
       // Let it return to the next bytecode after the call
