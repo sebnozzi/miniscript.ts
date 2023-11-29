@@ -49,7 +49,7 @@ class Processor {
   // Maximum depth of call stack
   maxCallStackDepth: number = 2000;
 
-  constructor(public readonly stdoutCallback: TxtCallback, public readonly stderrCallback: TxtCallback) {
+  constructor(public stdoutCallback: TxtCallback, public stderrCallback: TxtCallback) {
     this.code = new Code();
     this.ip = 0;
     this.globalContext = new Context(this);
