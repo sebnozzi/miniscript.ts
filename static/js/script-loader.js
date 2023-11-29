@@ -47,6 +47,10 @@ function buildInterpreter(scriptUrl) {
 }
 
 function getScriptURLs() {
+  const srcParam = getUrlParam("src");
+  if (srcParam) {
+    return [srcParam];
+  }
   const urls = [];
   const scripts = document.getElementsByTagName("script");
   for (let script of scripts) {
@@ -60,5 +64,17 @@ function getScriptURLs() {
       }
     }
   }
+
   return urls;
+}
+
+
+function getUrlParam(paramName) {
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.has(paramName)) {
+    const value = urlParams.get(paramName);
+    return value;
+  } else {
+    return null;
+  }
 }
