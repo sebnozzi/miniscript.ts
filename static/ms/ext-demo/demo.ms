@@ -18,5 +18,5 @@ print color
 
 for i in range(1,1000)
   wait 0.1
-  if key.pressed("space") then print("SPACE!")
+  if key.pressed("space") then print("SPACE!") 
 end for
