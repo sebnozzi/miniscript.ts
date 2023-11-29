@@ -42,9 +42,17 @@ class MMLikeInterpreter extends Interpreter {
       // Run scripts to create definitions / APIs
       this.defineHex2();
       this.addColorAPI();
+      this.defineClear();
 
       // Hook the callback to be run before cycles execution
       this.vm.onBeforeCycles = () => { this.callbackBeforeCycles() };
+
+      this.vm.stdoutCallback = (line: string) => {
+        this.txtDsp.print(line);
+      }
+      this.vm.stderrCallback = (line: string) => {
+        this.txtDsp.print(line);
+      }
 
       this.initializing = false;
   }
@@ -80,6 +88,18 @@ class MMLikeInterpreter extends Interpreter {
     }
     this.eventHandler.reset();
     this.spritesMgr.updateDisplay();
+  }
+
+  private defineClear() {
+    const code = `
+    clear = function
+	    text.clear
+      text.column = 0
+      text.row = 25
+      gfx.clear
+      sprd.clear
+    end function`;
+    this.runSrcCode(code);
   }
 
   private defineHex2() {

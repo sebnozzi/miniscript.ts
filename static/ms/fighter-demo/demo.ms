@@ -1,4 +1,6 @@
-gfx.clear
+clear
+
+print "Fighter demo"
 
 img = file.loadImage("Fighter-small.png")
 rockImg = file.loadImage("Rock.png")
@@ -46,8 +48,6 @@ for i in range(1,7)
   sprd.sprites.push rock
   rocks.push rock
 end for
-
-text.setCell "A", 0, 0
 
 while true
   for r in rocks

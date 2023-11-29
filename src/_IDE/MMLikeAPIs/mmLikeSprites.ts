@@ -34,6 +34,11 @@ class MMLikeSpritesMgr {
 
     this.sprdMap.set("sprites", new Array());
 
+    vm.addMapIntrinsic(this.sprdMap, "clear",
+    function() {
+      outerThis.clear();
+    });
+
     // Sprite "type"
     vm.addIntrinsic("Sprite", 
     function() {
@@ -59,6 +64,11 @@ class MMLikeSpritesMgr {
         }
       }
     }
+  }
+
+  private clear() {
+    this.gfxPrim.clear(null);
+    this.sprdMap.set("sprites", new Array());
   }
 
   private toSprite(obj: any): SpriteData | null {

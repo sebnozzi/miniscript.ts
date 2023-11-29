@@ -44,4 +44,15 @@ end for
 
 gfx.drawRect 0,0,960,640,color.red
 
+wait 1
 
+clear
+
+print "Hello"
+print "miniScript!"
+
+wait 1
+
+text.color = color.lime
+print ""
+print "(using text-display)"
