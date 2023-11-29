@@ -50,9 +50,6 @@ class MMLikeInterpreter extends Interpreter {
       this.vm.stdoutCallback = (line: string) => {
         this.txtDsp.print(line);
       }
-      this.vm.stderrCallback = (line: string) => {
-        this.txtDsp.print(line);
-      }
 
       this.initializing = false;
   }

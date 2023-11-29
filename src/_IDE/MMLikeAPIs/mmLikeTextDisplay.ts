@@ -102,19 +102,24 @@ class MMLikeTxtDisp {
     const bgColor = this.getCurrentBgColor();
 
     for (let rowNr = 0; rowNr < 26; rowNr++) {
-      const row: TxtDspCell[] = [];
-      for (let colNr = 0; colNr < 68; colNr++) {
-        const cell: TxtDspCell = {
-          char: "",
-          bgColor: bgColor,
-          fgColor: fgColor,
-        }
-        row.push(cell);
-      }
+      const row: TxtDspCell[] = this.makeRow(fgColor, bgColor);
       rowCells.push(row);
     }
 
     return rowCells;
+  }
+
+  private makeRow(fgColor: string, bgColor: string): TxtDspCell[] {
+    const row: TxtDspCell[] = [];
+    for (let colNr = 0; colNr < 68; colNr++) {
+      const cell: TxtDspCell = {
+        char: "",
+        bgColor: bgColor,
+        fgColor: fgColor,
+      }
+      row.push(cell);
+    }
+    return row;
   }
 
   private getCurrentFgColor(): string {
@@ -186,7 +191,26 @@ class MMLikeTxtDisp {
   }
 
   private scrollUp() {
-    throw new Error("Not Implemented!");
+    const fgColor = this.getCurrentFgColor();
+    const bgColor = this.getCurrentBgColor();
+    // Append new row at the end
+    const newRow = this.makeRow(fgColor, bgColor);
+    this.rowCells.push(newRow);
+    // Delete first row
+    this.rowCells.splice(0, 1);
+    // Repaint!
+    this.repaintAllCells();
+  }
+
+  private repaintAllCells() {
+    for (let mmRowNr = 0; mmRowNr < 26; mmRowNr++) {
+      const rowNr = 25 - mmRowNr;
+      const row = this.rowCells[rowNr];
+      for (let colNr = 0; colNr < 68; colNr++) {
+        const cell = row[colNr];
+        this.repaintCell(cell, colNr, mmRowNr);
+      }
+    }
   }
 
   private setCell(ch: string, colNr: number, mmRowNr: number) {
