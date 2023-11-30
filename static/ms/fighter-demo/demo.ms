@@ -3,7 +3,7 @@ clear
 print "Fighter demo"
 
 img = file.loadImage("Fighter-small.png")
-rockImg = file.loadImage("Rock.png")
+rockImg = file.loadImage("/sys/pics/Rock.png")
 bg = file.loadImage("sky-background.png")
 
 snd = file.loadSound("pew.wav")
@@ -67,7 +67,6 @@ while true
   end if
 
   if mouse.button then
-    print "mouse-click" + [mouse.x, mouse.y]
     gfx.fillEllipse mouse.x-size,mouse.y-size,size,size,color.red
     gfx.drawRect mouse.x-size/2,mouse.y-size/2,size,size,color.blue,2
   end if
