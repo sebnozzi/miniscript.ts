@@ -43,6 +43,7 @@ class MMLikeInterpreter extends Interpreter {
       this.defineHex2();
       this.addColorAPI();
       this.defineClear();
+      this.defineReadOnlyDisplay4();
 
       // Hook the callback to be run before cycles execution
       this.vm.onBeforeCycles = () => { this.callbackBeforeCycles() };
@@ -52,6 +53,18 @@ class MMLikeInterpreter extends Interpreter {
       }
 
       this.initializing = false;
+  }
+  
+  private defineReadOnlyDisplay4() {
+    const outerThis = this;
+    this.vm.addIntrinsic("display(nr)",
+    function(nr: number) {
+      if (nr === 4) {
+        return outerThis.spritesMgr.getDisplayObj();
+      } else {
+        throw outerThis.vm.runtimeError("Other displays not supported");
+      }
+    })
   }
 
   protected processOnFinished(): void {

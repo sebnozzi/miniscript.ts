@@ -51,6 +51,10 @@ class MMLikeSpritesMgr {
     spriteType.set("image", null);
   }
 
+  getDisplayObj(): HashMap {
+    return this.sprdMap;
+  }
+
   updateDisplay() {
     // Clear display
     this.gfxPrim.clear(null);
