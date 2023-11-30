@@ -47,6 +47,9 @@ body {
 #sprd {
   z-index: 2;
 }
+#txtDsp {
+  z-index: 3;
+}
 /* Necessary so that the whole line is marked */
 .ace_marker-layer {
   > div:not(.ace_selection){
