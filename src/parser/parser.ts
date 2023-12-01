@@ -363,19 +363,16 @@ class Parser {
     const openingToken = this.previous();
     let fullLocation: SrcLocation;
 
-    if (context.insideFunction) {
-      let optReturnValue
-      if (this.isAtEndOfStatement(context)) {
-        optReturnValue = undefined
-        fullLocation = openingToken.location;
-      } else {
-        optReturnValue = this.functionBodyOrExpr(context) as Expression;
-        fullLocation = openingToken.location.upTo(optReturnValue.location());
-      }      
-      return new ReturnStatement(optReturnValue, fullLocation);
+    let optReturnValue;
+    if (this.isAtEndOfStatement(context)) {
+      optReturnValue = undefined
+      fullLocation = openingToken.location;
     } else {
-      throw this.failParsing("Keyword 'return' only allowed in function body")
-    }
+      optReturnValue = this.functionBodyOrExpr(context) as Expression;
+      fullLocation = openingToken.location.upTo(optReturnValue.location());
+    }      
+    
+    return new ReturnStatement(optReturnValue, fullLocation);
   }
 
   private expressionStatement(context: ParsingContext): Statement {

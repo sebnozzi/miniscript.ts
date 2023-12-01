@@ -1,4 +1,11 @@
 ======================================================================
+==== return outside of function
+==== should be allowed and have no effect
+print "Hello"
+return 3
+----------------------------------------------------------------------
+Hello
+======================================================================
 ==== Iterate over chars in a for-loop
 s = "HELLO"
 for ch in s

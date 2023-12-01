@@ -183,19 +183,15 @@ class StatementCompiler {
   }
 
   private compileReturnStatement(s: ReturnStatement, context: CompilerContext) {
-    if (context.insideFunctionBody()) {
-      this.builder.startMapEntry();
-      if (s.optValue) {
-        this.compileExpression(s.optValue)
-      } else {
-        // Push a "null" value if not explicitly returning anything
-        this.builder.push(BC.PUSH, null);
-      }
-      this.builder.push(BC.RETURN);
-      this.builder.endMapEntry(s.location());
+    this.builder.startMapEntry();
+    if (s.optValue) {
+      this.compileExpression(s.optValue)
     } else {
-      throw new Error("return outside function body");
+      // Push a "null" value if not explicitly returning anything
+      this.builder.push(BC.PUSH, null);
     }
+    this.builder.push(BC.RETURN);
+    this.builder.endMapEntry(s.location());
   }
 
   private compileIfStatement(s: IfStatement, context: CompilerContext) {

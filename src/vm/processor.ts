@@ -220,7 +220,15 @@ class Processor {
           break;
         }
         case BC.RETURN: {
+          // Pop frame if we are inside of a function call.
+          if (this.savedFrames.count() > 0) {
           this.popFrame();
+          } else {
+            // Otherwise pop return value
+            this.opStack.pop();
+            // and treat it as a no-op.
+            this.ip += 1;
+          }
           break;
         }
         case BC.ASSIGN_LOCAL: {
