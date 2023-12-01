@@ -55,10 +55,18 @@ class MMLikeFileAPI {
 
   resolveFullUrl(path: string): string {
     if (path.indexOf("/sys") === 0) {
-      return `https://raw.githubusercontent.com/JoeStrout/minimicro-sysdisk/master${path}`;
+      return this.resolveSysDirFullUrl(path);
     } else {
-      return `${this.remotePath}${path}`;
+      return this.resolveWorkingDirFullUrl(path);
     }
+  }
+
+  resolveWorkingDirFullUrl(path: string): string {
+    return `${this.remotePath}${path}`;
+  }
+
+  resolveSysDirFullUrl(path: string): string {
+    return `https://raw.githubusercontent.com/JoeStrout/minimicro-sysdisk/master${path}`;
   }
 
 }

@@ -39,6 +39,9 @@ class MMLikeInterpreter extends Interpreter {
       this.spritesMgr = new MMLikeSpritesMgr(this.vm);
       this.spritesMgr.addSpriteAPI();
 
+      const moduleLoader = new MMLikeModuleLoader(this.vm, this.fileAPI);
+      moduleLoader.addImportAPI();
+
       // Run scripts to create definitions / APIs
       this.defineHex2();
       this.addColorAPI();
@@ -50,6 +53,7 @@ class MMLikeInterpreter extends Interpreter {
 
       this.vm.stdoutCallback = (line: string) => {
         this.txtDsp.print(line);
+        console.log(line);
       }
 
       this.initializing = false;

@@ -1,5 +1,13 @@
-print 42 < "42"
-print 42 < 43 < "43"
+import "fooModule"
+
+print fooModule.txtTimes(3)
+print fooModule.hasIndex("myOtherDefinition")
+
+import "stringUtil"
+import "listUtil"
+
+print "miniScript".capitalized
+print ["A", "B", "C"].reversed
 
 // Animation class
 
