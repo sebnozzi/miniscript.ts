@@ -91,6 +91,23 @@ class Processor {
     this.runUntilDone();
   }
 
+  createSubProcessVM(): Processor {
+    // Create sub-VM
+    const subVM = new Processor(this.stdoutCallback, this.stderrCallback);
+    // Assign aspects of the running VM
+    subVM.globalContext = this.globalContext;
+    subVM.intrinsicsMap = this.intrinsicsMap;
+    subVM.listCoreType = this.listCoreType;
+    subVM.mapCoreType = this.mapCoreType;
+    subVM.stringCoreType = this.stringCoreType;
+    subVM.numberCoreType = this.numberCoreType;
+    subVM.funcRefCoreType = this.funcRefCoreType;
+    subVM.executionStartTime = this.executionStartTime;
+    subVM.rndGenerator = this.rndGenerator;
+    // Return
+    return subVM;
+  }
+
   addIntrinsic(signature: string, impl: Function) {
     const [fnName, argNames, defaultValues] = parseSignature(signature);
     const intrinsicFn = this.makeIntrinsicFn(impl, argNames, defaultValues);
@@ -222,7 +239,7 @@ class Processor {
         case BC.RETURN: {
           // Pop frame if we are inside of a function call.
           if (this.savedFrames.count() > 0) {
-          this.popFrame();
+            this.popFrame();
           } else {
             // Otherwise pop return value
             this.opStack.pop();
