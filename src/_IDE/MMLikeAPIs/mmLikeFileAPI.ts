@@ -22,7 +22,7 @@ class MMLikeFileAPI {
     })
 
     vm.addMapIntrinsic(fileMap, 'loadImage(path="")',
-    function(path: string): Promise<HTMLImageElement | null> {
+    function(path: string): Promise<HashMap | null> {
       const fullPath = outerThis.resolveFullUrl(path);
       if (path === null || path === "") {
         return new Promise((resolve) => {
@@ -52,11 +52,12 @@ class MMLikeFileAPI {
     return fileMap;
   }
 
-  loadImage(url: string): Promise<HTMLImageElement | null> {
+  loadImage(url: string): Promise<HashMap | null> {
     const img = document.createElement("img");
-    const promise = new Promise<HTMLImageElement | null>((resolve) => {
+    const promise = new Promise<HashMap | null>((resolve) => {
       img.onload = () => {
-        resolve(img);
+        const map = toImageMap(img);
+        resolve(map);
       };
       img.onerror = () => {
         console.error(`Could not load image ${url}`);
@@ -66,7 +67,6 @@ class MMLikeFileAPI {
     img.src = url;  
     return promise;
   }
-
 
   resolveFullUrl(path: string): string {
     if (path.indexOf("/sys") === 0) {

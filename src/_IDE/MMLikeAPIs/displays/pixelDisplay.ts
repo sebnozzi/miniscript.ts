@@ -50,7 +50,7 @@ class PixelDisplay extends Display {
     });
     
     vm.addMapIntrinsic(gfxMap, "drawImage(img,x,y)", 
-    function(img:HTMLImageElement, x:number, y:number) {
+    function(img: HashMap, x:number, y:number) {
       outerThis.drawImage(img, x, y);
     });
 
@@ -183,19 +183,25 @@ class PixelDisplay extends Display {
     ctx.restore();
   }
 
-  private drawImage(img: HTMLImageElement, x: number, y: number) {
-    y = this.toTop(y, img.height);
-    this.ctx.drawImage(img, x, y);
+  private drawImage(img: HashMap, x: number, y: number) {
+    const nativeImg = getNativeImg(img);
+    if (nativeImg) {
+      y = this.toTop(y, nativeImg.height);
+      this.ctx.drawImage(nativeImg, x, y);
+    }
   }
 
-  private getImage(x: number, y: number, width: number, height: number): Promise<HTMLImageElement> {
+  private getImage(x: number, y: number, width: number, height: number): Promise<HashMap> {
     y = this.toTop(y, height);
     const rect = new PIXI.Rectangle(x,y,width,height);
     const source = this.pixiContainer;
     const app = this.dspMgr.getPixiApplication();
     const extract = app.renderer.extract;
-    const imgPromise = extract.image(source, null, null, rect);
-    return imgPromise;
+    const imgPromise: Promise<HTMLImageElement> = extract.image(source, null, null, rect);
+    const mapPromise = imgPromise.then((img) => {
+      return toImageMap(img);
+    });
+    return mapPromise;
 
   }
 
