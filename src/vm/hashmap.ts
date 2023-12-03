@@ -4,15 +4,30 @@ type HashMapEntry = {
 };
 
 class HashMap {
+
   private _size: number = 0;
   private buckets: Map<any, Array<HashMapEntry>>;
+  private valueSetWatchers: null | Map<any, Array<Function>>;
 
   constructor() {
     this.buckets = new Map<any, Array<HashMapEntry>>();
+    this.valueSetWatchers = null;
   }
 
   size(): number {
     return this._size;
+  }
+
+  onAfterValueSet(key: any, callback: (newValue: any) => void) {
+    if (this.valueSetWatchers === null) {
+      this.valueSetWatchers = new Map();
+    }
+    let watchers = this.valueSetWatchers.get(key);
+    if (watchers === undefined) {
+      watchers = new Array();
+    }
+    watchers.push(callback);
+    this.valueSetWatchers.set(key, watchers);
   }
 
   set(key: any, value: any) {
@@ -20,24 +35,41 @@ class HashMap {
       this.delete(key);
       return;
     }
+
+    // Locate bucket
     const _hashCode = hashCode(key);
     let bucket = this.buckets.get(_hashCode);
     if (!bucket) {
       bucket = new Array<HashMapEntry>();
       this.buckets.set(_hashCode, bucket);
     }
-    // Look for existing entry
+
+    let entryFound = false;
+    // Look for existing entry in bucket
     for (let i = 0; i < bucket.length; i++) {
       // Map already contains something under given key.
       // Overwrite with new value.
       if (equals(bucket[i].key, key)) {
           bucket[i].value = value;
-          return;
+          entryFound = true;
+          break;
       }
     }
     // If no existing entry, add new
-    bucket.push({ key: key, value: value });
-    this._size += 1;
+    if (!entryFound) {
+      bucket.push({ key: key, value: value });
+      this._size += 1;
+    }
+
+    // Notify watchers of value set
+    if (this.valueSetWatchers !== null) {
+      const watchers = this.valueSetWatchers.get(key);
+      if (watchers instanceof Array) {
+        for (let callback of watchers) {
+          callback(value);
+        }
+      }
+    }
   }
 
   get(key: any): any | undefined {
