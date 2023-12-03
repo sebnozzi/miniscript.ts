@@ -27,7 +27,7 @@ class HashMap {
       this.buckets.set(_hashCode, bucket);
     }
     // Look for existing entry
-    for (let i = 0; i < bucket.length; ++i) {
+    for (let i = 0; i < bucket.length; i++) {
       // Map already contains something under given key.
       // Overwrite with new value.
       if (equals(bucket[i].key, key)) {
