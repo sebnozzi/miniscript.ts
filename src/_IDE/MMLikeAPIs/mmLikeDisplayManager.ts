@@ -14,6 +14,10 @@ class MMLikeDisplayManager {
     this.canvasHeight = this.displayCanvas.width;
   }
 
+  getPixiApplication(): any {
+    return this.pixiApp;
+  }
+
   addDisplayApi() {
     const vm = this.vm;
     const outerThis = this;
@@ -211,11 +215,6 @@ class MMLikeDisplayManager {
       }
     }
     return null;
-  }
-
-  private getDisplayMode(dsp: HashMap): number {
-    const mode = dsp.get("mode");
-    return toIntegerValue(mode);
   }
 
   private changeSlotDisplayMode(slotNr: number, modeNr: number) {

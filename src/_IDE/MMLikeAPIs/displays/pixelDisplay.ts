@@ -79,6 +79,11 @@ class PixelDisplay extends Display {
       outerThis.print(str,x,y,color,fontName);
     });
 
+    vm.addMapIntrinsic(gfxMap, 'getImage(left,bottom,width,height)', 
+    function(x:number, y:number, width:number, height:number) {
+      return outerThis.getImage(x,y,width,height);
+    });
+
   }
   
   private clear(color: any) {
@@ -181,6 +186,17 @@ class PixelDisplay extends Display {
   private drawImage(img: HTMLImageElement, x: number, y: number) {
     y = this.toTop(y, img.height);
     this.ctx.drawImage(img, x, y);
+  }
+
+  private getImage(x: number, y: number, width: number, height: number): Promise<HTMLImageElement> {
+    y = this.toTop(y, height);
+    const rect = new PIXI.Rectangle(x,y,width,height);
+    const source = this.pixiContainer;
+    const app = this.dspMgr.getPixiApplication();
+    const extract = app.renderer.extract;
+    const imgPromise = extract.image(source, null, null, rect);
+    return imgPromise;
+
   }
 
 }
