@@ -68,7 +68,7 @@ class EventHandler {
     this.eventLayer = document.getElementById("userEventLayer") as HTMLElement;
     const outerThis = this;
     
-    const canvas = document.getElementById("gfx") as HTMLCanvasElement;
+    const canvas = document.getElementById("displayCanvas") as HTMLCanvasElement;
     this.canvasWidth = canvas.width;
     this.canvasHeight = canvas.height;
 

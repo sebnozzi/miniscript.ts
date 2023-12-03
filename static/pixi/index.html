@@ -1,0 +1,171 @@
+<!doctype html>
+<html>
+  <link rel="shortcut icon" href="#">
+  <head>
+    <script src="https://pixijs.download/release/pixi.min.js"></script>
+  </head>
+  <body>
+    <script>
+
+      // Create the application helper and add its render target to the page
+      let app = new PIXI.Application({ 
+        width: 960, 
+        height: 640,
+        hello: true,
+        antialias: false,
+       });
+      document.body.appendChild(app.view);
+
+      const txtDisp = new PIXI.Container();
+      const gfxDisp = new PIXI.Container();
+      const sprDisp = new PIXI.Container();
+
+      app.stage.addChild(txtDisp);
+      app.stage.addChild(gfxDisp);
+      app.stage.addChild(sprDisp);
+
+      const gfx = new PIXI.Graphics();
+      gfx.beginFill(0xff0000);
+      gfx.drawRect(960 / 2 - 100, 640 / 2 - 100, 200, 200);
+      gfx.endFill();
+      gfx.beginFill(0x0000FF);
+      gfx.drawCircle(960 / 2, 640 / 2, 100);
+      gfx.endFill();
+
+      gfxDisp.addChild(gfx);
+
+      // Create the sprite and add it to the stage
+      let sprite = PIXI.Sprite.from('Fighter.png');
+      sprite.anchor.set(0.5);
+      sprite.angle = -90;
+      sprite.scale.set(0.75, 0.75);
+      //sprite.tint = "lime";
+      sprite.alpha = 0.5;
+      sprite.x = (960 / 2);
+      sprite.y = (640 / 2);
+
+      sprDisp.addChild(sprite);
+
+      PIXI.BitmapFont.from('TextFontNormal', {
+        fontFamily: 'monospace',
+        fontSize: 20,
+        strokeThickness: 1,
+        fill: 'white',
+      });
+
+      const charHeight = 24 // height / 26
+      const charWidth = 14 // width / 68
+  
+      const charBgPrototype = new PIXI.Graphics();
+      charBgPrototype.beginFill(0xFFFFFF);
+      charBgPrototype.drawRect(0, 0, charWidth, charHeight);
+      charBgPrototype.endFill();
+
+      const chars = [];
+
+      for (let rowNr = 0; rowNr < 26; rowNr++) {
+        for (let colNr = 0; colNr < 68; colNr++) {
+          const charContainer = new PIXI.Container();
+
+          const charText = new PIXI.BitmapText('O', { fontName: 'TextFontNormal' });
+          const charBg = charBgPrototype.clone();
+
+          charBg.name = "bg";
+          charText.name = "txt";
+
+          charContainer.addChild(charBg);
+          charContainer.addChild(charText);
+
+          txtDisp.addChild(charContainer);
+          charContainer.x = colNr * charWidth;
+          charContainer.y = rowNr * charHeight;
+
+          chars.push(charContainer);
+        }
+      }
+
+
+
+      function changeAllChars() {
+
+        for (let i = 0; i < chars.length; i++) {
+          const rndTxtColor = colors[Math.floor(Math.random() * colors.length)];
+          const rndBgColor = colors[Math.floor(Math.random() * colors.length)];
+          const rndLetter = String.fromCharCode(64 + Math.floor(Math.random() * 25));
+
+          const charObj = chars[i];
+          const bg = charObj.getChildAt(0);
+          const txt = charObj.getChildAt(1);
+          
+          txt.text = rndLetter;
+          bg.tint = rndBgColor;
+          txt.tint = rndTxtColor;
+        }
+
+        //setTimeout(() => {changeAllChars()}, 0);
+      }
+
+      const colors = ["white", "gray", "lime", "aqua", "orange", "purple"];
+
+      function changeRandomChar() {
+        const rndIdx = Math.floor(Math.random() * chars.length);
+        const rndTxtColor = colors[Math.floor(Math.random() * colors.length)];
+        const rndBgColor = colors[Math.floor(Math.random() * colors.length)];
+
+        const charObj = chars[rndIdx];
+        const bg = charObj.getChildByName("bg");
+        const txt = charObj.getChildByName("txt");
+
+        bg.tint = rndBgColor;
+        txt.tint = rndTxtColor;
+      }
+
+      app.ticker.add((delta) => {
+        //elapsed += delta;
+
+      });
+
+      setTimeout(() => {
+
+        const rend = app.renderer;
+        const rect = new PIXI.Rectangle(960/2-100,640/2-100,200,200);
+        const extr = rend.extract;
+        const newCanvas = extr.canvas(gfxDisp, rect);
+        
+        document.body.appendChild(newCanvas);
+
+      }, 2000);
+
+      addEventListener("DOMContentLoaded", (event) => {
+        const gfxCanvas = document.getElementById("gfx");
+        const ctx = gfxCanvas.getContext("2d");
+        const img = document.getElementById("fighterImg");
+        ctx.drawImage(img, 0, 0);
+        const s = PIXI.Sprite.from(gfxCanvas);
+        sprDisp.addChild(s);
+        s.x = 0;
+        s.y = 0;
+        setTimeout(() => {
+          ctx.fillStyle = "blue";
+          ctx.fillRect(200,200,100,100);
+
+          setTimeout(() => {
+            s.texture.update();
+          }, 500);
+
+        }, 100);
+      });
+
+      // Add a ticker callback to move the sprite back and forth
+      /*
+      let elapsed = 0.0;
+      app.ticker.add((delta) => {
+        elapsed += delta;
+
+      });
+      */
+    </script>
+    <img id="fighterImg" src="Fighter.png"/>
+    <canvas id="gfx" width="600" height="600"></canvas>
+  </body>
+</html>

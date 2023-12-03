@@ -29,8 +29,7 @@ class MMLikeFileAPI {
           resolve(null);
         });
       }
-      const gfPrim = new GfxPrimitives("gfx");
-      return gfPrim.loadImage(fullPath);
+      return outerThis.loadImage(fullPath);
     });
 
     vm.addMapIntrinsic(fileMap, 'loadSound(path="")',
@@ -52,6 +51,22 @@ class MMLikeFileAPI {
 
     return fileMap;
   }
+
+  loadImage(url: string): Promise<HTMLImageElement | null> {
+    const img = document.createElement("img");
+    const promise = new Promise<HTMLImageElement | null>((resolve) => {
+      img.onload = () => {
+        resolve(img);
+      };
+      img.onerror = () => {
+        console.error(`Could not load image ${url}`);
+        resolve(null);
+      }
+    });
+    img.src = url;  
+    return promise;
+  }
+
 
   resolveFullUrl(path: string): string {
     if (path.indexOf("/sys") === 0) {

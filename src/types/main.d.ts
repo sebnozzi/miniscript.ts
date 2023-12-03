@@ -2,3 +2,4 @@
 
 declare var ace: any;
 declare var editor: any;
+declare var PIXI: any;

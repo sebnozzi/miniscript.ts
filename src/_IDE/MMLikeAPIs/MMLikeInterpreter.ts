@@ -5,20 +5,17 @@ class MMLikeInterpreter extends Interpreter {
   private eventHandler: EventHandler;
   private soundMgr: SoundManager;
   private fileAPI: MMLikeFileAPI;
-  private gfxAPI: MMLikeGfx;
   private userInteractionAPI: MMLikeUserInteractionAPI;
+  private dspMgr: MMLikeDisplayManager;
   private initializing: boolean = false;
-  private spritesMgr: MMLikeSpritesMgr;
-  private txtDsp: MMLikeTxtDisp;
 
   constructor(stdoutCallback: TxtCallback, stderrCallback: TxtCallback) {
       super(stdoutCallback,stderrCallback);
       this.initializing = true;
 
-      //addCanvasIntrinsics(this.vm);
-
-      this.gfxAPI = new MMLikeGfx(this.vm);
-      this.gfxAPI.addGfxAPI();
+      this.dspMgr = new MMLikeDisplayManager(this.vm);
+      this.dspMgr.addDisplayApi();
+      this.dspMgr.initDisplays();
 
       this.userInteractionAPI = new MMLikeUserInteractionAPI(this.vm);
       this.userInteractionAPI.addUserInteractionAPI();
@@ -27,17 +24,11 @@ class MMLikeInterpreter extends Interpreter {
       this.eventHandler.addKeyAPI();
       this.eventHandler.addMouseAPI();
 
-      this.txtDsp = new MMLikeTxtDisp(this.vm);
-      this.txtDsp.addTextAPI();
-
       this.soundMgr = new SoundManager(this.vm);
       this.soundMgr.addSoundAPI();
 
       this.fileAPI = new MMLikeFileAPI(this.vm, this.soundMgr);
       this.fileAPI.addFileAPI();
-
-      this.spritesMgr = new MMLikeSpritesMgr(this.vm);
-      this.spritesMgr.addSpriteAPI();
 
       const moduleLoader = new MMLikeModuleLoader(this.vm, this.fileAPI);
       moduleLoader.addImportAPI();
@@ -46,29 +37,17 @@ class MMLikeInterpreter extends Interpreter {
       this.defineHex2();
       this.addColorAPI();
       this.defineClear();
-      this.defineReadOnlyDisplay4();
+      this.defineDisplays();
+      this.definePrint();
 
       // Hook the callback to be run before cycles execution
       this.vm.onBeforeCycles = () => { this.callbackBeforeCycles() };
 
       this.vm.stdoutCallback = (line: string) => {
-        this.txtDsp.print(line);
         console.log(line);
       }
 
       this.initializing = false;
-  }
-  
-  private defineReadOnlyDisplay4() {
-    const outerThis = this;
-    this.vm.addIntrinsic("display(nr)",
-    function(nr: number) {
-      if (nr === 4) {
-        return outerThis.spritesMgr.getDisplayObj();
-      } else {
-        throw outerThis.vm.runtimeError("Other displays not supported");
-      }
-    })
   }
 
   protected processOnFinished(): void {
@@ -88,7 +67,7 @@ class MMLikeInterpreter extends Interpreter {
   }
 
   setScriptUrl(scriptUrl: string) {
-    const regex = /(?<path>(?:.*\/)?)(?<fileName>\w+\.ms$)/gm;
+    const regex = /(?<path>(?:[^\/]+\/)+)(?<fileName>.+\.ms$)/gm;
     const matches = regex.exec(scriptUrl,);
     if (matches && matches.groups) {
       const path = matches.groups["path"];
@@ -100,8 +79,8 @@ class MMLikeInterpreter extends Interpreter {
     if (this.initializing) {
       return;
     }
+    this.dspMgr.update();
     this.eventHandler.reset();
-    this.spritesMgr.updateDisplay();
   }
 
   private defineClear() {
@@ -111,8 +90,23 @@ class MMLikeInterpreter extends Interpreter {
       text.column = 0
       text.row = 25
       gfx.clear
-      sprd.clear
     end function`;
+    this.runSrcCode(code);
+  }
+
+  private definePrint() {
+    const code = `
+    print = function(txt,delimiter=null)
+	    text.print txt,delimiter
+    end function`;
+    this.runSrcCode(code);
+  }
+
+  private defineDisplays() {
+    const code = `
+    text = display(3)
+    gfx = display(5)
+    `;
     this.runSrcCode(code);
   }
 

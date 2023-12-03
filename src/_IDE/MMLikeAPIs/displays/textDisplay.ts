@@ -1,56 +1,107 @@
-
 type TxtDspCell = {
   char: string,
   fgColor: string,
   bgColor: string | null,
 }
 
-class MMLikeTxtDisp {
+class TextDisplay extends Display {
 
-  private gfx: GfxPrimitives;
   private rowCells: TxtDspCell[][];
-  private textMap: HashMap;
 
   private defaultFgColor = "#C0C0C0FF";
   private defaultBgColor = "#00000000"
   private defaultDelimiter = "\n";
 
-  constructor(private vm: Processor) {
-    this.gfx = new GfxPrimitives("txtDsp");
-    this.textMap = new HashMap();
+  private charContainers: Array<any>;
 
-    this.textMap.set("color", this.defaultFgColor);
-    this.textMap.set("backColor", this.defaultBgColor);
-    this.textMap.set("column", 0);
-    this.textMap.set("row", 25);
-    this.textMap.set("delimiter", this.defaultDelimiter);
+  
+  constructor(dspMgr: MMLikeDisplayManager) {
+    super(dspMgr);
 
     this.rowCells = this.makeCellRows();
+
+    this.charContainers = new Array();
+
+    this.initGraphics();
   }
 
-  print(str: string) {
+  getModeNr(): DisplayMode {
+    return DisplayMode.text;
+  }
+
+  private initGraphics() {
+    const originX = 5;
+    const originY = 6;
+
+    const charHeight = 24;
+    const charWidth = 14;
+
+    const parentContainer = this.pixiContainer; 
+    parentContainer.x = originX;
+    parentContainer.y = this.toTop(originY, charHeight * 26);
+
+    const charBgPrototype = new PIXI.Graphics();
+    // Fill with solid white
+    charBgPrototype.beginFill("white");
+    charBgPrototype.drawRect(0, 0, charWidth, charHeight);
+    charBgPrototype.endFill();
+
+    const charContainers = this.charContainers;
+
+    for (let rowNr = 0; rowNr < 26; rowNr++) {
+      for (let colNr = 0; colNr < 68; colNr++) {
+        const charContainer = new PIXI.Container();
+
+        const charText = new PIXI.BitmapText('', { fontName: 'TextFontNormal' });
+        const charBg = charBgPrototype.clone();
+
+        charBg.visible = false;
+
+        charBg.name = "bg";
+        charText.name = "txt";
+
+        charContainer.addChild(charBg);
+        charContainer.addChild(charText);
+
+        parentContainer.addChild(charContainer);
+        charContainer.x = colNr * charWidth;
+        charContainer.y = rowNr * charHeight;
+
+        charContainers.push(charContainer);
+      }
+    }
+  }
+
+  print(str: string, delimiter: string) {
+    const [colNr, rowNr] = this.getCursorPosition();
     for (let ch of Array.from(str)) {
       this.putChar(ch);
     }
-    const delimiter = this.getDelimiter();
-    this.putChar(delimiter);
+    if (delimiter === null) {
+      delimiter = this.getDelimiter();
+    }
+
+    for (let ch of Array.from(delimiter)) {
+      this.putChar(ch);
+    }
   }
 
-  addTextAPI() {
-    const vm = this.vm;
+  addDisplayAPI(): void {
+    const vm = this.dspMgr.vm;
     const outerThis = this;
     
-    vm.addIntrinsic("text", 
-    function() {
-      return outerThis.textMap;
-    });
+    this.dsp.set("color", this.defaultFgColor);
+    this.dsp.set("backColor", this.defaultBgColor);
+    this.dsp.set("column", 0);
+    this.dsp.set("row", 25);
+    this.dsp.set("delimiter", this.defaultDelimiter);
 
-    vm.addMapIntrinsic(this.textMap, "setCell(k,x,y)",
+    vm.addMapIntrinsic(this.dsp, "setCell(k,x,y)",
     function(ch: string, colNr: number, mmRowNr: number) {
       outerThis.setCell(ch, colNr, mmRowNr);
     });
 
-    vm.addMapIntrinsic(this.textMap, "setCellColor(x,y,color)",
+    vm.addMapIntrinsic(this.dsp, "setCellColor(x,y,color)",
     function(colNr: number, mmRowNr: number, color: string) {
       const rowNr = 25 - mmRowNr;
       const row = outerThis.rowCells[rowNr];
@@ -64,7 +115,7 @@ class MMLikeTxtDisp {
       outerThis.repaintCell(newCell, colNr, mmRowNr);
     });
 
-    vm.addMapIntrinsic(this.textMap, "setCellBackColor(x,y,color)",
+    vm.addMapIntrinsic(this.dsp, "setCellBackColor(x,y,color)",
     function(colNr: number, mmRowNr: number, color: string) {
       const rowNr = 25 - mmRowNr;
       const row = outerThis.rowCells[rowNr];
@@ -78,12 +129,13 @@ class MMLikeTxtDisp {
       outerThis.repaintCell(newCell, colNr, mmRowNr);
     });
 
-    vm.addMapIntrinsic(this.textMap, 'print(str="")',
-    function(str: string) {
-      outerThis.print(str);
+    vm.addMapIntrinsic(this.dsp, 'print(str="",delimiter=null)',
+    function(str: string, delimiter: string) {
+      str = formatValue(str);
+      outerThis.print(str, delimiter);
     });
 
-    vm.addMapIntrinsic(this.textMap, 'clear',
+    vm.addMapIntrinsic(this.dsp, 'clear',
     function() {
       outerThis.clear();
     });
@@ -92,7 +144,7 @@ class MMLikeTxtDisp {
 
   private clear() {
     this.rowCells = this.makeCellRows();
-    this.gfx.clear(null);
+    this.repaintAllCells();
   }
 
   private makeCellRows(): TxtDspCell[][] {
@@ -123,7 +175,8 @@ class MMLikeTxtDisp {
   }
 
   private getCurrentFgColor(): string {
-    const optColor = this.vm.mapAccessOpt(this.textMap, "color");
+    const vm = this.dspMgr.vm;
+    const optColor = vm.mapAccessOpt(this.dsp, "color");
     if (typeof optColor === "string") {
       return optColor
     } else {
@@ -132,16 +185,18 @@ class MMLikeTxtDisp {
   }
 
   private getCurrentBgColor(): string {
-    const optColor = this.vm.mapAccessOpt(this.textMap, "backColor");
+    const vm = this.dspMgr.vm;
+    const optColor = vm.mapAccessOpt(this.dsp, "backColor");
     if (typeof optColor === "string") {
       return optColor
     } else {
-      return this.defaultFgColor;
+      return this.defaultBgColor;
     }
   }
 
   private getDelimiter(): string {
-    const d = this.vm.mapAccessOpt(this.textMap, "delimiter");
+    const vm = this.dspMgr.vm;
+    const d = vm.mapAccessOpt(this.dsp, "delimiter");
     if (typeof d === "string") {
       return d
     } else {
@@ -150,8 +205,9 @@ class MMLikeTxtDisp {
   }
 
   private getCursorPosition(): [number, number] {
-    let col = this.vm.mapAccessOpt(this.textMap, "column");
-    let row = this.vm.mapAccessOpt(this.textMap, "row");
+    const vm = this.dspMgr.vm;
+    let col = vm.mapAccessOpt(this.dsp, "column");
+    let row = vm.mapAccessOpt(this.dsp, "row");
     if (typeof col !== "number") {
       col = 0;
     }
@@ -162,19 +218,19 @@ class MMLikeTxtDisp {
   }
 
   private putChar(ch: string) {
-    let [colNr, rowNr] = this.getCursorPosition();
-    this.setCell(ch, colNr, rowNr);
-    this.setCurrentColors(colNr, rowNr);
     if (ch === "\n") {
       this.goToNewLine();
     } else {
+      let [colNr, rowNr] = this.getCursorPosition();
+      this.setCell(ch, colNr, rowNr);
+      this.setCurrentColors(colNr, rowNr);
       this.advanceCursor();
     }
   }
 
   private advanceCursor() {
     let [colNr, _] = this.getCursorPosition();
-    this.textMap.set("column", colNr + 1);
+    this.dsp.set("column", colNr + 1);
     if (colNr + 1 > 67) {
       this.goToNewLine();
     }
@@ -182,11 +238,11 @@ class MMLikeTxtDisp {
 
   private goToNewLine() {
     let [_, rowNr] = this.getCursorPosition();
-    this.textMap.set("column", 0);
-    this.textMap.set("row", rowNr - 1);
+    this.dsp.set("column", 0);
+    this.dsp.set("row", rowNr - 1);
     if (rowNr - 1 < 0) {
       this.scrollUp();
-      this.textMap.set("row", 0);
+      this.dsp.set("row", 0);
     }
   }
 
@@ -241,25 +297,27 @@ class MMLikeTxtDisp {
 
   private repaintCell(cell: TxtDspCell, colNr: number, mmRowNr: number) {
 
-    const charHeight = 24 // height / 26
-    const charWidth = 14 // width / 68
-  
-    const originX = 5 // 960 / 2 - ((charWidth * 68) / 2)
-    const originY = 6 // 640 / 2 - ((charHeight * 26) / 2)
+    const rowNr = 25 - mmRowNr;
+    const idx = colNr + rowNr * 68;
+    const container = this.charContainers[idx];
 
-    const fontSize = 20;
-
-    let y = originY + (mmRowNr ) * charHeight;
-    y = this.gfx.toTop(y, 0);
-
-    const x = originX + (colNr ) * charWidth
     let fgColor = cell.fgColor;
     let bgColor = cell.bgColor;
-    this.gfx.clearRect(x,y-charHeight,charWidth+1,charHeight+1);
+
+    const bgCell = container.getChildAt(0);
+    const txtCell = container.getChildAt(1);
+    
+    txtCell.text = cell.char;
+    txtCell.tint = fgColor;
+    
     if (bgColor) {
-      this.gfx.fillRect(x,y-charHeight,charWidth+1,charHeight+1, bgColor);
+      bgCell.visible = true;
+      bgCell.tint = bgColor;
+    } else {
+      bgCell.visible = false;
     }
-    this.gfx.drawText(cell.char, x, y, fgColor, fontSize);
+
   }
+
 
 }
