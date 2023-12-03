@@ -21,6 +21,11 @@ class SpriteDisplay extends Display {
 
     dsp.set("sprites", new Array());
 
+    vm.addMapIntrinsic(dsp, "clear", 
+    function() {
+      outerThis.clear();
+    });
+
     // Sprite "type"
     vm.addIntrinsic("Sprite", 
     function() {
@@ -110,6 +115,12 @@ class SpriteDisplay extends Display {
         this.pixiContainer.remove(existing);
       }
     }
+  }
+
+  // Remove all sprites from screen and display list
+  private clear() {
+    this.dsp.set("sprites", new Array());
+    this.pixiContainer.removeChildren();
   }
 
 }
