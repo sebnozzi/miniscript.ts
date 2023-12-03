@@ -64,6 +64,26 @@ class MMLikeDisplayManager {
       }
       outerThis.installDisplay(dsp, idx);
     });
+
+    // Add display classes as instrinsic functions
+    vm.addIntrinsic("OffDisplay", function() {
+      return outerThis.newOffDisplay();
+    });
+    vm.addIntrinsic("SolidColorDisplay", function() {
+      return outerThis.newSolidColorDisplay();
+    });
+    vm.addIntrinsic("TextDisplay", function() {
+      return outerThis.newTextDisplay();
+    });
+    vm.addIntrinsic("PixelDisplay", function() {
+      return outerThis.newPixelDisplay();
+    });
+    vm.addIntrinsic("TileDisplay", function() {
+      return outerThis.newTileDisplay();
+    });
+    vm.addIntrinsic("SpriteDisplay", function() {
+      return outerThis.newSpriteDisplay();
+    });
   }
 
   initDisplays() {
