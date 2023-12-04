@@ -87,6 +87,9 @@ class Bounds {
   }
 
   static fromMap(vm: Processor, map: HashMap): Bounds | null {
+    if (!(map instanceof HashMap)) {
+      return null;
+    }
     let x = vm.mapAccessOpt(map, "x");
     let y = vm.mapAccessOpt(map, "y");
     let width = vm.mapAccessOpt(map, "width");
@@ -100,6 +103,15 @@ class Bounds {
       return b;
     }
     return null;
+  }
+
+  toMap(): HashMap | null {
+    const map = new HashMap();
+    map.set("x", this.x);
+    map.set("y", this.y);
+    map.set("width", this.width);
+    map.set("height", this.height);
+    return map;
   }
 
   overlaps(other: Bounds): boolean {
