@@ -51,22 +51,9 @@ class SpriteDisplay extends Display {
           const x = toIntegerValue(mapGet(sprite, "x"));
           const y = toIntegerValue(mapGet(sprite, "y"));
           const rotation = toIntegerValue(mapGet(sprite, "rotation"));
-          let tint = mapGet(sprite, "tint");
-          let alpha = 1
-          // #000000
-          if (typeof tint === "string" && tint.length >= 6) {
-            if (tint[0] === '#') {
-              const alphaHex = tint.slice(7);
-              const alphaValue = parseInt(alphaHex, 16);
-              if (Number.isInteger(alphaValue)) {
-                alpha = alphaValue / 255;
-              }
-              tint = tint.slice(0,7)
-            }
-          } else {
-            tint = "#FFFFFF";
-          }
-
+          const tintValue = mapGet(sprite, "tint");
+          const [tint, alpha] = this.getTintAndAlpha(tintValue);
+          
           let scale = mapGet(sprite, "scale");
           let scaleX = 1.0;
           let scaleY = 1.0;
