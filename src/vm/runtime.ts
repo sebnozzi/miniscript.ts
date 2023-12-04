@@ -515,6 +515,16 @@ function checkRange(i: number, min: number, max: number, desc: string = "index")
   }
 }
 
+function checkNumber(arg: any, errorMsg: string, vm: Processor|null = null) {
+  if (Number.isFinite(arg)) {
+    return;
+  } else if (vm instanceof Processor) {
+    throw vm.runtimeError(errorMsg);
+  } else {
+    throw new RuntimeError(errorMsg);
+  }
+}
+
 function checkInt(arg: any, errorMsg: string, vm: Processor|null = null) {
   if (Number.isInteger(arg)) {
     return;
