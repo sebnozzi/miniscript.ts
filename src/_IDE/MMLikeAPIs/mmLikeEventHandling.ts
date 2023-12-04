@@ -55,8 +55,7 @@ class EventHandler {
   keyUp: KeyInfo | null = null;
   keyDown: KeyInfo | null = null;
   mouseButtonsDown: boolean[] = [];
-  mouseX: number = -1;
-  mouseY: number = -1;
+  mouseType: HashMap;
   eventListeners: { [eventName: string]: (e: any ) => void };
   eventLayer: HTMLElement;
   canvasWidth: number = 0;
@@ -71,6 +70,8 @@ class EventHandler {
     const canvas = document.getElementById("displayCanvas") as HTMLCanvasElement;
     this.canvasWidth = canvas.width;
     this.canvasHeight = canvas.height;
+
+    this.mouseType = new HashMap();
 
     this.eventListeners = {
       "keydown": (e: KeyboardEvent) => { outerThis.handleKeyDown(e); },
@@ -87,26 +88,17 @@ class EventHandler {
 
   addMouseAPI() {
     const vm = this.vm;
-    const mouseMap = new HashMap();
     const outerThis = this;
+    const mouseType = this.mouseType;
 
     vm.addIntrinsic("mouse", function() {
-      return mouseMap;
+      return outerThis.mouseType;
     });
 
-    vm.addMapIntrinsic(mouseMap, 'x',
-    function(): number {
-      return outerThis.mouseX;
-    });
+    mouseType.set("x", -1);
+    mouseType.set("y", -1);
 
-    vm.addMapIntrinsic(mouseMap, 'y',
-    function(): number {
-      const domY = outerThis.mouseY;
-      const y = outerThis.canvasHeight - domY;
-      return y;
-    });
-
-    vm.addMapIntrinsic(mouseMap, 'button(which=0)',
+    vm.addMapIntrinsic(mouseType, 'button(which=0)',
     function(which: number): number {
       return outerThis.isMouseDown(which) ? 1 : 0;
     });
@@ -247,8 +239,11 @@ class EventHandler {
     const domX = Math.floor(canvasRelativeX);
     const domY = Math.floor(canvasRelativeY);
 
-    this.mouseX = domX
-    this.mouseY = domY
+    // Translate to MM coordinates (only needed for Y)
+    const mmY = this.canvasHeight - domY;
+
+    this.mouseType.set("x", domX);
+    this.mouseType.set("y", mmY);
   }
 
   private handleMouseDown(e: MouseEvent) {
