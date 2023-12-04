@@ -186,7 +186,7 @@ class SpriteDisplay extends Display {
   overlaps(spriteMap: HashMap, other: any): number {
     const worldBounds = this.getWorldBounds(spriteMap);
     if (worldBounds) {
-      const otherBounds = Bounds.fromMap(this.vm, other);
+      const otherBounds = this.getWorldBounds(other);
       if (otherBounds) {
         const result = worldBounds.overlaps(otherBounds);
         return result ? 1 : 0;
