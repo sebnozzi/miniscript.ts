@@ -120,7 +120,6 @@ class PixelDisplay extends Display {
     ctx.save();
     ctx.fillStyle = color;
     ctx.fillRect(x,y,width-1,height-1);
-    console.log("fillRect", x, y, width-1, height-1);
     ctx.restore();
   }
 
@@ -131,13 +130,13 @@ class PixelDisplay extends Display {
     ctx.strokeStyle = color;
     ctx.lineWidth = penSize;
     ctx.strokeRect(x, y, width-1, height-1);
-    console.log("strokeRect", x, y, width-1, height-1);
     ctx.restore();
   }
 
   private fillEllipse(x: number, y: number, width: number, height: number, color: string) {
     y = this.toTop(y, height);
-    x += width;
+    x += width / 2;
+    y += height / 2;
     const ctx = this.ctx;
     ctx.save();
     ctx.fillStyle = color;
@@ -199,10 +198,15 @@ class PixelDisplay extends Display {
     const extract = app.renderer.extract;
     const imgPromise: Promise<HTMLImageElement> = extract.image(source, null, null, rect);
     const mapPromise = imgPromise.then((img) => {
-      return toImageMap(img);
+      const loadPromise = new Promise<HashMap>((resolve) => {
+        img.addEventListener("load", () => {
+          const map = toImageMap(img);
+          resolve(map);
+        });
+      });
+      return loadPromise;
     });
     return mapPromise;
-
   }
 
 }
