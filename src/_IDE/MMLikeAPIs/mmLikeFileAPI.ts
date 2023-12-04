@@ -56,7 +56,7 @@ class MMLikeFileAPI {
     const img = document.createElement("img") as HTMLImageElement;
     const promise = new Promise<HashMap | null>((resolve) => {
       img.onload = () => {
-        const map = toImageMap(img);
+        const map = toImageMap(this.vm, img);
         resolve(map);
       };
       img.onerror = () => {

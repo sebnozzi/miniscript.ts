@@ -261,7 +261,7 @@ class PixelDisplay extends Display {
     const mapPromise = imgPromise.then((img) => {
       const loadPromise = new Promise<HashMap>((resolve) => {
         img.addEventListener("load", () => {
-          const map = toImageMap(img);
+          const map = toImageMap(this.dspMgr.vm, img);
           resolve(map);
         });
       });
