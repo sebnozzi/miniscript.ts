@@ -113,7 +113,7 @@ class SpriteDisplay extends Display {
     const existingSprites = this.pixiContainer.children;
     for (let existing of existingSprites) {
       if (shouldBeSprites.indexOf(existing) === -1) {
-        this.pixiContainer.remove(existing);
+        this.pixiContainer.removeChild(existing);
       }
     }
   }
