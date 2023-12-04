@@ -94,7 +94,8 @@ class Bounds {
     let y = vm.mapAccessOpt(map, "y");
     let width = vm.mapAccessOpt(map, "width");
     let height = vm.mapAccessOpt(map, "height");
-    if (x && y && width && height) {
+    if (x !== undefined && y !== undefined 
+      && width !== undefined && height !== undefined) {
       x = toNumberValue(x);
       y = toNumberValue(y);
       width = toNumberValue(width);
