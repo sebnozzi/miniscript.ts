@@ -11,7 +11,7 @@ function addCollectionIntrinsics(p: Processor) {
     if (start <= stop) {
       step = step === null ? 1 : step;
       checkNumber(step, "Argument 'step' should be a number", p);
-      if (step < 1) {
+      if (step <= 0) {
         return new Array();
       }
       for (let i = start; i <= stop; i += step) {
