@@ -39,6 +39,7 @@ class MMLikeInterpreter extends Interpreter {
       this.defineClear();
       this.defineDisplays();
       this.definePrint();
+      this.defineBounds();
 
       // Hook the callback to be run before cycles execution
       this.vm.onBeforeCycles = () => { this.callbackBeforeCycles() };
@@ -100,6 +101,10 @@ class MMLikeInterpreter extends Interpreter {
 	    text.print txt,delimiter
     end function`;
     this.runSrcCode(code);
+  }
+
+  private defineBounds() {
+    createBoundsType(this.vm);
   }
 
   private defineDisplays() {
