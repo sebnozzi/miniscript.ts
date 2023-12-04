@@ -117,6 +117,14 @@ class PixelDisplay extends Display {
   private fillRect(x: number, y: number, width: number, height: number, color: string) {
     const ctx = this.ctx;
     y = this.toTop(y, height);
+
+    if (this.isTransparentColor(color)) {
+      ctx.save();
+      ctx.globalCompositeOperation = "destination-out";
+      ctx.fillRect(x,y,width-1,height-1);
+      ctx.restore();
+    }
+    
     ctx.save();
     ctx.fillStyle = color;
     ctx.fillRect(x,y,width-1,height-1);
@@ -138,6 +146,17 @@ class PixelDisplay extends Display {
     x += width / 2;
     y += height / 2;
     const ctx = this.ctx;
+
+    if (this.isTransparentColor(color)) {
+      ctx.save();
+      ctx.fillStyle = "#FFFFFF";
+      ctx.globalCompositeOperation = "destination-out";
+      ctx.beginPath();
+      ctx.ellipse(x,y,width/2-1,height/2-1,0,0,Math.PI*2);
+      ctx.fill();
+      ctx.restore();
+    }
+
     ctx.save();
     ctx.fillStyle = color;
     ctx.beginPath();
