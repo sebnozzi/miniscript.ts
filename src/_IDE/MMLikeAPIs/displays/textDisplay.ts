@@ -1,7 +1,7 @@
 type TxtDspCell = {
   char: string,
   fgColor: string,
-  bgColor: string | null,
+  bgColor: string,
 }
 
 class TextDisplay extends Display {
@@ -301,22 +301,18 @@ class TextDisplay extends Display {
     const idx = colNr + rowNr * 68;
     const container = this.charContainers[idx];
 
-    let fgColor = cell.fgColor;
-    let bgColor = cell.bgColor;
-
     const bgCell = container.getChildAt(0);
     const txtCell = container.getChildAt(1);
+
+    const [fgTint, fgAlpha] = this.getTintAndAlpha(cell.fgColor);
     
     txtCell.text = cell.char;
-    txtCell.tint = fgColor;
-    
-    if (bgColor) {
-      bgCell.visible = true;
-      bgCell.tint = bgColor;
-    } else {
-      bgCell.visible = false;
-    }
+    txtCell.tint = fgTint;
+    txtCell.alpha = fgAlpha;
 
+    const [bgTint, bgAlpha] = this.getTintAndAlpha(cell.bgColor);
+    bgCell.tint = bgTint;
+    bgCell.alpha = bgAlpha;
   }
 
 

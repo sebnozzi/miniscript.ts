@@ -64,4 +64,22 @@ abstract class Display {
     return y;
   }
 
+  protected getTintAndAlpha(tintValue: any): [string, number] {
+    let alpha = 1;
+    let tint = tintValue;
+    if (typeof tint === "string" && tint.length >= 6) {
+      if (tint[0] === '#') {
+        const alphaHex = tintValue.slice(7);
+        const alphaValue = parseInt(alphaHex, 16);
+        if (Number.isInteger(alphaValue)) {
+          alpha = alphaValue / 255;
+        }
+        tint = tintValue.slice(0,7)
+      }
+    } else {
+      tint = "#FFFFFF";
+    }
+    return [tint, alpha];
+  }
+
 }
