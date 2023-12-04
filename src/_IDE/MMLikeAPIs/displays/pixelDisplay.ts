@@ -137,6 +137,7 @@ class PixelDisplay extends Display {
 
     if (this.isTransparentColor(color)) {
       ctx.save();
+      ctx.fillStyle = "white";
       ctx.globalCompositeOperation = "destination-out";
       ctx.fillRect(x,y,width-1,height-1);
       ctx.restore();
@@ -155,7 +156,7 @@ class PixelDisplay extends Display {
     if (this.isTransparentColor(color)) {
       ctx.save();
       ctx.globalCompositeOperation = "destination-out";
-      ctx.strokeStyle = color;
+      ctx.strokeStyle = "white";
       ctx.lineWidth = penSize;
       ctx.strokeRect(x, y, width-1, height-1);
       ctx.restore();
@@ -176,7 +177,7 @@ class PixelDisplay extends Display {
 
     if (this.isTransparentColor(color)) {
       ctx.save();
-      ctx.fillStyle = "#FFFFFF";
+      ctx.fillStyle = "white";
       ctx.globalCompositeOperation = "destination-out";
       ctx.beginPath();
       ctx.ellipse(x,y,width/2-1,height/2-1,0,0,Math.PI*2);
@@ -201,6 +202,7 @@ class PixelDisplay extends Display {
 
     if (this.isTransparentColor(color)) {
       ctx.save();
+      ctx.strokeStyle = "white";
       ctx.globalCompositeOperation = "destination-out";
       ctx.lineWidth = penSize;
       ctx.beginPath();
@@ -233,6 +235,17 @@ class PixelDisplay extends Display {
     }
     y = this.toTop(y);
     const ctx = this.ctx;
+
+    if (this.isTransparentColor(color)) {
+      ctx.save();
+      ctx.font = `${fontSize}px monospace`;
+      ctx.fillStyle = "white";
+      ctx.textBaseline = "bottom";
+      ctx.globalCompositeOperation = "destination-out";
+      ctx.fillText(str,x,y);
+      ctx.restore();
+    }
+
     ctx.save();
     ctx.font = `${fontSize}px monospace`;
     ctx.fillStyle = color;
