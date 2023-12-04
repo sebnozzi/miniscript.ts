@@ -12,6 +12,8 @@ class PixelDisplay extends Display {
   constructor(dspMgr: MMLikeDisplayManager) {
     super(dspMgr);
     this.canvas = document.createElement("canvas") as HTMLCanvasElement;
+    this.canvas.setAttribute("image-rendering", "pixelated");
+    this.canvas.setAttribute("image-rendering", "crisp-edges");
     this.canvas.width = 960;
     this.canvas.height = 640;
     this.ctx = this.canvas.getContext("2d") as CanvasRenderingContext2D;
@@ -104,12 +106,27 @@ class PixelDisplay extends Display {
     const ctx = this.ctx;
     y0 = this.toTop(y0);
     y1 = this.toTop(y1);
+
+    if (this.isTransparentColor(color)) {
+      ctx.save();
+      ctx.lineWidth = penSize;
+      ctx.strokeStyle = "white";
+      ctx.globalCompositeOperation = "destination-out";
+      ctx.beginPath();
+      ctx.moveTo(x0, y0);
+      ctx.lineTo(x1-1, y1-1);
+      ctx.stroke();
+      ctx.restore();
+    }
+
     ctx.save();
+    ctx.lineWidth = penSize;
+    ctx.strokeStyle = color;
+
     ctx.beginPath();
     ctx.moveTo(x0, y0);
     ctx.lineTo(x1-1, y1-1);
-    ctx.lineWidth = penSize;
-    ctx.strokeStyle = color;
+
     ctx.stroke();
     ctx.restore();
   }
@@ -134,6 +151,16 @@ class PixelDisplay extends Display {
   private drawRect(x: number, y: number, width: number, height: number, color: string, penSize: number) {
     const ctx = this.ctx;
     y = this.toTop(y, height);
+
+    if (this.isTransparentColor(color)) {
+      ctx.save();
+      ctx.globalCompositeOperation = "destination-out";
+      ctx.strokeStyle = color;
+      ctx.lineWidth = penSize;
+      ctx.strokeRect(x, y, width-1, height-1);
+      ctx.restore();
+    }
+
     ctx.save();
     ctx.strokeStyle = color;
     ctx.lineWidth = penSize;
@@ -158,7 +185,9 @@ class PixelDisplay extends Display {
     }
 
     ctx.save();
+    ctx.globalCompositeOperation = "source-over";
     ctx.fillStyle = color;
+    ctx.lineWidth = 0.0;
     ctx.beginPath();
     ctx.ellipse(x,y,width/2-1,height/2-1,0,0,Math.PI*2);
     ctx.fill();
@@ -169,6 +198,17 @@ class PixelDisplay extends Display {
     y = this.toTop(y, height);
     x += width;
     const ctx = this.ctx;
+
+    if (this.isTransparentColor(color)) {
+      ctx.save();
+      ctx.globalCompositeOperation = "destination-out";
+      ctx.lineWidth = penSize;
+      ctx.beginPath();
+      ctx.ellipse(x,y,width/2-1,height/2-1,0,0,Math.PI*2);
+      ctx.stroke();
+      ctx.restore();
+    }
+
     ctx.save();
     ctx.strokeStyle = color;
     ctx.lineWidth = penSize;
