@@ -70,9 +70,9 @@ class SpriteDisplay extends Display {
           // If no handle, create and assign one
           if (handle === undefined) {
             const img = mapGet(sprite, "image");
-            const nativeImg = getNativeImg(img);
-            if (nativeImg) {
-              handle = PIXI.Sprite.from(nativeImg);
+            const nativeTexture = getNativeTexture(img);
+            if (nativeTexture) {
+              handle = PIXI.Sprite.from(nativeTexture);
               handle.anchor.set(0.5);
               sprite.set("_handle", handle);
             }

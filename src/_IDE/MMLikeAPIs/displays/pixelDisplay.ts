@@ -183,10 +183,12 @@ class PixelDisplay extends Display {
   }
 
   private drawImage(img: HashMap, x: number, y: number) {
-    const nativeImg = getNativeImg(img);
+    const nativeImg = getNativeImage(img);
     if (nativeImg) {
       y = this.toTop(y, nativeImg.height);
       this.ctx.drawImage(nativeImg, x, y);
+    } else {
+      console.error("Could not render image from map:", img);
     }
   }
 

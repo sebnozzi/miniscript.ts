@@ -1,16 +1,28 @@
 
-function toImageMap(nativeImg: HTMLImageElement): HashMap {
+function toImageMap(htmlImg: HTMLImageElement): HashMap {
   const map = new HashMap();
-  map.set("_handle", nativeImg);
-  map.set("width", nativeImg.width);
-  map.set("height", nativeImg.height);
+  const nativeTexture = PIXI.Texture.from(htmlImg);
+  map.set("_handle", nativeTexture);
+  map.set("width", htmlImg.width);
+  map.set("height", htmlImg.height);
   return map;
 }
 
-function getNativeImg(map: HashMap): HTMLImageElement | null {
-  const img = map.get("_handle");
-  if (img instanceof HTMLImageElement) {
-    return img;
+function getNativeTexture(map: HashMap): any | null {
+  const nativeTexture = map.get("_handle");
+  if (nativeTexture instanceof PIXI.Texture) {
+    return nativeTexture;
+  } else {
+    return null;
+  }
+}
+
+function getNativeImage(map: HashMap): HTMLImageElement | null {
+  const nativeTexture = map.get("_handle");
+  if (nativeTexture instanceof PIXI.Texture) {
+    const baseTexture = nativeTexture.castToBaseTexture();
+    const nativeImg: HTMLImageElement = baseTexture.resource.source;
+    return nativeImg;
   } else {
     return null;
   }
