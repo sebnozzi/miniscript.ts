@@ -53,7 +53,7 @@ class MMLikeFileAPI {
   }
 
   loadImage(url: string): Promise<HashMap | null> {
-    const img = document.createElement("img");
+    const img = document.createElement("img") as HTMLImageElement;
     const promise = new Promise<HashMap | null>((resolve) => {
       img.onload = () => {
         const map = toImageMap(img);
