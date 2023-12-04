@@ -87,7 +87,7 @@ class TextDisplay extends Display {
   }
 
   addDisplayAPI(): void {
-    const vm = this.dspMgr.vm;
+    const vm = this.vm;
     const outerThis = this;
     
     this.dsp.set("color", this.defaultFgColor);
@@ -175,7 +175,7 @@ class TextDisplay extends Display {
   }
 
   private getCurrentFgColor(): string {
-    const vm = this.dspMgr.vm;
+    const vm = this.vm;
     const optColor = vm.mapAccessOpt(this.dsp, "color");
     if (typeof optColor === "string") {
       return optColor
@@ -185,7 +185,7 @@ class TextDisplay extends Display {
   }
 
   private getCurrentBgColor(): string {
-    const vm = this.dspMgr.vm;
+    const vm = this.vm;
     const optColor = vm.mapAccessOpt(this.dsp, "backColor");
     if (typeof optColor === "string") {
       return optColor
@@ -195,7 +195,7 @@ class TextDisplay extends Display {
   }
 
   private getDelimiter(): string {
-    const vm = this.dspMgr.vm;
+    const vm = this.vm;
     const d = vm.mapAccessOpt(this.dsp, "delimiter");
     if (typeof d === "string") {
       return d
@@ -205,7 +205,7 @@ class TextDisplay extends Display {
   }
 
   private getCursorPosition(): [number, number] {
-    const vm = this.dspMgr.vm;
+    const vm = this.vm;
     let col = vm.mapAccessOpt(this.dsp, "column");
     let row = vm.mapAccessOpt(this.dsp, "row");
     if (typeof col !== "number") {

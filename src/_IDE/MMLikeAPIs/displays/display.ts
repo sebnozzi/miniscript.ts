@@ -3,11 +3,13 @@ abstract class Display {
   protected attachedSlotNr: number | null;
   protected pixiContainer: any;
   protected dsp: HashMap;
+  protected vm: Processor;
 
   constructor(protected dspMgr: MMLikeDisplayManager) {
     this.pixiContainer = new PIXI.Container();
     this.dsp = new HashMap();
     this.attachedSlotNr = null;
+    this.vm = dspMgr.vm;
   }
 
   getDisplayMap(): HashMap {

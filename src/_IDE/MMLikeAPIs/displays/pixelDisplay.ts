@@ -39,7 +39,7 @@ class PixelDisplay extends Display {
 
   addDisplayAPI(dsp: HashMap): void {
     const outerThis = this;
-    const vm = this.dspMgr.vm;
+    const vm = this.vm;
     const gfxMap = dsp
 
     vm.addMapIntrinsic(gfxMap, "clear(color=null)", function(color:any) {
@@ -274,7 +274,7 @@ class PixelDisplay extends Display {
     const mapPromise = imgPromise.then((img) => {
       const loadPromise = new Promise<HashMap>((resolve) => {
         img.addEventListener("load", () => {
-          const map = toImageMap(this.dspMgr.vm, img);
+          const map = toImageMap(this.vm, img);
           resolve(map);
         });
       });
