@@ -10,7 +10,7 @@ function addCollectionIntrinsics(p: Processor) {
 
     if (start <= stop) {
       step = step === null ? 1 : step;
-      checkInt(step, "Argument 'step' should be integer", p);
+      checkNumber(step, "Argument 'step' should be a number", p);
       if (step < 1) {
         return new Array();
       }
@@ -19,7 +19,7 @@ function addCollectionIntrinsics(p: Processor) {
       }
     } else {
       step = step === null ? -1 : step;
-      checkInt(step, "Argument 'step' should be integer", p);
+      checkNumber(step, "Argument 'step' should be a number", p);
       if (step >= 0) {
         return new Array();
       }
