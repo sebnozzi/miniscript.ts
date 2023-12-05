@@ -42,7 +42,11 @@ class PixelDisplay extends Display {
     const vm = this.vm;
     const gfxMap = dsp
 
-    vm.addMapIntrinsic(gfxMap, "clear(color=null)", function(color:any) {
+    // Set the default color
+    gfxMap.set("color", "#FFFFFFFF");
+
+    vm.addMapIntrinsic(gfxMap, 'clear(color="#00000000", width=960, height=640)', 
+    function(color:any, width: any, height: any) {
       outerThis.clear(color);
     });
 
@@ -87,8 +91,19 @@ class PixelDisplay extends Display {
     });
 
   }
+
+  private resolveColor(color: any): any {
+    if (color) {
+      return color;
+    } else {
+      // Resolve from display object
+      const currentColor = this.vm.mapAccessOpt(this.dsp, "color");
+      return currentColor;
+    }
+  }
   
   private clear(color: any) {
+    color = this.resolveColor(color);
     const canvas = this.canvas;
     const ctx = this.ctx;
     this.ctx.translate(-1,-1);
@@ -103,6 +118,9 @@ class PixelDisplay extends Display {
   }
 
   private line(x0: number, y0: number, x1: number, y1: number, color: string, penSize: number) {
+    color = this.resolveColor(color);
+    penSize = penSize ? penSize : 1;
+
     const ctx = this.ctx;
     y0 = this.toTop(y0);
     y1 = this.toTop(y1);
@@ -132,6 +150,8 @@ class PixelDisplay extends Display {
   }
 
   private fillRect(x: number, y: number, width: number, height: number, color: string) {
+    color = this.resolveColor(color);
+
     const ctx = this.ctx;
     y = this.toTop(y, height);
 
@@ -150,6 +170,9 @@ class PixelDisplay extends Display {
   }
 
   private drawRect(x: number, y: number, width: number, height: number, color: string, penSize: number) {
+    color = this.resolveColor(color);
+    penSize = penSize ? penSize : 1;
+
     const ctx = this.ctx;
     y = this.toTop(y, height);
 
@@ -170,6 +193,8 @@ class PixelDisplay extends Display {
   }
 
   private fillEllipse(x: number, y: number, width: number, height: number, color: string) {
+    color = this.resolveColor(color);
+
     y = this.toTop(y, height);
     x += width / 2;
     y += height / 2;
@@ -196,6 +221,9 @@ class PixelDisplay extends Display {
   }
 
   private drawEllipse(x: number, y: number, width: number, height: number, color: string, penSize: number) {
+    color = this.resolveColor(color);
+    penSize = penSize ? penSize : 1;
+
     y = this.toTop(y, height);
     x += width;
     const ctx = this.ctx;
@@ -221,6 +249,8 @@ class PixelDisplay extends Display {
   }
 
   private print(str: string, x: number, y: number, color: string, fontName: string) {
+    color = this.resolveColor(color);
+
     let fontSize;
     if (fontName === "normal") {
       fontSize = 20;
