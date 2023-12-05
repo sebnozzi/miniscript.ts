@@ -4,12 +4,14 @@ abstract class Display {
   protected pixiContainer: any;
   protected dsp: HashMap;
   protected vm: Processor;
+  protected upToDate: boolean;
 
   constructor(protected dspMgr: MMLikeDisplayManager) {
     this.pixiContainer = new PIXI.Container();
     this.dsp = new HashMap();
     this.attachedSlotNr = null;
     this.vm = dspMgr.vm;
+    this.upToDate = false;
   }
 
   getDisplayMap(): HashMap {
@@ -58,7 +60,19 @@ abstract class Display {
   // Called on each update cycle.
   // Override in subclass
   update() {
-    // Default: do nothing
+    this.markUpdated();
+  }
+
+  isDirty(): boolean {
+    return !this.upToDate;
+  }
+
+  protected markUpdated() {
+    this.upToDate = true;
+  }
+
+  protected markDirty() {
+    this.upToDate = false;
   }
 
   protected toTop(bottom: number, height: number = 0): number {

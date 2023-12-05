@@ -31,6 +31,7 @@ class PixelDisplay extends Display {
 
   update() {
     this.pixiCanvasTexture.update();
+    super.update();
   }
 
   getModeNr(): DisplayMode {
@@ -115,6 +116,7 @@ class PixelDisplay extends Display {
       ctx.fillRect(0,0,canvas.width,canvas.height);
     }
     this.ctx.translate(1,1);
+    this.markDirty();
   }
 
   private line(x0: number, y0: number, x1: number, y1: number, color: string, penSize: number) {
@@ -147,6 +149,8 @@ class PixelDisplay extends Display {
 
     ctx.stroke();
     ctx.restore();
+
+    this.markDirty();
   }
 
   private fillRect(x: number, y: number, width: number, height: number, color: string) {
@@ -167,6 +171,8 @@ class PixelDisplay extends Display {
     ctx.fillStyle = color;
     ctx.fillRect(x,y,width-1,height-1);
     ctx.restore();
+
+    this.markDirty();
   }
 
   private drawRect(x: number, y: number, width: number, height: number, color: string, penSize: number) {
@@ -190,6 +196,8 @@ class PixelDisplay extends Display {
     ctx.lineWidth = penSize;
     ctx.strokeRect(x, y, width-1, height-1);
     ctx.restore();
+
+    this.markDirty();
   }
 
   private fillEllipse(x: number, y: number, width: number, height: number, color: string) {
@@ -218,6 +226,8 @@ class PixelDisplay extends Display {
     ctx.ellipse(x,y,width/2-1,height/2-1,0,0,Math.PI*2);
     ctx.fill();
     ctx.restore();
+
+    this.markDirty();
   }
 
   private drawEllipse(x: number, y: number, width: number, height: number, color: string, penSize: number) {
@@ -246,6 +256,8 @@ class PixelDisplay extends Display {
     ctx.ellipse(x,y,width/2-1,height/2-1,0,0,Math.PI*2);
     ctx.stroke();
     ctx.restore();
+
+    this.markDirty();
   }
 
   private print(str: string, x: number, y: number, color: string, fontName: string) {
@@ -282,6 +294,8 @@ class PixelDisplay extends Display {
     ctx.textBaseline = "bottom";
     ctx.fillText(str,x,y);
     ctx.restore();
+
+    this.markDirty();
   }
 
   private drawImage(img: HashMap, x: number, y: number, width: number, height: number) {
@@ -294,12 +308,22 @@ class PixelDisplay extends Display {
         y = this.toTop(y, nativeImg.height);
         this.ctx.drawImage(nativeImg, x, y);
       }
+      this.markDirty();
     } else {
       console.error("Could not render image from map:", img);
     }
   }
 
   private getImage(x: number, y: number, width: number, height: number): Promise<HashMap> {
+    // Make sure past/pending drawing operations are transferred
+    // from the internal canvas to PIXI's texture, so that the 
+    // right state (image) is "extracted".
+    // This is particularly important for detached displays, which are
+    // not automatically / regularly updated.
+    if (this.isDirty()) {
+      this.update();
+    }
+
     y = this.toTop(y, height);
     const rect = new PIXI.Rectangle(x,y,width,height);
     const source = this.pixiContainer;

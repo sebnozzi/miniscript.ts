@@ -93,6 +93,8 @@ class SpriteDisplay extends Display {
         this.pixiContainer.removeChild(existing);
       }
     }
+  
+    super.update();
   }
 
   private getSpriteScale(sprite: HashMap): [number, number] {
