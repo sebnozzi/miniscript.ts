@@ -1,3 +1,10 @@
+// == MAIN
+
+main = function
+	//interactiveGame
+	autoPlayDemo
+end function
+
 // == IMPORTS
 
 import "animation"
@@ -6,6 +13,7 @@ import "infSequence"
 
 Animation = animation.Animation
 infiniteSequence = @infSequence.infiniteSequence
+
 
 // == CONSTANTS
 
@@ -56,13 +64,6 @@ gfx = display(5)
 display(6).mode = displayMode.sprite
 sprd = display(6)
 sprd.clear
-
-// == MAIN
-
-main = function
-	interactiveGame
-	//autoPlayDemo
-end function
 
 gameLoop = function(chooseDroppingColumn,askYesNoQuestion)
 	
@@ -554,4 +555,4 @@ end function
 
 // == MAIN INVOCATION
 
-autoPlayDemo
+main
