@@ -43,6 +43,7 @@ class MMLikeInterpreter extends Interpreter {
 
       // Hook the callback to be run before cycles execution
       this.vm.onBeforeCycles = () => { this.callbackBeforeCycles() };
+      this.vm.onSuspendedByPromise = () => { this.callbackBeforeCycles() };
 
       this.vm.stdoutCallback = (line: string) => {
         console.log(line);
