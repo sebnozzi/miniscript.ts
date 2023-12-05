@@ -50,21 +50,24 @@ function addPrintIntrinsic(p: Processor) {
 
 }
 
-function formatValue(value: any, quoteStrings: boolean = false): string {
+function formatValue(value: any, quoteStrings: boolean = false, depth: number = 16): string {
+  if (depth < 0 ) {
+    return "(too deep)";
+  }
   let text = "";
   if (typeof value === "number") {
     text = formatNumber(value);
   } else if (value instanceof Array) {
     const formattedValues = [];
     for (const e of value) {
-      formattedValues.push(formatValue(e, true));
+      formattedValues.push(formatValue(e, true, depth - 1));
     }
     text = "[" + formattedValues.join(", ") + "]";
   } else if (value instanceof HashMap) {
     const formattedPairs = [];
     for (let e of value.entries()) {
-      const formattedKey = formatValue(e.key, true);
-      const formattedValue = formatValue(e.value, true);
+      const formattedKey = formatValue(e.key, true, depth - 1);
+      const formattedValue = formatValue(e.value, true, depth - 1);
       const formattedPair = formattedKey + ": " + formattedValue;
       formattedPairs.push(formattedPair);
     }
