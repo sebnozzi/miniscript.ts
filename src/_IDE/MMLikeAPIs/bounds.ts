@@ -75,15 +75,18 @@ class Bounds {
   readonly right: number;
 
   constructor(
-    public readonly x: number, 
-    public readonly y: number, 
+    public readonly centerX: number, 
+    public readonly centerY: number, 
     public readonly width: number, 
     public readonly height: number) {
       //
-      this.left = x;
-      this.bottom = y;
-      this.top = y + height;
-      this.right = x + width;
+      const halfWidth = width / 2;
+      const halfHeight = height / 2;
+      //
+      this.left = centerX - halfWidth;
+      this.right = centerX + halfWidth;
+      this.bottom = centerY - halfHeight;
+      this.top = centerY + halfHeight;
   }
 
   static fromMap(vm: Processor, map: HashMap): Bounds | null {
@@ -108,8 +111,8 @@ class Bounds {
 
   toMap(): HashMap | null {
     const map = new HashMap();
-    map.set("x", this.x);
-    map.set("y", this.y);
+    map.set("x", this.centerX);
+    map.set("y", this.centerY);
     map.set("width", this.width);
     map.set("height", this.height);
     return map;
