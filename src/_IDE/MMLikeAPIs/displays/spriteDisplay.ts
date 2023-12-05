@@ -33,7 +33,7 @@ class SpriteDisplay extends Display {
     const dsp = this.dsp;
     const shouldBeSprites = [];
 
-    const sprites = dsp.get("sprites");
+    const sprites = mapGet(dsp, "sprites") || [];
     if (sprites instanceof Array) {
       for (let sprite of sprites) {
         if (sprite instanceof HashMap) {
@@ -44,26 +44,37 @@ class SpriteDisplay extends Display {
           const [tint, alpha] = this.getTintAndAlpha(tintValue);
           const [scaleX, scaleY] = this.getSpriteScale(sprite);
 
-          let handle = sprite.get("_handle");
+          let handle = mapGet(sprite, "_handle");
 
           // If no handle, create and assign one
           if (handle === undefined) {
             const img = mapGet(sprite, "image");
-            const nativeTexture = getNativeTexture(img);
+            const nativeTexture = getNativeTexture(this.vm, img);
             if (nativeTexture) {
               handle = PIXI.Sprite.from(nativeTexture);
               handle.anchor.set(0.5);
               sprite.set("_handle", handle);
+            } else {
+              console.log("Not setting a non-native texture when creating handle", nativeTexture);
             }
           }
 
           if (handle instanceof PIXI.Sprite) {
+            const img = mapGet(sprite, "image");
+            const nativeTexture = getNativeTexture(this.vm, img);
+            if (nativeTexture && handle.texture !== nativeTexture) {
+              handle.texture = nativeTexture;
+              console.log("Setting new image");
+              handle.texture.update();
+            }
+
             handle.x = x;
             handle.y = this.toTop(y);
             handle.angle = -rotation;
             handle.scale.set(scaleX, scaleY);
             handle.tint = tint;
             handle.alpha = alpha;
+
             shouldBeSprites.push(handle);
             // If not currently attached, attach
             if (this.pixiContainer.children.indexOf(handle) === -1) {

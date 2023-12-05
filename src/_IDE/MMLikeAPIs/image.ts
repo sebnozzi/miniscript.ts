@@ -7,7 +7,7 @@ function toImageMap(vm: Processor, htmlImg: HTMLImageElement): HashMap {
   map.set("height", htmlImg.height);
   vm.addMapIntrinsic(map, "flip(self)", 
   function(imgMap: HashMap) {
-    const texture = getNativeTexture(imgMap);
+    const texture = getNativeTexture(vm, imgMap);
     if (texture) {
       // Toggle texture mirroring on the horizontal axis
       if (texture.rotate === PIXI.groupD8.MIRROR_HORIZONTAL) {
@@ -20,8 +20,8 @@ function toImageMap(vm: Processor, htmlImg: HTMLImageElement): HashMap {
   return map;
 }
 
-function getNativeTexture(map: HashMap): any | null {
-  const nativeTexture = map.get("_handle");
+function getNativeTexture(vm: Processor, map: HashMap): any | null {
+  const nativeTexture = vm.mapAccessOpt(map, "_handle");
   if (nativeTexture instanceof PIXI.Texture) {
     return nativeTexture;
   } else {
@@ -29,8 +29,8 @@ function getNativeTexture(map: HashMap): any | null {
   }
 }
 
-function getNativeImage(map: HashMap): HTMLImageElement | null {
-  const nativeTexture = map.get("_handle");
+function getNativeImage(vm: Processor, map: HashMap): HTMLImageElement | null {
+  const nativeTexture = vm.mapAccessOpt(map, "_handle");
   if (nativeTexture instanceof PIXI.Texture) {
     const baseTexture = nativeTexture.castToBaseTexture();
     const nativeImg: HTMLImageElement = baseTexture.resource.source;

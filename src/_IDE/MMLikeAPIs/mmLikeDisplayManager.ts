@@ -122,8 +122,9 @@ class MMLikeDisplayManager {
 
   // Called on each update cycle
   update() {
+    const vm = this.vm;
     for (let dspMap of this.slots) {
-      const nativeDsp = dspMap.get("_handle");
+      const nativeDsp = vm.mapAccessOpt(dspMap, "_handle");
       if (nativeDsp instanceof Display) {
         nativeDsp.update();
       }
@@ -265,7 +266,8 @@ class MMLikeDisplayManager {
   }
 
   private getNativeDisplay(dsp: HashMap): Display | null {
-    const value = dsp.get("_handle");
+    const vm = this.vm;
+    const value = vm.mapAccessOpt(dsp, "_handle");
     if (value instanceof Display) {
       return value;
     } else {
