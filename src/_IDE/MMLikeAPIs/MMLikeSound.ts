@@ -30,9 +30,9 @@ class SoundManager {
       outerThis.stopAll();
     });
 
-    vm.addMapIntrinsic(this.soundMap, "play(self)",
-    function(self: any) {
-      outerThis.play(self);
+    vm.addMapIntrinsic(this.soundMap, "play(self,volume=1)",
+    function(self: any, volume: number) {
+      outerThis.play(self, volume);
     });
 
     vm.addMapIntrinsic(this.soundMap, "stop(self)",
@@ -47,11 +47,12 @@ class SoundManager {
 
   }
 
-  play(self: any) {
+  play(self: any, volume: number) {
     const outerThis = this;
     const optSnd = this.getNativeSound(self);
     if (optSnd) {
       const soundClone = optSnd.cloneNode() as HTMLAudioElement;
+      soundClone.volume = volume;
       const playPromise = soundClone.play();
       playPromise.then(() => {
         outerThis.addPlayingClone(optSnd, soundClone);
