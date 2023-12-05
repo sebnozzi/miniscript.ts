@@ -12,7 +12,7 @@ class SoundManager {
   toSoundMap(nativeSound: HTMLAudioElement): HashMap {
     const instance = new HashMap();
     instance.set("__isa", this.soundMap);
-    instance.set("__nativeSnd", nativeSound);
+    instance.set("_handle", nativeSound);
     return instance;
   }
 
@@ -72,9 +72,10 @@ class SoundManager {
   }
 
   private getNativeSound(self: any): HTMLAudioElement | null {
+    const vm = this.vm;
     if (self instanceof HashMap) {
-      if (isaEquals(this.vm, self, this.soundMap)) {
-        return self.get("__nativeSnd");
+      if (isaEquals(vm, self, this.soundMap)) {
+        return vm.mapAccessOpt(self, "_handle");
       }
     }
     return null;
