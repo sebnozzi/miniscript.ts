@@ -64,7 +64,6 @@ class SpriteDisplay extends Display {
             const nativeTexture = getNativeTexture(this.vm, img);
             if (nativeTexture && handle.texture !== nativeTexture) {
               handle.texture = nativeTexture;
-              console.log("Setting new image");
               handle.texture.update();
             }
 
