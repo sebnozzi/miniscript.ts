@@ -55,9 +55,9 @@ class PixelDisplay extends Display {
       outerThis.line(x0, y0, x1, y1, color, penSize);
     });
     
-    vm.addMapIntrinsic(gfxMap, "drawImage(img,x,y)", 
-    function(img: HashMap, x:number, y:number) {
-      outerThis.drawImage(img, x, y);
+    vm.addMapIntrinsic(gfxMap, "drawImage(img,x,y,width=-1,height=-1)", 
+    function(img: HashMap, x:number, y:number, width: number, height: number) {
+      outerThis.drawImage(img, x, y, width, height);
     });
 
     vm.addMapIntrinsic(gfxMap, "fillRect(left,y,width,height,color)", 
@@ -284,11 +284,16 @@ class PixelDisplay extends Display {
     ctx.restore();
   }
 
-  private drawImage(img: HashMap, x: number, y: number) {
-    const nativeImg = getNativeImage(img);
+  private drawImage(img: HashMap, x: number, y: number, width: number, height: number) {
+    const nativeImg = getNativeImage(this.vm, img);
     if (nativeImg) {
-      y = this.toTop(y, nativeImg.height);
-      this.ctx.drawImage(nativeImg, x, y);
+      if (width >= 0 && height >= 0) {
+        y = this.toTop(y, height);
+        this.ctx.drawImage(nativeImg, x, y, width, height);
+      } else {
+        y = this.toTop(y, nativeImg.height);
+        this.ctx.drawImage(nativeImg, x, y);
+      }
     } else {
       console.error("Could not render image from map:", img);
     }
