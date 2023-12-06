@@ -125,6 +125,11 @@ class PixelDisplay extends Display {
     color = this.resolveColor(color);
     penSize = penSize ? penSize : 1;
 
+    x0 = Math.round(x0);
+    y0 = Math.round(y0);
+    x1 = Math.round(x1);
+    y1 = Math.round(y1);
+
     const ctx = this.ctx;
     y0 = this.toTop(y0);
     y1 = this.toTop(y1);
@@ -158,6 +163,11 @@ class PixelDisplay extends Display {
   private fillRect(x: number, y: number, width: number, height: number, color: string) {
     color = this.resolveColor(color);
 
+    x = Math.round(x);
+    y = Math.round(y);
+    width = Math.round(width);
+    height = Math.round(height);
+
     const ctx = this.ctx;
     y = this.toTop(y, height);
 
@@ -180,6 +190,11 @@ class PixelDisplay extends Display {
   private drawRect(x: number, y: number, width: number, height: number, color: string, penSize: number) {
     color = this.resolveColor(color);
     penSize = penSize ? penSize : 1;
+
+    x = Math.round(x);
+    y = Math.round(y);
+    width = Math.round(width);
+    height = Math.round(height);
 
     const ctx = this.ctx;
     y = this.toTop(y, height);
@@ -204,6 +219,11 @@ class PixelDisplay extends Display {
 
   private fillEllipse(x: number, y: number, width: number, height: number, color: string) {
     color = this.resolveColor(color);
+
+    x = Math.round(x);
+    y = Math.round(y);
+    width = Math.round(width);
+    height = Math.round(height);
 
     y = this.toTop(y, height);
     x += width / 2;
@@ -236,6 +256,11 @@ class PixelDisplay extends Display {
     color = this.resolveColor(color);
     penSize = penSize ? penSize : 1;
 
+    x = Math.round(x);
+    y = Math.round(y);
+    width = Math.round(width);
+    height = Math.round(height);
+
     y = this.toTop(y, height);
     x += width;
     const ctx = this.ctx;
@@ -264,6 +289,9 @@ class PixelDisplay extends Display {
 
   private print(str: string, x: number, y: number, color: string, fontName: string) {
     color = this.resolveColor(color);
+
+    x = Math.round(x);
+    y = Math.round(y);
 
     let fontSize;
     if (fontName === "normal") {
