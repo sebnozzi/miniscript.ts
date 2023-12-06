@@ -210,10 +210,7 @@ class EventHandler {
     this.keyDown = keyInfo;
     this.keysPressed.add(keyInfo);
     this.addKeyToBuffer(keyInfo);
-    if (e.code === "Space") {
-      e.stopPropagation();
-      e.preventDefault();
-    }
+    this.preventDefault(e, keyInfo);
   }
 
   private handleKeyUp(e: KeyboardEvent) {
@@ -221,10 +218,21 @@ class EventHandler {
     this.keyUp = keyInfo;
     this.keysPressed.delete(keyInfo);
     this.lastKeyBufferAdditionTs = 0;
-    if (e.code === "Space") {
+    this.preventDefault(e, keyInfo);
+  }
+
+  preventDefault(e: KeyboardEvent, keyInfo: KeyInfo) {
+    // Prevent propagation of any event that could 
+    // result in scrolling the window.
+    if (keyInfo.mmName === "space" 
+    || keyInfo.mmName === "up" 
+    || keyInfo.mmName === "down" 
+    || keyInfo.mmName === "left" 
+    || keyInfo.mmName === "right" 
+    ) {
       e.stopPropagation();
       e.preventDefault();
-    }
+    }  
   }
 
   private handleMouseMove(e: MouseEvent) {
