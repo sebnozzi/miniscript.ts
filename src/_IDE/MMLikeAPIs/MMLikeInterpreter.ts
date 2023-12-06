@@ -116,8 +116,8 @@ class MMLikeInterpreter extends Interpreter {
 
   private definePrint() {
     const code = `
-    print = function(txt,delimiter=null)
-	    text.print txt,delimiter
+    print = function(value,delimiter=null)
+	    text.print @value,delimiter
     end function`;
     this.runSrcCode(code);
   }
