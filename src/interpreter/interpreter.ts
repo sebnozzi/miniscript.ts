@@ -87,6 +87,10 @@ class Interpreter {
     this.processOnStarted();
     
     this.vm.setCode(prgCode);
+    this.startRunning();
+  }
+
+  protected startRunning() {
     this.vm.run();
   }
 

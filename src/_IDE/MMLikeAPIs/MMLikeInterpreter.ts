@@ -8,6 +8,7 @@ class MMLikeInterpreter extends Interpreter {
   private userInteractionAPI: MMLikeUserInteractionAPI;
   private dspMgr: MMLikeDisplayManager;
   private initializing: boolean = false;
+  private pixiApp: any;
 
   constructor(stdoutCallback: TxtCallback, stderrCallback: TxtCallback) {
       super(stdoutCallback,stderrCallback);
@@ -16,6 +17,7 @@ class MMLikeInterpreter extends Interpreter {
       this.dspMgr = new MMLikeDisplayManager(this.vm);
       this.dspMgr.addDisplayApi();
       this.dspMgr.initDisplays();
+      this.pixiApp = this.dspMgr.getPixiApplication();
 
       this.userInteractionAPI = new MMLikeUserInteractionAPI(this.vm);
       this.userInteractionAPI.addUserInteractionAPI();
@@ -41,15 +43,31 @@ class MMLikeInterpreter extends Interpreter {
       this.definePrint();
       this.defineBounds();
 
-      // Hook the callback to be run before cycles execution
-      this.vm.onBeforeCycles = () => { this.callbackBeforeCycles() };
-      this.vm.onSuspendedByPromise = () => { this.callbackBeforeCycles() };
+      // Avoid VM taking control of execution
+      this.vm.onPromiseResolved = () => {
+        // Do nothing, let our ticker call the VM
+      };
 
       this.vm.stdoutCallback = (line: string) => {
         console.log(line);
       }
 
       this.initializing = false;
+  }
+
+  protected startRunning() {
+    if (this.initializing) {
+      this.vm.run();
+    } else {
+      // Let Pixi drive the execution of the program
+      // by running some cycles each time.
+      this.pixiApp.ticker.add((delta: number) => {
+        if(this.vm.isRunning()) {
+          this.vm.runCyclesOnce();
+        }
+        this.update();
+      });
+    }
   }
 
   protected processOnFinished(): void {
@@ -77,7 +95,7 @@ class MMLikeInterpreter extends Interpreter {
     }
   }
 
-  private callbackBeforeCycles() {
+  private update() {
     if (this.initializing) {
       return;
     }

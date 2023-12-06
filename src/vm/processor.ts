@@ -156,6 +156,17 @@ class Processor {
   }
 
   runUntilDone() {
+    this.runCyclesOnce();
+    // If not waiting on a Promise or finished
+    // running, schedule the next execution burst.
+    if (this.isRunning()) {
+      setTimeout(() => {
+        this.runUntilDone()
+      }, 0);
+    }
+  }
+
+  runCyclesOnce() {
     if (this.isRunning()) {
       try {
         this.executeCycles();
@@ -166,13 +177,6 @@ class Processor {
         console.error(e);
         this.stopRunning();
         return;
-      }
-      // If not waiting on a Promise or finished
-      // running, schedule the next execution burst.
-      if (this.isRunning()) {
-        setTimeout(() => {
-          this.runUntilDone()
-        }, 0);
       }
     }
 
