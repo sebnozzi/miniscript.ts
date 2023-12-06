@@ -30,8 +30,10 @@ class PixelDisplay extends Display {
   }
 
   update() {
-    this.pixiCanvasTexture.update();
-    super.update();
+    if (this.isDirty()) {
+      this.pixiCanvasTexture.update();
+      this.markUpdated();
+    }
   }
 
   getModeNr(): DisplayMode {
