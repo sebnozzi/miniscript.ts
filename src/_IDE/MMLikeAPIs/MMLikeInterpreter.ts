@@ -35,6 +35,8 @@ class MMLikeInterpreter extends Interpreter {
       const moduleLoader = new MMLikeModuleLoader(this.vm, this.fileAPI);
       moduleLoader.addImportAPI();
 
+      addMMLikeSchedulingIntrinsics(this.vm);
+
       // Run scripts to create definitions / APIs
       this.defineHex2();
       this.addColorAPI();

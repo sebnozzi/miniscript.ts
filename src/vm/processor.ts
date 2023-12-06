@@ -46,6 +46,9 @@ class Processor {
   executionStartTime: number;
   // Flag to know when execution is suspended (e.g. waiting on a promise)
   suspended: boolean = false;
+  // Special value to indicate that a call should be aborted.
+  // Intrinsics may return this.
+  abortCallValue: Object = {};
   // Maximum depth of call stack
   maxCallStackDepth: number = 2000;
 
@@ -84,6 +87,7 @@ class Processor {
     this.context = this.globalContext;
     this.savedFrames = new Stack<Frame>();
     this.opStack = new Stack();
+    this.suspended = false;
   }
 
   run() {
@@ -798,6 +802,23 @@ class Processor {
     return this.suspended;
   }
 
+  restartProgram() {
+    // The top-most code, either from the first saved frame
+    // or the current executing one.
+    let topMostCode = null;
+    while (this.savedFrames.count() > 0) {
+      let frame = this.savedFrames.pop();
+      topMostCode = frame.code;
+    }
+    if (!topMostCode) {
+      // Running at the global level, take the current running code
+      topMostCode = this.code;
+    }
+    this.setCode(topMostCode);
+    this.executionStartTime = 0;
+    this.ip = 0;
+  }
+
   stopRunning() {
     this.forceFinish();
     this.cleanupAfterRunning();
@@ -993,6 +1014,11 @@ class Processor {
       }
       // Call with parameters
       const retVal = func.apply(this, paramValues);
+
+      // Abort this call and return immediately
+      if (retVal === this.abortCallValue) {
+        return;
+      }
 
       // Check if returned value is a Promise
       if (retVal instanceof Promise) {
