@@ -440,6 +440,20 @@ function toIntegerValue(value: any): number {
   }
 }
 
+function toTwoNumbers(value: any): [number, number] {
+  let a: number;
+  let b: number;
+  if (value instanceof Array) {
+    a = toNumberValue(value[0]);
+    b = toNumberValue(value[1]);
+  } else {
+    const n = toNumberValue(value);
+    a = n;
+    b = n;
+  }
+  return [a, b];
+}
+
 function round(n: any, decimalPlaces: any): number | undefined {
   if (typeof n === "number" && typeof decimalPlaces === "number") {
     if (decimalPlaces >= 0) {

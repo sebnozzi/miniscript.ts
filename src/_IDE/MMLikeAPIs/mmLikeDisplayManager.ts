@@ -200,7 +200,9 @@ class MMLikeDisplayManager {
   }
 
   private newTileDisplay(): HashMap {
-    throw new Error("Not supported yet");
+    const nativeDsp = new TileDisplay(this);
+    nativeDsp.addProperties();
+    return nativeDsp.getDisplayMap();
   }
 
   private newSpriteDisplay(): HashMap {
