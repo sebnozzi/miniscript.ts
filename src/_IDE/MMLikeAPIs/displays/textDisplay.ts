@@ -98,6 +98,8 @@ class TextDisplay extends Display {
 
     vm.addMapIntrinsic(this.dsp, "setCell(x,y,k)",
     function(colNr: number, mmRowNr: number, ch: string) {
+      colNr = toIntegerValue(colNr);
+      mmRowNr = toIntegerValue(mmRowNr);
       outerThis.setCell(colNr, mmRowNr, ch);
     });
 
@@ -214,6 +216,8 @@ class TextDisplay extends Display {
     if (typeof row !== "number") {
       row = 25;
     }
+    col = toIntegerValue(col);
+    row = toIntegerValue(row);
     return [col, row];
   }
 
