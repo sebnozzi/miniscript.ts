@@ -61,6 +61,7 @@ class TileDisplay extends Display  {
   private visuals: TileDisplayVisuals;
   private indexes: HashMap;
   private cellSprites: HashMap;
+  private cellTints: HashMap;
   private configChanged: boolean;
   private visualsChanged: boolean;
   private indexesChanged: boolean;
@@ -78,6 +79,7 @@ class TileDisplay extends Display  {
 
     this.indexes = new HashMap();
     this.cellSprites = new HashMap();
+    this.cellTints = new HashMap();
     this.textureDict = {};
   }
 
@@ -186,6 +188,7 @@ class TileDisplay extends Display  {
     // Remove all cells
     container.removeChildren();
     this.cellSprites = new HashMap();
+    this.cellTints = new HashMap();
 
     const [columns, rows] = config.extent;
 
@@ -206,18 +209,30 @@ class TileDisplay extends Display  {
     const scrollX = visuals.scrollX;
     const scrollY = visuals.scrollY;
     const [cellWidth, cellHeight] = visuals.cellSize;
+    const [overlapX, overlapY] = visuals.overlap;
 
-    const cellAreaHeight = rows * cellHeight;
+    const cellAreaHeight = rows * cellHeight - (overlapY * (rows - 1));
     const contentsTop = this.toTop(0, cellAreaHeight);
 
     // Change visuals, like size, position / scolling
     for (let rowNr = 0; rowNr < rows; rowNr++) {
+
+      const mmRowNr = (rows - 1) - rowNr;
+      let y = contentsTop + mmRowNr * cellHeight + scrollY;
+      if (mmRowNr > 0) {
+        y -= (overlapY * mmRowNr);
+      }
+
       for (let colNr = 0; colNr < columns; colNr++) {
         const cellSprite = this.cellSprites.get([colNr, rowNr]);
         if (cellSprite) {
-          const mmRowNr = (rows - 1) - rowNr;
-          let y = contentsTop + mmRowNr * cellHeight + scrollY;
-          cellSprite.x = (-scrollX) + colNr * cellWidth;
+
+          let x = (-scrollX) + colNr * cellWidth;
+          if (colNr > 0) {
+            x -= overlapX * colNr;
+          }
+
+          cellSprite.x = x;
           cellSprite.y = y;
           cellSprite.width = cellWidth;
           cellSprite.height = cellHeight;
@@ -236,11 +251,17 @@ class TileDisplay extends Display  {
     for (let rowNr = 0; rowNr < rows; rowNr++) {
       for (let colNr = 0; colNr < columns; colNr++) {
         const cellSprite = this.cellSprites.get([colNr, rowNr]);
+        const cellTint = this.cellTints.get([colNr, rowNr]);
         if (cellSprite) {
           const idx = this.cell(colNr, rowNr);
           const frameId = `tile_${idx}.png`;
           const texture = textureDict[frameId];
           cellSprite.texture = texture;
+          if (cellTint) {
+            const [tint, alpha] = this.getTintAndAlpha(cellTint);
+            cellSprite.tint = tint;
+            cellSprite.alpha = alpha;
+          }
           cellSprite.texture.update();
         }
       }
@@ -277,6 +298,16 @@ class TileDisplay extends Display  {
       outerThis.setCell(x, y, index);
     });
 
+    vm.addMapIntrinsic(dsp, 'setCellTint(self,x=0,y=0,tint="#FFFFFF")',
+    function(dsp: HashMap, x: any, y: any, color: any) {
+      outerThis.setCellTint(x, y, color);
+    });
+
+    vm.addMapIntrinsic(dsp, 'cellTint(self,x,y)',
+    function(dsp: HashMap, x: any, y: any) {
+      return outerThis.cellTint(x, y);
+    });
+
   }
 
   clear(dsp: HashMap, index: any) {
@@ -298,6 +329,20 @@ class TileDisplay extends Display  {
   cell(colNr: any, rowNr: any): number | null {
     const idx = this.indexes.get([colNr, rowNr]);
     return Number.isInteger(idx) ? idx : null;
+  }
+
+  setCellTint(colNr: any, rowNr: any, color: any) {
+    this.cellTints.set([colNr, rowNr], color);
+    this.indexesChanged = true;
+  }
+
+  cellTint(colNr: any, rowNr: any): string | null {
+    const tint = this.cellTints.get([colNr, rowNr]) ;
+    if (tint === undefined) {
+      return "#FFFFFFFF";
+    } else {
+      return tint;
+    }
   }
 
 }
