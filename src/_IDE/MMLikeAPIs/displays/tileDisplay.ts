@@ -321,9 +321,24 @@ class TileDisplay extends Display  {
     }
   }
 
-  setCell(colNr: any, rowNr: any, tileSetIndex: any) {
-    this.indexes.set([colNr, rowNr], tileSetIndex);
-    this.indexesChanged = true;
+  setCell(colNrOrRange: any, rowNrOrRange: any, tileSetIndex: any) {
+    if (typeof colNrOrRange === "number") {
+      colNrOrRange = [colNrOrRange];
+    }
+    if (typeof rowNrOrRange === "number") {
+      rowNrOrRange = [rowNrOrRange];
+    }
+    if (!(rowNrOrRange instanceof Array) && !(colNrOrRange instanceof Array)) {
+      return;
+    }
+    for (let rowIdx = 0; rowIdx < rowNrOrRange.length; rowIdx++) {
+      const rowNr = rowNrOrRange[rowIdx];
+      for (let colIdx = 0; colIdx < colNrOrRange.length; colIdx++) {
+        const colNr = colNrOrRange[colIdx];
+        this.indexes.set([colNr, rowNr], tileSetIndex);
+        this.indexesChanged = true;
+      }
+    }
   }
 
   cell(colNr: any, rowNr: any): number | null {
@@ -331,9 +346,24 @@ class TileDisplay extends Display  {
     return Number.isInteger(idx) ? idx : null;
   }
 
-  setCellTint(colNr: any, rowNr: any, color: any) {
-    this.cellTints.set([colNr, rowNr], color);
-    this.indexesChanged = true;
+  setCellTint(colNrOrRange: any, rowNrOrRange: any, color: any) {
+    if (typeof colNrOrRange === "number") {
+      colNrOrRange = [colNrOrRange];
+    }
+    if (typeof rowNrOrRange === "number") {
+      rowNrOrRange = [rowNrOrRange];
+    }
+    if (!(rowNrOrRange instanceof Array) && !(colNrOrRange instanceof Array)) {
+      return;
+    }
+    for (let rowIdx = 0; rowIdx < rowNrOrRange.length; rowIdx++) {
+      const rowNr = rowNrOrRange[rowIdx];
+      for (let colIdx = 0; colIdx < colNrOrRange.length; colIdx++) {
+        const colNr = colNrOrRange[colIdx];
+        this.cellTints.set([colNr, rowNr], color);
+        this.indexesChanged = true;
+      }
+    }
   }
 
   cellTint(colNr: any, rowNr: any): string | null {
