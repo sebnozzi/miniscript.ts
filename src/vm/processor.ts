@@ -841,6 +841,11 @@ class Processor {
     this.onFinished();
   }
 
+  yieldExecution() {
+    this.cycleCount = this.maxCount;
+    this.suspended = false;
+  }
+
   suspendExecution() {
     this.cycleCount = this.maxCount;
     this.suspended = true;

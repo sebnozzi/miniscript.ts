@@ -21,12 +21,8 @@ function addSchedulingIntrinsics(p: Processor) {
   });
 
   p.addIntrinsic("yield", 
-  function(): Promise<any> {
-    return new Promise<any>((resolve, reject) => {
-      setTimeout(() => {
-        resolve(null);
-      }, 0);
-    });
+  function(): any {
+    p.yieldExecution();
   });
   
 }
