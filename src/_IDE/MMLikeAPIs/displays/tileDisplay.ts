@@ -70,7 +70,6 @@ class TileDisplay extends Display  {
   private cellTints: HashMap;
   private configChanged: boolean;
   private visualsChanged: boolean;
-  private indexesChanged: boolean;
   private textureDict: {[tileId: string]: any};
 
   constructor(dspMgr: MMLikeDisplayManager) {
@@ -81,7 +80,6 @@ class TileDisplay extends Display  {
 
     this.configChanged = false;
     this.visualsChanged = false;
-    this.indexesChanged = false;
 
     this.indexes = new HashMap();
     this.cellSprites = new HashMap();
@@ -115,11 +113,6 @@ class TileDisplay extends Display  {
     if (this.visualsChanged) {
       this.updateVisuals();
     } 
-
-    if (this.indexesChanged) {
-      this.updateContents();
-    }
-  
   }
 
   rebuildContainer() {
@@ -144,7 +137,6 @@ class TileDisplay extends Display  {
 
     this.configChanged = false;
     this.visualsChanged = false;
-    this.indexesChanged = false;
   }
 
   // Promise of a ready-to-use texture-map
@@ -265,29 +257,36 @@ class TileDisplay extends Display  {
 
   updateContents() {
     const [columns, rows] = this.config.extent;
-    const textureDict = this.textureDict;
 
-    // Set contents
     for (let rowNr = 0; rowNr < rows; rowNr++) {
       for (let colNr = 0; colNr < columns; colNr++) {
-        const cellSprite = this.cellSprites.get([colNr, rowNr]);
-        const cellTint = this.cellTints.get([colNr, rowNr]);
-        if (cellSprite) {
-          const idx = this.cell(colNr, rowNr);
-          const frameId = `tile_${idx}.png`;
-          const texture = textureDict[frameId];
-          cellSprite.texture = texture;
-          if (cellTint) {
-            const [tint, alpha] = this.getTintAndAlpha(cellTint);
-            cellSprite.tint = tint;
-            cellSprite.alpha = alpha;
-          }
-          cellSprite.texture.update();
-        }
+        this.updateCellIndex(colNr, rowNr);
+        this.updateCellTint(colNr, rowNr);
       }
     }
+  }
 
-    this.indexesChanged = false;
+  updateCellIndex(colNr: number, rowNr: number) {
+    const cellSprite = this.cellSprites.get([colNr, rowNr]);
+    if (cellSprite) {
+      const idx = this.cell(colNr, rowNr);
+      const frameId = `tile_${idx}.png`;
+      const textureDict = this.textureDict;
+      const texture = textureDict[frameId];
+      cellSprite.texture = texture;
+    }
+  }
+
+  updateCellTint(colNr: number, rowNr: number) {
+    const cellSprite = this.cellSprites.get([colNr, rowNr]);
+    if (cellSprite) {
+      const cellTint = this.cellTints.get([colNr, rowNr]);
+      if (cellTint) {
+        const [tint, alpha] = this.getTintAndAlpha(cellTint);
+        cellSprite.tint = tint;
+        cellSprite.alpha = alpha;
+      }      
+    }
   }
 
   protected addDisplayAPI(dsp: HashMap): void {
@@ -338,7 +337,6 @@ class TileDisplay extends Display  {
     for (let row = 0; row < rows; row++) {
       for (let col = 0; col < cols; col++) {
         this.setCell(col, row, index);
-        this.indexesChanged = true;
       }
     }
   }
@@ -358,7 +356,7 @@ class TileDisplay extends Display  {
       for (let colIdx = 0; colIdx < colNrOrRange.length; colIdx++) {
         const colNr = colNrOrRange[colIdx];
         this.indexes.set([colNr, rowNr], tileSetIndex);
-        this.indexesChanged = true;
+        this.updateCellIndex(colNr, rowNr);
       }
     }
   }
@@ -383,7 +381,7 @@ class TileDisplay extends Display  {
       for (let colIdx = 0; colIdx < colNrOrRange.length; colIdx++) {
         const colNr = colNrOrRange[colIdx];
         this.cellTints.set([colNr, rowNr], color);
-        this.indexesChanged = true;
+        this.updateCellTint(colNr, rowNr);
       }
     }
   }
