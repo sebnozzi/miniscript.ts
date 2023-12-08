@@ -96,9 +96,9 @@ class TextDisplay extends Display {
     this.dsp.set("row", 25);
     this.dsp.set("delimiter", this.defaultDelimiter);
 
-    vm.addMapIntrinsic(this.dsp, "setCell(k,x,y)",
-    function(ch: string, colNr: number, mmRowNr: number) {
-      outerThis.setCell(ch, colNr, mmRowNr);
+    vm.addMapIntrinsic(this.dsp, "setCell(x,y,k)",
+    function(colNr: number, mmRowNr: number, ch: string) {
+      outerThis.setCell(colNr, mmRowNr, ch);
     });
 
     vm.addMapIntrinsic(this.dsp, "setCellColor(x,y,color)",
@@ -222,7 +222,7 @@ class TextDisplay extends Display {
       this.goToNewLine();
     } else {
       let [colNr, rowNr] = this.getCursorPosition();
-      this.setCell(ch, colNr, rowNr);
+      this.setCell(colNr, rowNr, ch);
       this.setCurrentColors(colNr, rowNr);
       this.advanceCursor();
     }
@@ -269,7 +269,7 @@ class TextDisplay extends Display {
     }
   }
 
-  private setCell(ch: string, colNr: number, mmRowNr: number) {
+  private setCell(colNr: number, mmRowNr: number, ch: string) {
       const rowNr = 25 - mmRowNr;
       const row = this.rowCells[rowNr];
       const oldCell = row[colNr];
