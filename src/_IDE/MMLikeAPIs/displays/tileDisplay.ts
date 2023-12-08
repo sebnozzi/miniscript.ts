@@ -32,8 +32,10 @@ class TileDisplayVisuals {
 
     params.cellSize = toTwoNumbers(vm.mapAccessOpt(dsp, "cellSize"));
     params.overlap = toTwoNumbers(vm.mapAccessOpt(dsp, "overlap"));
-    params.scrollX = vm.mapAccessOpt(dsp, "scrollX");
-    params.scrollY = vm.mapAccessOpt(dsp, "scrollY");
+    params.scrollX = toIntegerValue(vm.mapAccessOpt(dsp, "scrollX"));
+    params.scrollY = toIntegerValue(vm.mapAccessOpt(dsp, "scrollY"));
+    params.oddColOffset = toNumberValue(vm.mapAccessOpt(dsp, "oddColOffset"));
+    params.oddRowOffset = toNumberValue(vm.mapAccessOpt(dsp, "oddRowOffset"));
 
     return params;
   }
@@ -42,6 +44,8 @@ class TileDisplayVisuals {
   overlap: [number, number] = [0, 0]
   scrollX: number = 0;
   scrollY: number = 0;
+  oddColOffset: number = 0;
+  oddRowOffset: number = 0;
 
   isEqualTo(other: TileDisplayVisuals): boolean {
     const result = (
@@ -49,6 +53,8 @@ class TileDisplayVisuals {
       && (equals(this.overlap, other.overlap) == 1)
       && this.scrollX === other.scrollX
       && this.scrollY === other.scrollY
+      && this.oddColOffset === other.oddColOffset
+      && this.oddRowOffset === other.oddRowOffset
     );
     return result;
   }
@@ -208,6 +214,8 @@ class TileDisplay extends Display  {
     const visuals = this.visuals;
     const scrollX = visuals.scrollX;
     const scrollY = visuals.scrollY;
+    const oddColOffset = visuals.oddColOffset;
+    const oddRowOffset = visuals.oddRowOffset;
     const [cellWidth, cellHeight] = visuals.cellSize;
     const [overlapX, overlapY] = visuals.overlap;
 
@@ -232,8 +240,20 @@ class TileDisplay extends Display  {
             x -= overlapX * colNr;
           }
 
+          let columnY = y;
+
+          // Odd column, apply offset
+          if (colNr % 2 === 1) {
+            columnY -= oddColOffset * cellHeight;
+          }
+
+          // Odd row, apply offset
+          if (mmRowNr % 2 === 1) {
+            x += oddRowOffset * cellWidth;
+          }
+
           cellSprite.x = x;
-          cellSprite.y = y;
+          cellSprite.y = columnY;
           cellSprite.width = cellWidth;
           cellSprite.height = cellHeight;
         }
@@ -282,6 +302,8 @@ class TileDisplay extends Display  {
     dsp.set("overlap", [0, 0]);
     dsp.set("scrollX", 0);
     dsp.set("scrollY", 0);
+    dsp.set("oddColOffset", 0);
+    dsp.set("oddRowOffset", 0);
 
     vm.addMapIntrinsic(dsp, "clear(self,toIndex=null)",
     function(dsp: HashMap, index: any) {
