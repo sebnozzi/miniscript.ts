@@ -126,6 +126,11 @@ class EventHandler {
       return result;
     });
 
+    vm.addMapIntrinsic(keyMap, 'clear',
+    function() {
+      outerThis.clearBuffer()
+    });
+
     vm.addMapIntrinsic(keyMap, 'get',
     function(): Promise<string> {
       const promise = new Promise<string>((resolve) => {
