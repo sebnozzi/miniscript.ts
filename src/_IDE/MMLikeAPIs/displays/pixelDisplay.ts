@@ -83,6 +83,16 @@ class PixelDisplay extends Display {
       outerThis.drawEllipse(x,y,width,height,color,penSize);
     });
 
+    vm.addMapIntrinsic(gfxMap, "drawPoly(points,color=null,penSize=1)", 
+    function(points: any, color: any, penSize: any) {
+      outerThis.drawPoly(points, color, penSize);
+    });
+
+    vm.addMapIntrinsic(gfxMap, "fillPoly(points,color=null)", 
+    function(points: any, color: string) {
+      outerThis.fillPoly(points, color);
+    });
+
     vm.addMapIntrinsic(gfxMap, 'print(str="",x=0,y=0,color=null,fontName="normal")', 
     function(str: string, x: number, y: number, color:string, fontName: string) {
       outerThis.print(str,x,y,color,fontName);
@@ -239,7 +249,6 @@ class PixelDisplay extends Display {
       ctx.fillStyle = "white";
       ctx.globalCompositeOperation = "destination-out";
       ctx.beginPath();
-      width 
       ctx.ellipse(x,y,width,height,0,0,Math.PI*2);
       ctx.fill();
       ctx.restore();
@@ -294,6 +303,135 @@ class PixelDisplay extends Display {
     ctx.restore();
 
     this.markDirty();
+  }
+
+  private fillPoly(mmPoints: any, color: string) {
+    color = this.resolveColor(color);
+
+    const points = this.getPolygonPoints(mmPoints);
+    
+    if (points.length < 2) {
+      return;
+    }
+
+    const ctx = this.ctx;
+
+    if (this.isTransparentColor(color)) {
+      ctx.save();
+      ctx.fillStyle = "white";
+      ctx.globalCompositeOperation = "destination-out";
+      ctx.lineWidth = 0;
+      ctx.beginPath();
+      ctx.moveTo(points[0].x, points[0].y);
+      for (let i = 1; i < points.length; i++) {
+        ctx.lineTo(points[i].x, points[i].y);
+      }
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+    }
+
+    ctx.save();
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.moveTo(points[0].x, points[0].y);
+    for (let i = 1; i < points.length; i++) {
+      ctx.lineTo(points[i].x, points[i].y);
+    }
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+
+    this.markDirty();
+  }
+
+  private drawPoly(mmPoints: any, color: string, penSize: number) {
+    color = this.resolveColor(color);
+    penSize = penSize ? penSize : 1;
+
+    const points = this.getPolygonPoints(mmPoints);
+    
+    if (points.length < 2) {
+      return;
+    }
+
+    const ctx = this.ctx;
+
+    if (this.isTransparentColor(color)) {
+      ctx.save();
+      ctx.strokeStyle = "white";
+      ctx.globalCompositeOperation = "destination-out";
+      ctx.lineWidth = penSize;
+      ctx.beginPath();
+      ctx.moveTo(points[0].x, points[0].y);
+      for (let i = 1; i < points.length; i++) {
+        ctx.lineTo(points[i].x, points[i].y);
+      }
+      ctx.closePath();
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    ctx.save();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = penSize;
+    ctx.beginPath();
+    ctx.moveTo(points[0].x, points[0].y);
+    for (let i = 1; i < points.length; i++) {
+      ctx.lineTo(points[i].x, points[i].y);
+    }
+    ctx.closePath();
+    ctx.stroke();
+    ctx.restore();
+
+    this.markDirty();
+  }
+
+  private getPolygonPoints(mmPoints: any): Array<any> {
+    if (!(mmPoints instanceof Array)) {
+      return [];
+    }
+
+    const points = [];
+    let minY = 960;
+    let maxY = 0;
+    for (let mmPoint of mmPoints) {
+      const point = this.getPolygonPoint(mmPoint);
+      const y = point.y;
+      points.push(point);
+      if (y > maxY) {
+        maxY = y;
+      }
+      if (y < minY) {
+        minY = y;
+      }
+    }
+    
+    if (points.length < 2) {
+      return [];
+    }
+
+    const polygonHeight = maxY - minY;
+    // Readjust y-values now that we know the polygon's height
+    for (let p of points) {
+      // p.y = this.toTop(p.y, polygonHeight);
+      p.y = this.toTop(p.y, 0);
+    }
+
+    return points;
+  }
+
+  private getPolygonPoint(mmPoint: any) {
+    let x = 0;
+    let y = 0;
+    if (mmPoint instanceof Array) {
+      x = toNumberValue(mmPoint[0]);
+      y = toNumberValue(mmPoint[1]);
+    } else if (mmPoint instanceof HashMap) {
+      x = toNumberValue(this.vm.mapAccessOpt(mmPoint, "x"));
+      x = toNumberValue(this.vm.mapAccessOpt(mmPoint, "y"));
+    }
+    return {"x": x, "y": y};
   }
 
   private print(str: string, x: number, y: number, color: string, fontName: string) {
