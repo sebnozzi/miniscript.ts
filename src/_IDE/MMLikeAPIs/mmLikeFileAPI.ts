@@ -69,19 +69,19 @@ class MMLikeFileAPI {
   }
 
   resolveFullUrl(path: string): string {
-    if (path.indexOf("/sys") === 0) {
-      return this.resolveSysDirFullUrl(path);
+    if (path.indexOf("/") === 0) {
+      return this.resolveAbsolutePathUrl(path);
     } else {
-      return this.resolveWorkingDirFullUrl(path);
+      return this.resolveRelativePathUrl(path);
     }
   }
 
-  resolveWorkingDirFullUrl(path: string): string {
+  resolveRelativePathUrl(path: string): string {
     return `${this.remotePath}${path}`;
   }
 
-  resolveSysDirFullUrl(path: string): string {
-    return `https://raw.githubusercontent.com/JoeStrout/minimicro-sysdisk/master${path}`;
+  resolveAbsolutePathUrl(path: string): string {
+    return path;
   }
 
 }

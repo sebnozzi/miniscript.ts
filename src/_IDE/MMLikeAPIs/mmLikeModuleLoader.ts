@@ -37,13 +37,13 @@ class MMLikeModuleLoader {
     const moduleFileName = `${moduleName}.ms`;
     // Try fetching first at the "local" project path (same as
     // "current directory").
-    const workingDirUrl =  this.fileAPI.resolveWorkingDirFullUrl(moduleFileName);
+    const workingDirUrl =  this.fileAPI.resolveRelativePathUrl(moduleFileName);
     const responsePromise = fetch(workingDirUrl).then((response) => {
       if (response.status == 200) {
         return new Promise<Response>((resolve) => {resolve(response)});
       } else {
         // Try then fetching from "/sys/lib"
-        const sysDirUrl =  this.fileAPI.resolveSysDirFullUrl(`/sys/lib/${moduleFileName}`);
+        const sysDirUrl =  this.fileAPI.resolveAbsolutePathUrl(`/sys/lib/${moduleFileName}`);
         return fetch(sysDirUrl);
       }
     });
