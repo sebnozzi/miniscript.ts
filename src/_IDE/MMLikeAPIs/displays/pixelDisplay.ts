@@ -226,8 +226,12 @@ class PixelDisplay extends Display {
     height = Math.round(height);
 
     y = this.toTop(y, height);
-    x += width / 2;
-    y += height / 2;
+    x += Math.floor(width / 2);
+    y += Math.floor(height / 2);
+
+    width = Math.round(width / 2);
+    height = Math.round(height / 2);
+
     const ctx = this.ctx;
 
     if (this.isTransparentColor(color)) {
@@ -235,7 +239,8 @@ class PixelDisplay extends Display {
       ctx.fillStyle = "white";
       ctx.globalCompositeOperation = "destination-out";
       ctx.beginPath();
-      ctx.ellipse(x,y,width/2-1,height/2-1,0,0,Math.PI*2);
+      width 
+      ctx.ellipse(x,y,width,height,0,0,Math.PI*2);
       ctx.fill();
       ctx.restore();
     }
@@ -245,7 +250,7 @@ class PixelDisplay extends Display {
     ctx.fillStyle = color;
     ctx.lineWidth = 0.0;
     ctx.beginPath();
-    ctx.ellipse(x,y,width/2-1,height/2-1,0,0,Math.PI*2);
+    ctx.ellipse(x,y,width,height,0,0,Math.PI*2);
     ctx.fill();
     ctx.restore();
 
@@ -263,6 +268,10 @@ class PixelDisplay extends Display {
 
     y = this.toTop(y, height);
     x += width;
+
+    width = Math.round(width / 2);
+    height = Math.round(height / 2);
+
     const ctx = this.ctx;
 
     if (this.isTransparentColor(color)) {
@@ -271,7 +280,7 @@ class PixelDisplay extends Display {
       ctx.globalCompositeOperation = "destination-out";
       ctx.lineWidth = penSize;
       ctx.beginPath();
-      ctx.ellipse(x,y,width/2-1,height/2-1,0,0,Math.PI*2);
+      ctx.ellipse(x,y,width,height,0,0,Math.PI*2);
       ctx.stroke();
       ctx.restore();
     }
@@ -280,7 +289,7 @@ class PixelDisplay extends Display {
     ctx.strokeStyle = color;
     ctx.lineWidth = penSize;
     ctx.beginPath();
-    ctx.ellipse(x,y,width/2-1,height/2-1,0,0,Math.PI*2);
+    ctx.ellipse(x,y,width,height,0,0,Math.PI*2);
     ctx.stroke();
     ctx.restore();
 
