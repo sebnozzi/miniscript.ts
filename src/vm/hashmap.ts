@@ -83,6 +83,21 @@ class HashMap {
         return bucket[i].value;
       }
     }
+    return undefined;
+  }
+
+  has(key: any): any {
+    const _hashCode = hashCode(key);
+    const bucket = this.buckets.get(_hashCode);
+    if (!bucket) {
+        return false;
+    }
+    for (let i = 0; i < bucket.length; ++i) {
+      if (equals(bucket[i].key, key)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   delete(key: any) {
@@ -105,15 +120,6 @@ class HashMap {
     if (bucket.length == 0) {
       this.buckets.delete(_hashCode);
     }
-  }
-
-  has(key: any): any {
-    const _hashCode = hashCode(key);
-    const bucket = this.buckets.get(_hashCode);
-    if (!bucket) {
-        return false;
-    }
-    return bucket.length > 0;
   }
 
   keys(): Array<any> {
