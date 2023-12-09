@@ -122,10 +122,10 @@ class TileDisplay extends Display  {
       // Rebuild cells without any visual / content aspects
       this.rebuildCells();
     } else {
-      const sheetImg = getNativeImage(this.vm, params.tileSet);
-      if (sheetImg) {
+      const sheetTexture = getNativeTexture(this.vm, params.tileSet);
+      if (sheetTexture) {
         const [tileWidth, tileHeight] = params.tileSetTileSize;
-        const promise = this.makeSpriteSheetMap(sheetImg, tileWidth, tileHeight);
+        const promise = this.makeSpriteSheetMap(sheetTexture, tileWidth, tileHeight);
         promise.then((textureMap) => {
           this.textureDict = textureMap;
           this.rebuildCells();
@@ -140,11 +140,11 @@ class TileDisplay extends Display  {
   }
 
   // Promise of a ready-to-use texture-map
-  makeSpriteSheetMap(sheetImg: HTMLImageElement, tileWidth: number, tileHeight: number): Promise<any> {
+  makeSpriteSheetMap(sheetTexture: any, tileWidth: number, tileHeight: number): Promise<any> {
      
       // Size of sheet
-      const sheetWidth = sheetImg.width;
-      const sheetHeight = sheetImg.height;
+      const sheetWidth = sheetTexture.width;
+      const sheetHeight = sheetTexture.height;
 
       // Amount of cols / rols in tileSheet
       const sheetColumns = Math.floor(sheetWidth / tileWidth);
@@ -170,12 +170,11 @@ class TileDisplay extends Display  {
       const spritesheetData = {
         "frames": frames,
         "meta": {
-          "size": {"w": sheetImg.width, "h": sheetImg.height},
+          "size": {"w": sheetTexture.width, "h": sheetTexture.height},
         },
       };
 
-      const tileSheetTexture = PIXI.Texture.from(sheetImg);
-      const sheet = new PIXI.Spritesheet(tileSheetTexture, spritesheetData);
+      const sheet = new PIXI.Spritesheet(sheetTexture, spritesheetData);
       return sheet.parse();
   }
 
@@ -212,7 +211,7 @@ class TileDisplay extends Display  {
     const [overlapX, overlapY] = visuals.overlap;
 
     const cellAreaHeight = rows * cellHeight - (overlapY * (rows - 1));
-    const contentsTop = this.toTop(0, cellAreaHeight);
+    const contentsTop = Display.toTop(0, cellAreaHeight);
 
     // Change visuals, like size, position / scolling
     for (let rowNr = 0; rowNr < rows; rowNr++) {

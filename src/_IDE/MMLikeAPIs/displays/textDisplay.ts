@@ -38,7 +38,7 @@ class TextDisplay extends Display {
 
     const parentContainer = this.pixiContainer; 
     parentContainer.x = originX;
-    parentContainer.y = this.toTop(originY, charHeight * 26);
+    parentContainer.y = Display.toTop(originY, charHeight * 26);
 
     const charBgPrototype = new PIXI.Graphics();
     // Fill with solid white

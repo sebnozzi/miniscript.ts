@@ -75,7 +75,7 @@ abstract class Display {
     this.upToDate = false;
   }
 
-  protected toTop(bottom: number, height: number = 0): number {
+  public static toTop(bottom: number, height: number = 0): number {
     const y = 640 - bottom - height;
     return y;
   }

@@ -68,7 +68,7 @@ class SpriteDisplay extends Display {
             }
 
             handle.x = x;
-            handle.y = this.toTop(y);
+            handle.y = Display.toTop(y);
             handle.angle = -rotation;
             handle.scale.set(scaleX, scaleY);
             handle.tint = tint;

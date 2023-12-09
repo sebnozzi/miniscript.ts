@@ -141,8 +141,8 @@ class PixelDisplay extends Display {
     y1 = Math.round(y1);
 
     const ctx = this.ctx;
-    y0 = this.toTop(y0);
-    y1 = this.toTop(y1);
+    y0 = Display.toTop(y0);
+    y1 = Display.toTop(y1);
 
     if (this.isTransparentColor(color)) {
       ctx.save();
@@ -179,7 +179,7 @@ class PixelDisplay extends Display {
     height = Math.round(height);
 
     const ctx = this.ctx;
-    y = this.toTop(y, height);
+    y = Display.toTop(y, height);
 
     if (this.isTransparentColor(color)) {
       ctx.save();
@@ -207,7 +207,7 @@ class PixelDisplay extends Display {
     height = Math.round(height);
 
     const ctx = this.ctx;
-    y = this.toTop(y, height);
+    y = Display.toTop(y, height);
 
     if (this.isTransparentColor(color)) {
       ctx.save();
@@ -235,7 +235,7 @@ class PixelDisplay extends Display {
     width = Math.round(width);
     height = Math.round(height);
 
-    y = this.toTop(y, height);
+    y = Display.toTop(y, height);
     x += Math.floor(width / 2);
     y += Math.floor(height / 2);
 
@@ -275,7 +275,7 @@ class PixelDisplay extends Display {
     width = Math.round(width);
     height = Math.round(height);
 
-    y = this.toTop(y, height);
+    y = Display.toTop(y, height);
     x += width;
 
     width = Math.round(width / 2);
@@ -415,7 +415,7 @@ class PixelDisplay extends Display {
     // Readjust y-values now that we know the polygon's height
     for (let p of points) {
       // p.y = this.toTop(p.y, polygonHeight);
-      p.y = this.toTop(p.y, 0);
+      p.y = Display.toTop(p.y, 0);
     }
 
     return points;
@@ -452,7 +452,7 @@ class PixelDisplay extends Display {
     } else {
       fontSize = 16;
     }
-    y = this.toTop(y);
+    y = Display.toTop(y);
     const ctx = this.ctx;
 
     if (this.isTransparentColor(color)) {
@@ -476,15 +476,25 @@ class PixelDisplay extends Display {
   }
 
   private drawImage(img: HashMap, x: number, y: number, width: number, height: number) {
-    const nativeImg = getNativeImage(this.vm, img);
+    const extract = this.dspMgr.getPixiApplication().renderer.extract;
+    const nativeTexture = getNativeTexture(this.vm, img);
+    const nativeImg = getBaseImage(nativeTexture);
     if (nativeImg) {
+      // Calculate source of base image
+      const sx = nativeTexture.frame.x;
+      const sy = nativeTexture.frame.y;
+      const sw = nativeTexture.frame.width;
+      const sh = nativeTexture.frame.height;
+
       if (width >= 0 && height >= 0) {
-        y = this.toTop(y, height);
-        this.ctx.drawImage(nativeImg, x, y, width, height);
+        y = Display.toTop(y, height);
       } else {
-        y = this.toTop(y, nativeImg.height);
-        this.ctx.drawImage(nativeImg, x, y);
+        y = Display.toTop(y, nativeTexture.height);
+        width = nativeTexture.width;
+        height = nativeTexture.height;
       }
+
+      this.ctx.drawImage(nativeImg, sx, sy, sw, sh, x, y, width, height);
       this.markDirty();
     } else {
       console.error("Could not render image from map:", img);
@@ -501,7 +511,7 @@ class PixelDisplay extends Display {
       this.update();
     }
 
-    y = this.toTop(y, height);
+    y = Display.toTop(y, height);
     const rect = new PIXI.Rectangle(x,y,width,height);
     const source = this.pixiContainer;
     const app = this.dspMgr.getPixiApplication();

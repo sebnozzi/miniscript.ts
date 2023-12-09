@@ -1,10 +1,27 @@
 
 function toImageMap(vm: Processor, htmlImg: HTMLImageElement): HashMap {
-  const map = new HashMap();
   const nativeTexture = PIXI.Texture.from(htmlImg);
+  const map = toImageMapFromTexture(vm, nativeTexture);
+  return map;
+}
+
+function toImageMapFromTexture(vm: Processor, nativeTexture: any): HashMap {
+  const map = new HashMap();
+
   map.set("_handle", nativeTexture);
-  map.set("width", htmlImg.width);
-  map.set("height", htmlImg.height);
+  map.set("width", nativeTexture.width);
+  map.set("height", nativeTexture.height);
+
+  vm.addMapIntrinsic(map, "getImage(left=0,bottom=0,width,height)",
+  function(x:any, y:any, width: any, height: any): HashMap {
+    const originalFrame = nativeTexture.frame;
+    y = originalFrame.height - y - height;
+    const subFrame = new PIXI.Rectangle(originalFrame.x + x,originalFrame.y + y,width,height);
+    const newTexture = new PIXI.Texture(nativeTexture.baseTexture, subFrame);
+    const newImageMap = toImageMapFromTexture(vm, newTexture);
+    return newImageMap;
+  });
+
   vm.addMapIntrinsic(map, "flip(self)", 
   function(imgMap: HashMap) {
     const texture = getNativeTexture(vm, imgMap);
@@ -17,6 +34,7 @@ function toImageMap(vm: Processor, htmlImg: HTMLImageElement): HashMap {
       }
     }
   });
+
   return map;
 }
 
@@ -29,8 +47,7 @@ function getNativeTexture(vm: Processor, map: HashMap): any | null {
   }
 }
 
-function getNativeImage(vm: Processor, map: HashMap): HTMLImageElement | null {
-  const nativeTexture = vm.mapAccessOpt(map, "_handle");
+function getBaseImage(nativeTexture: any): HTMLImageElement | null {
   if (nativeTexture instanceof PIXI.Texture) {
     const baseTexture = nativeTexture.castToBaseTexture();
     const nativeImg: HTMLImageElement = baseTexture.resource.source;
