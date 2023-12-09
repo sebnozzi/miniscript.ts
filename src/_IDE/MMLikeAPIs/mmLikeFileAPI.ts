@@ -23,36 +23,75 @@ class MMLikeFileAPI {
 
     vm.addMapIntrinsic(fileMap, 'loadImage(path="")',
     function(path: string): Promise<HashMap | null> {
-      const fullPath = outerThis.resolveFullUrl(path);
       if (path === null || path === "") {
         return new Promise((resolve) => {
           resolve(null);
         });
       }
+      const fullPath = outerThis.resolveFullUrl(path);
       return outerThis.loadImage(fullPath);
     });
 
     vm.addMapIntrinsic(fileMap, 'loadSound(path="")',
     function(path: string): Promise<HashMap | null> {
-      const fullPath = outerThis.resolveFullUrl(path);
-      const sound = document.createElement("audio");
-      const promise = new Promise<HashMap | null>((resolve) => {
-        sound.addEventListener("canplaythrough", () => {
-          const soundMap = outerThis.soundApi.toSoundMap(sound);
-          resolve(soundMap);
-        });
-        sound.addEventListener("error", (event) => {
+      if (path === null || path === "") {
+        return new Promise((resolve) => {
           resolve(null);
         });
-      });
-      sound.src = fullPath;
-      return promise;
+      }
+      const fullPath = outerThis.resolveFullUrl(path);
+      return outerThis.loadSound(fullPath);
+    });
+
+    vm.addMapIntrinsic(fileMap, 'exists(path)',
+    function(path: string): Promise<number> {
+      if (path === null || path === "") {
+        return new Promise((resolve) => {
+          resolve(0);
+        });
+      }
+      const fullPath = outerThis.resolveFullUrl(path);
+      return outerThis.fileExists(fullPath);
+    });
+
+    vm.addMapIntrinsic(fileMap, 'readLines(path)',
+    function(path: string): Promise<Array<string> | null> {
+      if (path === null || path === "") {
+        return new Promise((resolve) => {
+          resolve(null);
+        });
+      }
+      const fullPath = outerThis.resolveFullUrl(path);
+      return outerThis.readLines(fullPath);
     });
 
     return fileMap;
   }
 
-  loadImage(url: string): Promise<HashMap | null> {
+  private readLines(url: string): Promise<string[] | null> {
+    const responsePromise = fetch(url);
+    const textPromise = responsePromise.then((response) => {
+      return response.text();
+    });
+    const linesPromise = textPromise.then((text) => {
+      return text.split(/[\n\r]+/);
+    });
+    return linesPromise;
+  }
+
+  private fileExists(url: string): Promise<number> {
+    const responsePromise = fetch(url, {method: "HEAD"});
+    const resultPromise = responsePromise.then((response) => {
+      if (response.status === 200) {
+        return 1;
+      } else {
+        return 0;
+      }
+    });
+    return resultPromise;
+  }
+
+  private loadImage(url: string): Promise<HashMap | null> {
     const img = document.createElement("img") as HTMLImageElement;
     const promise = new Promise<HashMap | null>((resolve) => {
       img.onload = () => {
@@ -65,6 +104,21 @@ class MMLikeFileAPI {
       }
     });
     img.src = url;  
+    return promise;
+  }
+
+  private loadSound(url: string): Promise<HashMap | null> {
+    const sound = document.createElement("audio");
+    const promise = new Promise<HashMap | null>((resolve) => {
+      sound.addEventListener("canplaythrough", () => {
+        const soundMap = this.soundApi.toSoundMap(sound);
+        resolve(soundMap);
+      });
+      sound.addEventListener("error", (event) => {
+        resolve(null);
+      });
+    });
+    sound.src = url;
     return promise;
   }
 
