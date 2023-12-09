@@ -54,6 +54,8 @@ class MMLikeInterpreter extends Interpreter {
         console.log(line);
       }
 
+      addConsoleLogging(this.vm);
+
       this.initializing = false;
   }
 
