@@ -60,7 +60,8 @@ class EventHandler {
   eventLayer: HTMLElement;
   canvasWidth: number = 0;
   canvasHeight: number = 0;
-  lastKeyBufferAdditionTs: number = 0;
+  sameKeyWaitTs: number = 0;
+  sameKeyWaitCoolDownMs: number = 200;
 
   constructor(private vm: Processor) {
 
@@ -192,22 +193,24 @@ class EventHandler {
 
   private addKeyToBuffer(k: KeyInfo) {
     const now = performance.now();
-    const deltaTs = now - this.lastKeyBufferAdditionTs;
     let shouldAdd = false;
     const bufferKey = this.toBufferKey(k);
     if (this.keysBuffer.length === 0) {
-      shouldAdd = true;
-    } else if (deltaTs > 200) {
       shouldAdd = true;
     } else {
       const lastElement = this.keysBuffer[0];
       if (lastElement !== bufferKey) {
         shouldAdd = true;
+      } else {
+        // Only allow same key if enough time passed
+        if (now >= this.sameKeyWaitTs) {
+          shouldAdd = true;
+        }
       }
     }
     if (shouldAdd) {
       this.keysBuffer.unshift(bufferKey);
-      this.lastKeyBufferAdditionTs = performance.now();
+      this.sameKeyWaitTs = now + this.sameKeyWaitCoolDownMs;
     }
   }
   
@@ -223,7 +226,8 @@ class EventHandler {
     const keyInfo = this.toKeyInfo(e);
     this.keyUp = keyInfo;
     this.keysPressed.delete(keyInfo);
-    this.lastKeyBufferAdditionTs = 0;
+    // Allow further insertion on buffer on key up
+    this.sameKeyWaitTs = 0;
     this.preventDefault(e, keyInfo);
   }
 
