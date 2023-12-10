@@ -12,6 +12,7 @@ enum BC {
   DOT_ACCESS,
   // Access property at "super" using "dot-notation", as in super.myProperty
   SUPER_DOT_ACCESS,
+
   // Perform a slice on a sequence (List or String, NOT Map)
   SLICE_SEQUENCE,
 
@@ -78,8 +79,11 @@ enum BC {
   CALL,
   // Used to call both in indexed form or dot-form (e.g m["f"](p1,p2) or m.f(p1,p2) )
   PROPERTY_CALL,
+  // Call method at "super", using either `super.foo 123` or `super["foo"] 123`
+  SUPER_DOT_CALL,
   // Invoke the function stored in the func-ref with parameters
   FUNCREF_CALL,
+
   RETURN,
   
   POP,

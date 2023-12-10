@@ -461,6 +461,40 @@ class Processor {
           this.callOrPushValue(value, isFuncRef, selfMap, srcMap);
           break;         
         }
+        case BC.SUPER_DOT_CALL: {
+          const paramCount: number  = this.code.arg1[this.ip];
+
+          const superMap = this.context.getOpt("super");
+          const selfMap = this.context.getOpt("self");
+
+          if (superMap === undefined) {
+            throw this.runtimeError(`Undefined Identifier: 'super' is unknown in this context`);
+          }
+          if (selfMap === undefined) {
+            throw this.runtimeError(`Undefined Identifier: 'self' is unknown in this context`);
+          }
+
+          // Pop params
+          const params = this.opStack.popN(paramCount);
+          // Pop property name
+          const methodName = this.opStack.pop();
+
+          let resolvedMethod: any;
+          let srcMap: HashMap | null = null;
+          if (superMap instanceof HashMap) {
+            // Use the "superMap" only to lookup the value
+            // But later call it with the "selfMap"
+            [resolvedMethod, srcMap] = this.mapAccessWithSource(superMap, methodName);
+            if (resolvedMethod === undefined) {
+              throw this.runtimeError(`Type Error (while attempting to look up ${methodName})`);
+            }
+          } else if (superMap === null) {
+            throw this.runtimeError(`Type Error (while attempting to look up ${methodName})`);
+          }
+
+          this.performCall(resolvedMethod, params, selfMap, srcMap);
+          break;
+        }
         case BC.SLICE_SEQUENCE: {
           // Pop parameters
           const endIdx = this.opStack.pop();

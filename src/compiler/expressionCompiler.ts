@@ -91,6 +91,15 @@ class ExpressionCompiler {
       const identifier = callTarget.identifier.value;
       pushParams();
       this.builder.push(BC.CALL, identifier, paramCount);
+    } else if(callTarget instanceof DotAccessExpr 
+        && callTarget.accessTarget instanceof SuperExpr) {
+      const identifier = callTarget.property.value;
+      // Push property
+      this.builder.push(BC.PUSH, identifier);
+      // Push params
+      pushParams();
+      // Push opcode
+      this.builder.push(BC.SUPER_DOT_CALL, paramCount);
     } else if(callTarget instanceof DotAccessExpr) {
       const identifier = callTarget.property.value;
       // Push call target
@@ -101,6 +110,14 @@ class ExpressionCompiler {
       pushParams();
       // Push opcode
       this.builder.push(BC.PROPERTY_CALL, paramCount);
+    } else if(callTarget instanceof IndexedAccessExpr
+        && callTarget.accessTarget instanceof SuperExpr) {
+      // Push property
+      this.compileExpression(callTarget.indexExpr);
+      // Push params
+      pushParams();
+      // Push opcode
+      this.builder.push(BC.SUPER_DOT_CALL, paramCount);
     } else if(callTarget instanceof IndexedAccessExpr) {
       // Push call target
       this.compileExpression(callTarget.accessTarget);

@@ -1,4 +1,20 @@
 ======================================================================
+==== Use "super" in a statement call
+A = {}
+A.foo = function(txt)
+	print "<" + txt + ">"
+end function
+B = new A
+B.bar = function
+	super.foo "ABC"
+	super["foo"] "CDE"
+end function
+b = new B
+b.bar
+----------------------------------------------------------------------
+<ABC>
+<CDE>
+======================================================================
 ==== intrinsic "code" as string method
 print "A".code
 ----------------------------------------------------------------------
