@@ -11,11 +11,11 @@ type KeyInfo = {
 }
 
 const mmKeyNames = [
-  {mmName: "space", "keyName": "Space"},
-  {mmName: "left", "keyName": "ArrowLeft"},
-  {mmName: "right", "keyName": "ArrowRight"},
-  {mmName: "up", "keyName": "ArrowUp"},
-  {mmName: "down", "keyName": "ArrowDown"},
+  {mmName: "space", "keyName": "Space", "code": 32},
+  {mmName: "left", "keyName": "ArrowLeft", "code": 17},
+  {mmName: "right", "keyName": "ArrowRight", "code": 18},
+  {mmName: "up", "keyName": "ArrowUp", "code": 19},
+  {mmName: "down", "keyName": "ArrowDown", "code": 20},
 ];
 
 function toMMKeyName(e: KeyboardEvent): string {
@@ -51,7 +51,7 @@ class KeyInfoSet {
 class EventHandler {
   
   keysPressed = new KeyInfoSet();
-  keysBuffer = new Array<KeyInfo>();
+  keysBuffer = new Array<string>();
   keyUp: KeyInfo | null = null;
   keyDown: KeyInfo | null = null;
   mouseButtonsDown: boolean[] = [];
@@ -137,7 +137,7 @@ class EventHandler {
         const action = () => {
           const optKey = outerThis.popKeyFromBuffer();
           if (optKey) {
-            resolve(optKey.key);
+            resolve(optKey);
           } else {
             // Retry
             setTimeout(() => {
@@ -170,7 +170,7 @@ class EventHandler {
     this.keysBuffer = [];
   }
 
-  popKeyFromBuffer(): KeyInfo | null {
+  popKeyFromBuffer(): string | null {
     return this.keysBuffer.pop() || null;
   }
 
@@ -194,18 +194,19 @@ class EventHandler {
     const now = performance.now();
     const deltaTs = now - this.lastKeyBufferAdditionTs;
     let shouldAdd = false;
+    const bufferKey = this.toBufferKey(k);
     if (this.keysBuffer.length === 0) {
       shouldAdd = true;
     } else if (deltaTs > 200) {
       shouldAdd = true;
     } else {
       const lastElement = this.keysBuffer[0];
-      if (lastElement.key !== k.key) {
+      if (lastElement !== bufferKey) {
         shouldAdd = true;
       }
     }
     if (shouldAdd) {
-      this.keysBuffer.unshift(k);
+      this.keysBuffer.unshift(bufferKey);
       this.lastKeyBufferAdditionTs = performance.now();
     }
   }
@@ -285,6 +286,27 @@ class EventHandler {
       mmName: toMMKeyName(e)
     };
     return keyInfo;
+  }
+
+  // `key.get` returns a char. For special keys we need to
+  // return a string with the expected (ascii?) "code".
+  // In order to do this, we need to "fake" some results. 
+  private toBufferKey(k: KeyInfo): string {
+    let asciiCode = -1;
+    // Try the list of special MM keys
+    for (let entry of mmKeyNames) {
+      if (entry.mmName === k.mmName) {
+        asciiCode = entry.code;
+        break;
+      }
+    }
+    // Take the ASCII code if no match found
+    if (asciiCode < 0) {
+      asciiCode = k.asciiCode
+    }
+    // Build string of one character
+    const char = String.fromCharCode(asciiCode);
+    return char;
   }
 
 }
