@@ -1,4 +1,24 @@
 ======================================================================
+==== Ensure "super" is resolved after a "self" call
+A = {}
+A.foo = function(before, txt, after)
+	print before + txt + after
+end function
+B = new A
+B.bar = function(p)
+	super.foo "<",p,">"
+	super["foo"] "[",p,"]"
+end function
+C = new B
+C.call = function
+	self.bar 123
+end function
+b = new B
+b.bar "XYZ"
+----------------------------------------------------------------------
+<XYZ>
+[XYZ]
+======================================================================
 ==== Use "super" in a statement call
 A = {}
 A.foo = function(txt)

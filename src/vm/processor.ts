@@ -233,15 +233,16 @@ class Processor {
           // Pop call target
           const callTarget = this.opStack.pop();
 
+          let srcMap: HashMap | null = null;
           let resolvedMethod: any;
           if (callTarget instanceof HashMap) {
-            resolvedMethod = this.mapAccess(callTarget, methodName);
+            [resolvedMethod, srcMap] = this.mapAccessWithSource(callTarget, methodName);
           } else {
             // Lookup in base type
             const baseTypeMap = this.selectCoreTypeMap(callTarget);
             resolvedMethod = this.coreTypeMapAccess(baseTypeMap, methodName);
           }
-          this.performCall(resolvedMethod, params, callTarget);
+          this.performCall(resolvedMethod, params, callTarget, srcMap);
           break;
         }
         case BC.RETURN: {
