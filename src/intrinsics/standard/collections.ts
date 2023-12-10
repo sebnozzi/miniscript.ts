@@ -8,7 +8,9 @@ function addCollectionIntrinsics(p: Processor) {
 
     const result: number[] = [];
 
-    if (start <= stop) {
+    if (start === stop) {
+      return [start];
+    } else if (start < stop) {
       step = step === null ? 1 : step;
       checkNumber(step, "Argument 'step' should be a number", p);
       if (step <= 0) {
