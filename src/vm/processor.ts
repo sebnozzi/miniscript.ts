@@ -51,8 +51,11 @@ class Processor {
   abortCallValue: Object = {};
   // Maximum depth of call stack
   maxCallStackDepth: number = 2000;
+  // Source name - useful for reporting errors
+  sourceName: string;
 
   constructor(public stdoutCallback: TxtCallback, public stderrCallback: TxtCallback) {
+    this.sourceName = "undefined source";
     this.code = new Code();
     this.ip = 0;
     this.globalContext = new Context(this);
@@ -156,7 +159,11 @@ class Processor {
   }
 
   runtimeError(msg: string): RuntimeError {
-    return new RuntimeError(`${msg} [line ${this.getCurrentSrcLineNr()}]`);
+    return new RuntimeError(`${msg} [line ${this.getCurrentSrcLineNr()} (${this.sourceName})]`);
+  }
+
+  setSourceName(sourceName: string) {
+    this.sourceName = sourceName;
   }
 
   runUntilDone() {

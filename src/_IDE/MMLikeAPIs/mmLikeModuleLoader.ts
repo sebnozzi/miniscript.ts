@@ -24,6 +24,7 @@ class MMLikeModuleLoader {
     const invocationCode = this.compileModuleInvocation(moduleName, srcCode);
     const subVM = this.vm.createSubProcessVM();
     subVM.setCode(invocationCode);
+    subVM.setSourceName(`module ${moduleName}`);
     const promise = new Promise<null>((resolve) => {
       subVM.onFinished = () => {
         resolve(null);

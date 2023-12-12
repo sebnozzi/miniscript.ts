@@ -63,6 +63,7 @@ class MMLikeInterpreter extends Interpreter {
     if (this.initializing) {
       this.vm.run();
     } else {
+      this.vm.setSourceName("main code");
       // Let Pixi drive the execution of the program
       // by running some cycles each time.
       this.pixiApp.ticker.add((delta: number) => {
@@ -108,6 +109,7 @@ class MMLikeInterpreter extends Interpreter {
   }
 
   private defineClear() {
+    this.vm.setSourceName("clear definition");
     const code = `
     clear = function
 	    text.clear
@@ -119,6 +121,7 @@ class MMLikeInterpreter extends Interpreter {
   }
 
   private definePrint() {
+    this.vm.setSourceName("print definition");
     const code = `
     print = function(value,delimiter=null)
 	    text.print @value,delimiter
@@ -131,6 +134,7 @@ class MMLikeInterpreter extends Interpreter {
   }
 
   private defineDisplays() {
+    this.vm.setSourceName("displays definition");
     const code = `
     text = display(3)
     gfx = display(5)
@@ -139,6 +143,7 @@ class MMLikeInterpreter extends Interpreter {
   }
 
   private defineHex2() {
+    this.vm.setSourceName("hex2 definition");
     const code = `
     hex2 = function(val)
 	    result = 0
@@ -152,6 +157,7 @@ class MMLikeInterpreter extends Interpreter {
   }
 
   private addColorAPI() {
+    this.vm.setSourceName("color API definition");
     const code = `
     color = {}
     color.clear   = "#00000000"
