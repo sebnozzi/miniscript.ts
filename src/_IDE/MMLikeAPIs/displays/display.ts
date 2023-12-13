@@ -98,7 +98,7 @@ abstract class Display {
     return [tint, alpha];
   }
 
-  protected isTransparentColor(color: string) {
+  public static isTransparentColor(color: string) {
     // #123456FF
     if (color[0] === "#" && color.length === 9) {
       return true;

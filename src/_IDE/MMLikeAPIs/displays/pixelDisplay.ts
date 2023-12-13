@@ -103,6 +103,16 @@ class PixelDisplay extends Display {
       return outerThis.getImage(x,y,width,height);
     });
 
+    vm.addMapIntrinsic(gfxMap, 'pixel(left,bottom)', 
+    function(x:number, y:number): string {
+      return outerThis.getPixel(x,y);
+    });
+
+    vm.addMapIntrinsic(gfxMap, 'setPixel(left,bottom,clr)', 
+    function(x:number, y:number, color: string) {
+      outerThis.setPixel(x,y,color);
+    });
+
   }
 
   private resolveColor(color: any): any {
@@ -144,7 +154,7 @@ class PixelDisplay extends Display {
     y0 = Display.toTop(y0);
     y1 = Display.toTop(y1);
 
-    if (this.isTransparentColor(color)) {
+    if (Display.isTransparentColor(color)) {
       ctx.save();
       ctx.lineWidth = penSize;
       ctx.strokeStyle = "white";
@@ -181,7 +191,7 @@ class PixelDisplay extends Display {
     const ctx = this.ctx;
     y = Display.toTop(y, height);
 
-    if (this.isTransparentColor(color)) {
+    if (Display.isTransparentColor(color)) {
       ctx.save();
       ctx.fillStyle = "white";
       ctx.globalCompositeOperation = "destination-out";
@@ -209,7 +219,7 @@ class PixelDisplay extends Display {
     const ctx = this.ctx;
     y = Display.toTop(y, height);
 
-    if (this.isTransparentColor(color)) {
+    if (Display.isTransparentColor(color)) {
       ctx.save();
       ctx.globalCompositeOperation = "destination-out";
       ctx.strokeStyle = "white";
@@ -244,7 +254,7 @@ class PixelDisplay extends Display {
 
     const ctx = this.ctx;
 
-    if (this.isTransparentColor(color)) {
+    if (Display.isTransparentColor(color)) {
       ctx.save();
       ctx.fillStyle = "white";
       ctx.globalCompositeOperation = "destination-out";
@@ -283,7 +293,7 @@ class PixelDisplay extends Display {
 
     const ctx = this.ctx;
 
-    if (this.isTransparentColor(color)) {
+    if (Display.isTransparentColor(color)) {
       ctx.save();
       ctx.strokeStyle = "white";
       ctx.globalCompositeOperation = "destination-out";
@@ -316,7 +326,7 @@ class PixelDisplay extends Display {
 
     const ctx = this.ctx;
 
-    if (this.isTransparentColor(color)) {
+    if (Display.isTransparentColor(color)) {
       ctx.save();
       ctx.fillStyle = "white";
       ctx.globalCompositeOperation = "destination-out";
@@ -357,7 +367,7 @@ class PixelDisplay extends Display {
 
     const ctx = this.ctx;
 
-    if (this.isTransparentColor(color)) {
+    if (Display.isTransparentColor(color)) {
       ctx.save();
       ctx.strokeStyle = "white";
       ctx.globalCompositeOperation = "destination-out";
@@ -455,7 +465,7 @@ class PixelDisplay extends Display {
     y = Display.toTop(y);
     const ctx = this.ctx;
 
-    if (this.isTransparentColor(color)) {
+    if (Display.isTransparentColor(color)) {
       ctx.save();
       ctx.font = `${fontSize}px monospace`;
       ctx.fillStyle = "white";
@@ -476,10 +486,9 @@ class PixelDisplay extends Display {
   }
 
   private drawImage(img: HashMap, x: number, y: number, width: number, height: number) {
-    const extract = this.dspMgr.getPixiApplication().renderer.extract;
     const nativeTexture = getNativeTexture(this.vm, img);
-    const nativeImg = getBaseImage(nativeTexture);
-    if (nativeImg) {
+    const drawableObj = getBaseImage(nativeTexture);
+    if (drawableObj) {
       // Calculate source of base image
       const sx = nativeTexture.frame.x;
       const sy = nativeTexture.frame.y;
@@ -494,7 +503,7 @@ class PixelDisplay extends Display {
         height = nativeTexture.height;
       }
 
-      this.ctx.drawImage(nativeImg, sx, sy, sw, sh, x, y, width, height);
+      this.ctx.drawImage(drawableObj, sx, sy, sw, sh, x, y, width, height);
       this.markDirty();
     } else {
       console.error("Could not render image from map:", img);
@@ -527,6 +536,21 @@ class PixelDisplay extends Display {
       return loadPromise;
     });
     return mapPromise;
+  }
+
+  private setPixel(x: number, y: number, color: string) {
+    color = this.resolveColor(color);
+    y = Display.toTop(y);
+    setPixel(this.ctx, x, y, color);
+  }
+
+  private getPixel(x: number, y: number): string {
+    y = Display.toTop(y);
+    const imageData = this.ctx.getImageData(x, y, 1, 1);
+    const pixChannels = imageData.data;
+    const color = new PIXI.Color(pixChannels);
+    const colorStr = color.toHexa();
+    return colorStr;
   }
 
 }
