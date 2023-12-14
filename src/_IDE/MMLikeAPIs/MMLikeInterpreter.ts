@@ -157,6 +157,18 @@ class MMLikeInterpreter extends Interpreter {
   }
 
   private addColorAPI() {
+
+    this.vm.addIntrinsic("_colorToRGBA(colorString)",
+    function(colorStr: string): number[] {
+      const clr = new PIXI.Color(colorStr);
+      const result = [ 
+        Math.round(clr.red * 255),
+        Math.round(clr.green * 255),
+        Math.round(clr.blue * 255),
+        Math.round(clr.alpha * 255) ];
+      return result;
+    });
+
     this.vm.setSourceName("color API definition");
     const code = `
     color = {}
@@ -185,7 +197,26 @@ class MMLikeInterpreter extends Interpreter {
     end function
     color.rgba = function(r, g, b, a)
       return "#" + hex2(r) + hex2(g) + hex2(b) + hex2(a)
-    end function`;
+    end function
+    //color.hsv = function(h, s, v, a=255)
+    //  return _HSVAtoColor([h, s, v, a])
+    //end function
+    //color.lerp = function(colorA, colorB, t=0.5)
+    //  return _lerpColor(colorA, colorB, t)
+    //end function
+    color.toList = function(colorString)
+      return _colorToRGBA(colorString)
+    end function
+    //color.fromList = function(rgbaList)
+    //  return _RGBAtoColor(rgbaList)
+    //end function
+    //color.toListHSV = function(colorString)
+    //  return _colorToHSVA(colorString)
+    //end function
+    //color.fromListHSV = function(hsvaList)
+    //  return _HSVAtoColor(hsvaList)
+    //end function`;
+    
     this.runSrcCode(code);
   }
 
