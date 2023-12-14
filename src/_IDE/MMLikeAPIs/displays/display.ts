@@ -43,8 +43,10 @@ abstract class Display {
     // Will be set to the subclass instance, not this "Display" one
     dsp.set("_handle", this);
     // Attempt to change display mode via API `display(n).mode = xxx`.
-    dsp.onAfterValueSet("mode", (modeNr: any) => {
+    dsp.overrideSettingValue("mode", (modeNr: any) => {
       outerThis.dspMgr.requestDisplayModeChange(dsp, modeNr);
+      // Return native display-mode, so that no value is really set
+      return outerThis.getModeNr();
     });
     this.addDisplayAPI(dsp);
   }

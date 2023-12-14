@@ -7,30 +7,43 @@ class HashMap {
 
   private _size: number = 0;
   private buckets: Map<any, Array<HashMapEntry>>;
-  private valueSetWatchers: null | Map<any, Array<Function>>;
+  private valueSetOverriders: null | Map<any, Array<Function>>;
 
   constructor() {
     this.buckets = new Map<any, Array<HashMapEntry>>();
-    this.valueSetWatchers = null;
+    this.valueSetOverriders = null;
   }
 
   size(): number {
     return this._size;
   }
 
-  onAfterValueSet(key: any, callback: (newValue: any) => void) {
-    if (this.valueSetWatchers === null) {
-      this.valueSetWatchers = new Map();
+  // Makes it possible to execute an action before attempting
+  // to set a new value and even change the value to be set.
+  overrideSettingValue(key: any, callback: (newValue: any) => any) {
+    if (this.valueSetOverriders === null) {
+      this.valueSetOverriders = new Map();
     }
-    let watchers = this.valueSetWatchers.get(key);
-    if (watchers === undefined) {
-      watchers = new Array();
+    let overriders = this.valueSetOverriders.get(key);
+    if (overriders === undefined) {
+      overriders = new Array();
     }
-    watchers.push(callback);
-    this.valueSetWatchers.set(key, watchers);
+    overriders.push(callback);
+    this.valueSetOverriders.set(key, overriders);
   }
 
   set(key: any, value: any) {
+    // Process value-set overriders
+    // Keep the latest returned value
+    if (this.valueSetOverriders !== null) {
+      const overrideFunctions = this.valueSetOverriders.get(key);
+      if (overrideFunctions instanceof Array) {
+        for (let overrideFunction of overrideFunctions) {
+          value = overrideFunction(value);
+        }
+      }
+    }
+    
     if (value === undefined) {
       this.delete(key);
       return;
@@ -61,15 +74,6 @@ class HashMap {
       this._size += 1;
     }
 
-    // Notify watchers of value set
-    if (this.valueSetWatchers !== null) {
-      const watchers = this.valueSetWatchers.get(key);
-      if (watchers instanceof Array) {
-        for (let callback of watchers) {
-          callback(value);
-        }
-      }
-    }
   }
 
   get(key: any): any | undefined {
