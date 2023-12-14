@@ -247,6 +247,8 @@ class MMLikeDisplayManager {
       const slotContainer = this.getSlotContainer(slotNr);
       // Remove display on it
       slotContainer.removeChildren();
+      // Remove "index" property
+      currentDsp.delete("index");
     }
   }
   
@@ -262,6 +264,8 @@ class MMLikeDisplayManager {
     nativeDsp.attach(slotNr);
     this.slots[slotNr] = dsp;
     const slotContainer = this.getSlotContainer(slotNr);
+    // Set index property
+    dsp.set("index", slotNr);
     // Add new display
     const pixiContainer = nativeDsp.getPixiContainer();
     slotContainer.addChild(pixiContainer);
