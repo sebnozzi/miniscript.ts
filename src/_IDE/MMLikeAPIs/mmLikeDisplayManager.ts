@@ -1,7 +1,147 @@
 
+class DisplaySlot {
+
+  private attachedDisplay: HashMap;
+  private attachedNativeDisplay: Display;
+  private allDisplaysTypes: Map<DisplayMode, HashMap>;
+
+  constructor(private dspMgr: MMLikeDisplayManager, public readonly slotNr: number) {
+    
+    const offDisplay = this.dspMgr.newOffDisplay();
+
+    this.allDisplaysTypes = new Map();
+    this.allDisplaysTypes.set(DisplayMode.off, offDisplay);
+
+    this.attachedDisplay = offDisplay;
+    const nativeOffDisplay = offDisplay.get("_handle") as Display;
+    this.attachedNativeDisplay = nativeOffDisplay;
+
+    // Set as "attached"
+    this.attachedNativeDisplay.attach(slotNr);
+    offDisplay.set("index", slotNr);
+  }
+
+  updateDisplay() {
+    this.attachedNativeDisplay.update();
+  }
+
+  getAttachedDisplay(): HashMap {
+    return this.attachedDisplay;
+  }
+
+  installDisplay(dsp: HashMap, nativeDisplay: Display) {
+    if (!nativeDisplay) {
+      return;
+    }
+    const displayMode = nativeDisplay.getModeNr();
+    const existingDsp = this.allDisplaysTypes.get(displayMode);
+
+    if (existingDsp === dsp) {
+      // Already part of the slot displays, just switch mode
+      this.switchDisplayMode(displayMode);
+    } else if (existingDsp) {
+      // Not part of the display-set, replace the one with the same mode
+      const existingNativeDisplay = this.dspMgr.getNativeDisplay(existingDsp);
+      if (existingNativeDisplay) {
+        // Detach existing
+        this.detachDisplay(existingDsp, existingNativeDisplay);
+        // Replace with new
+        this.allDisplaysTypes.set(displayMode, dsp);
+        // Switch mode
+        this.switchDisplayMode(displayMode);
+      }
+    }
+  }
+
+  switchDisplayMode(modeNr: DisplayMode) {
+    if (modeNr === this.attachedNativeDisplay.getModeNr()) {
+      return;
+    }
+
+    let otherModeDisplay = this.allDisplaysTypes.get(modeNr);
+
+    // Create display on-demand
+    if (otherModeDisplay === undefined) {
+      const newDisplay = this.newDisplayForModeNr(modeNr);
+      this.allDisplaysTypes.set(modeNr, newDisplay);
+      otherModeDisplay = newDisplay;
+    }
+
+    this.switchToDisplay(otherModeDisplay);
+  }
+
+  private switchToDisplay(otherDisplay: HashMap) {
+    this.detachCurrentDisplay();
+    this.attachDisplay(otherDisplay);
+  }
+
+  private detachCurrentDisplay() {
+    const slotContainer = this.getSlotContainer();
+    // Empty slot-container
+    slotContainer.removeChildren();
+    // Detach display
+    const currentDsp = this.attachedDisplay;
+    const nativeDsp = this.attachedNativeDisplay;
+    this.detachDisplay(currentDsp, nativeDsp);
+  }
+
+  private detachDisplay(dsp: HashMap, nativeDsp: Display) {
+    nativeDsp.detach();
+    dsp.delete("index");
+  }
+
+  private attachDisplay(dsp: HashMap) {
+    const slotNr = this.slotNr;
+
+    const nativeDsp = this.dspMgr.getNativeDisplay(dsp);
+
+    if (nativeDsp instanceof Display) {
+      this.attachedNativeDisplay = nativeDsp;
+      this.attachedDisplay = dsp;
+
+      nativeDsp.attach(slotNr);
+      // Set index property
+      dsp.set("index", slotNr);
+
+      // Add new display container
+      const slotContainer = this.getSlotContainer();
+      const pixiContainer = nativeDsp.getPixiContainer();
+      slotContainer.addChild(pixiContainer);
+    }
+  }
+
+  private getSlotContainer(): any {
+    const pixiApp = this.dspMgr.getPixiApplication();
+    // Note the inverted insertion order
+    const pixiContainerIdx = 7 - this.slotNr;
+    // Get container
+    const slotContainer = pixiApp.stage.getChildAt(pixiContainerIdx);
+    return slotContainer;
+  }
+
+  private newDisplayForModeNr(modeNr: number): HashMap {
+    if (modeNr == DisplayMode.off) {
+      return this.dspMgr.newOffDisplay();
+    } else if (modeNr == DisplayMode.solidColor) {
+      return this.dspMgr.newSolidColorDisplay();
+    } else if (modeNr == DisplayMode.text) {
+      return this.dspMgr.newTextDisplay();
+    } else if (modeNr == DisplayMode.pixel) {
+      return this.dspMgr.newPixelDisplay();
+    } else if (modeNr == DisplayMode.tile) {
+      return this.dspMgr.newTileDisplay();
+    } else if (modeNr == DisplayMode.sprite) {
+      return this.dspMgr.newSpriteDisplay();
+    } else {
+      throw new Error("Invalid mode nr");
+    }
+  }
+
+}
+
 class MMLikeDisplayManager {
 
-  private slots: Array<HashMap>;
+  private slots: Array<DisplaySlot>;
   private pixiApp: any;
   displayType: HashMap;
   canvasHeight: number = 640;
@@ -9,9 +149,14 @@ class MMLikeDisplayManager {
 
   constructor(public vm: Processor) {
     this.displayType = new HashMap();
-    this.slots = [];
     this.displayCanvas = document.getElementById("displayCanvas") as HTMLCanvasElement;
     this.canvasHeight = this.displayCanvas.width;
+    // Add slots
+    this.slots = new Array();
+    for (let slotNr = 0; slotNr < 8; slotNr++) {
+      const newSlot = new DisplaySlot(this, slotNr);
+      this.slots.push(newSlot);
+    }
   }
 
   getPixiApplication(): any {
@@ -28,7 +173,7 @@ class MMLikeDisplayManager {
     function(slotNr: any) {
       slotNr = toIntegerValue(slotNr);
       if (slotNr >= 0 && slotNr <= 7) {
-        return outerThis.getDisplayAtSlotNr(slotNr);
+        return outerThis.getAttachedDisplayAtSlotNr(slotNr);
       } else {
         return null;
       }
@@ -62,10 +207,6 @@ class MMLikeDisplayManager {
     dsp.set("mode", 0);
     vm.addMapIntrinsic(dsp, "install(self,index=0)",
     function(dsp: any, idx: any) {
-      idx = toIntegerValue(idx);
-      if (idx < 0 || idx > 7) {
-        return;
-      }
       outerThis.installDisplay(dsp, idx);
     });
 
@@ -117,40 +258,74 @@ class MMLikeDisplayManager {
       this.pixiApp.stage.addChild(container);
      }
 
-    this.addDefaultDisplays();
+    this.setDefaultDisplayModes();
   }
 
   // Called on each update cycle
   update() {
     const vm = this.vm;
-    for (let dspMap of this.slots) {
-      const nativeDsp = vm.mapAccessOpt(dspMap, "_handle");
-      if (nativeDsp instanceof Display) {
-        nativeDsp.update();
-      }
+    for (let slot of this.slots) {
+      slot.updateDisplay();
     }
   }
 
-  private addDefaultDisplays() {
+  private setDefaultDisplayModes() {
     for(let slotNr = 0; slotNr < 8; slotNr++) {
       if (slotNr == 7 || (slotNr >= 3 && slotNr <= 5)) {
         continue;
       }
-      this.installDisplay(this.newOffDisplay(), slotNr);
+      this.setSlotDisplayMode(slotNr, DisplayMode.off);
     }
-    // Add text display at 3
-    this.installDisplay(this.newTextDisplay(), 3);
-    // Add sprite display at 4
-    this.installDisplay(this.newSpriteDisplay(), 4);
-    // Add pixel display at 5
-    this.installDisplay(this.newPixelDisplay(), 5);
-    // Add pixel display at 7
-    this.installDisplay(this.newSolidColorDisplay(), 7);
+    this.setSlotDisplayMode(3, DisplayMode.text);
+    this.setSlotDisplayMode(4, DisplayMode.sprite);
+    this.setSlotDisplayMode(5, DisplayMode.pixel);
+    this.setSlotDisplayMode(7, DisplayMode.solidColor);
+  }
+  
+  private setSlotDisplayMode(slotNr: number, mode: DisplayMode) {
+    const slot = this.slots[slotNr];
+    slot.switchDisplayMode(mode);
   }
 
-  private getDisplayAtSlotNr(slotNr: number):HashMap {
-    const dsp = this.slots[slotNr];
-    return dsp;
+  newOffDisplay(): HashMap {
+    const nativeDsp = new OffDisplay(this);
+    nativeDsp.addProperties();
+    return nativeDsp.getDisplayMap();
+  }
+
+  newSolidColorDisplay(): HashMap {
+    const nativeDsp = new SolidColorDisplay(this);
+    nativeDsp.addProperties();
+    return nativeDsp.getDisplayMap();
+  }
+
+  newTextDisplay(): HashMap {
+    const nativeDsp = new TextDisplay(this);
+    nativeDsp.addProperties();
+    return nativeDsp.getDisplayMap();
+  }
+
+  newPixelDisplay(): HashMap {
+    const nativeDsp = new PixelDisplay(this);
+    nativeDsp.addProperties();
+    return nativeDsp.getDisplayMap();
+  }
+
+  newTileDisplay(): HashMap {
+    const nativeDsp = new TileDisplay(this);
+    nativeDsp.addProperties();
+    return nativeDsp.getDisplayMap();
+  }
+
+  newSpriteDisplay(): HashMap {
+    const nativeDsp = new SpriteDisplay(this);
+    nativeDsp.addProperties();
+    return nativeDsp.getDisplayMap();
+  }
+
+  private getAttachedDisplayAtSlotNr(slotNr: number):HashMap {
+    const slot = this.slots[slotNr];
+    return slot.getAttachedDisplay();
   }
 
   // Attempt to change display mode via API `display(n).mode = xxx`.
@@ -166,136 +341,30 @@ class MMLikeDisplayManager {
     if (!nativeDsp.isAttached()) {
       return;
     }
-    const currentMode = nativeDsp.getModeNr();
-    if (currentMode === requestedMode) {
-      // Same mode, no need to change
-      return;
-    }
     const slotNr = nativeDsp.getSlotNr();
-    this.changeSlotDisplayMode(slotNr, requestedMode);
-  }
-
-  private newOffDisplay(): HashMap {
-    const nativeDsp = new OffDisplay(this);
-    nativeDsp.addProperties();
-    return nativeDsp.getDisplayMap();
-  }
-
-  private newSolidColorDisplay(): HashMap {
-    const nativeDsp = new SolidColorDisplay(this);
-    nativeDsp.addProperties();
-    return nativeDsp.getDisplayMap();
-  }
-
-  private newTextDisplay(): HashMap {
-    const nativeDsp = new TextDisplay(this);
-    nativeDsp.addProperties();
-    return nativeDsp.getDisplayMap();
-  }
-
-  private newPixelDisplay(): HashMap {
-    const nativeDsp = new PixelDisplay(this);
-    nativeDsp.addProperties();
-    return nativeDsp.getDisplayMap();
-  }
-
-  private newTileDisplay(): HashMap {
-    const nativeDsp = new TileDisplay(this);
-    nativeDsp.addProperties();
-    return nativeDsp.getDisplayMap();
-  }
-
-  private newSpriteDisplay(): HashMap {
-    const nativeDsp = new SpriteDisplay(this);
-    nativeDsp.addProperties();
-    return nativeDsp.getDisplayMap();
-  }
-
-  private findAttachedDisplaySlotNr(dsp: HashMap): number | null {
-    for (let slotNr = 0; slotNr < 8; slotNr++) {
-      if (this.slots[slotNr] === dsp) {
-        return slotNr;
-      }
-    }
-    return null;
-  }
-
-  private changeSlotDisplayMode(slotNr: number, modeNr: number) {
-    const dsp = this.newDisplayForModeNr(modeNr);
-    this.installDisplay(dsp, slotNr);
+    const slot = this.slots[slotNr];
+    slot.switchDisplayMode(requestedMode);
   }
 
   private installDisplay(dsp: HashMap, slotNr: number) {
+    slotNr = toIntegerValue(slotNr);
     if (slotNr < 0 || slotNr > 7) {
       return;
     }
-    const nativeDsp = this.getNativeDisplay(dsp);
-    if (nativeDsp instanceof Display) {
-      this.detachDisplay(slotNr);
-      this.attachDisplay(slotNr, nativeDsp, dsp);
+    const slot = this.slots[slotNr];
+    const nativeDisplay = this.getNativeDisplay(dsp);
+    if (nativeDisplay) {
+      slot.installDisplay(dsp, nativeDisplay);
     }
   }
 
-  private detachDisplay(slotNr: number) {
-    const currentDsp = this.getDisplayAtSlotNr(slotNr);
-    if (!currentDsp) {
-      return;
-    }
-    const nativeDsp = this.getNativeDisplay(currentDsp);
-    if (nativeDsp) {
-      nativeDsp.detach();
-      const slotContainer = this.getSlotContainer(slotNr);
-      // Remove display on it
-      slotContainer.removeChildren();
-      // Remove "index" property
-      currentDsp.delete("index");
-    }
-  }
-  
-  private getSlotContainer(slotNr: number): any {
-    // Note the inverted insertion order
-    const pixiContainerIdx = 7 - slotNr;
-    // Get container
-    const slotContainer = this.pixiApp.stage.getChildAt(pixiContainerIdx);
-    return slotContainer;
-  }
-
-  private attachDisplay(slotNr: number, nativeDsp: Display, dsp: HashMap) {
-    nativeDsp.attach(slotNr);
-    this.slots[slotNr] = dsp;
-    const slotContainer = this.getSlotContainer(slotNr);
-    // Set index property
-    dsp.set("index", slotNr);
-    // Add new display
-    const pixiContainer = nativeDsp.getPixiContainer();
-    slotContainer.addChild(pixiContainer);
-  }
-
-  private getNativeDisplay(dsp: HashMap): Display | null {
+  getNativeDisplay(dsp: HashMap): Display | null {
     const vm = this.vm;
     const value = vm.mapAccessOpt(dsp, "_handle");
     if (value instanceof Display) {
       return value;
     } else {
       return null;
-    }
-  }
-
-  private newDisplayForModeNr(modeNr: number): HashMap {
-    if (modeNr == DisplayMode.off) {
-      return this.newOffDisplay();
-    } else if (modeNr == DisplayMode.solidColor) {
-      return this.newSolidColorDisplay();
-    } else if (modeNr == DisplayMode.text) {
-      return this.newTextDisplay();
-    } else if (modeNr == DisplayMode.pixel) {
-      return this.newPixelDisplay();
-    } else if (modeNr == DisplayMode.tile) {
-      return this.newTileDisplay();
-    } else if (modeNr == DisplayMode.sprite) {
-      return this.newSpriteDisplay();
-    } else {
-      throw new Error("Invalid mode nr");
     }
   }
 
