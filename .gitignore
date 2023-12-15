@@ -4,3 +4,4 @@ build
 _local
 static/ms
 Caddyfile
+node_modules/

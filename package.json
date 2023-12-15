@@ -1,0 +1,28 @@
+{
+  "name": "miniscript.ts",
+  "version": "0.1.0",
+  "description": "MiniScript implementation in TypeScript",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "build": "rimraf dist && tsc && vite build && dts-bundle-generator --config ./dts-bundle-generator.config.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Sebastian Nozzi",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/jsdom": "^21.1.6",
+    "@types/node": "^20.10.4",
+    "dts-bundle-generator": "^9.0.0",
+    "rimraf": "^5.0.5",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3",
+    "vite": "^5.0.10",
+    "vitest": "^1.0.4"
+  },
+  "dependencies": {
+    "pixi.js": "^7.3.2"
+  }
+}
