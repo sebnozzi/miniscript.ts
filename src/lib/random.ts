@@ -20,7 +20,6 @@ function newRandomGenerator(seed: number|string|undefined = undefined) {
       let b = m(" ");
       let c = m(" ");
       let x = 1;
-      let y;
       const seedStr = seed.toString();
       a -= m(seedStr);
       b -= m(seedStr);

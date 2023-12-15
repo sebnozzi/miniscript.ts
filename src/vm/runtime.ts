@@ -174,7 +174,7 @@ function add(a: any, b: any): any {
     return a + b
   } else if (typeof a === "string" || typeof b === "string") {
     // Convert both values to String and concatenate
-    return toString(a) + toString(b);
+    return toStr(a) + toStr(b);
   } else if (a instanceof Array) {
     if (b instanceof Array) {
       return a.concat(b);
@@ -192,7 +192,7 @@ function add(a: any, b: any): any {
       }
       return combined;
     } else {
-      throw new RuntimeError(`Got ${toString(b)} where a Map was required`);
+      throw new RuntimeError(`Got ${toStr(b)} where a Map was required`);
     }
   } else if (a === null) {
     return null;
@@ -335,14 +335,14 @@ function slice(vm: Processor, sliceTarget: any, startIdx: number, endIdx: number
   // Check / compute indexes
   if (startIdx !== null) {
     checkInt(startIdx, `Slice-start should be an integer value [line ${vm.getCurrentSrcLineNr()}]`);
-    startIdx = computeSliceIndex(vm, sliceTarget, startIdx);
+    startIdx = computeSliceIndex(sliceTarget, startIdx);
   } else {
     // Take slice from the beginning
     startIdx = 0;
   }
   if (endIdx !== null) {
     checkInt(endIdx, `Slice-end should be an integer value [line ${vm.getCurrentSrcLineNr()}]`);
-    endIdx = computeSliceIndex(vm, sliceTarget, endIdx);
+    endIdx = computeSliceIndex(sliceTarget, endIdx);
   } else {
     // Take slice to the end
     endIdx = sliceTarget.length;
@@ -359,13 +359,13 @@ function computeAccessIndex(vm: Processor, accessTarget: IndexedCollection, inde
   const effectiveIndex = (intIdx < 0) ? intIdx + accessTarget.length : intIdx;
   // Check bounds
   if (effectiveIndex < 0 || effectiveIndex >= accessTarget.length) {
-    throw new RuntimeError(`Index Error (list index ${index} out of range) [line ${vm.getCurrentSrcLineNr()}]`);
+    throw vm.runtimeError(`Index Error (list index ${index} out of range)`);
   }
   return effectiveIndex;
 }
 
 // Here we can be flexible, adjust values and allow index to be == collection.length
-function computeSliceIndex(vm: Processor, accessTarget: IndexedCollection, index: number): number {
+function computeSliceIndex(accessTarget: IndexedCollection, index: number): number {
   // Compute effective index
   const effectiveIndex = (index < 0) ? index + accessTarget.length : index;
   // Adjust values
@@ -413,7 +413,7 @@ function toBooleanNr(value: any): number {
   }
 }
 
-function toString(a: any): string {
+function toStr(a: any): string {
   if (typeof a === "number") {
     return "" + a;
   } else if (typeof a === "string") {
@@ -476,7 +476,7 @@ function hashCode(value: any, recursionDepth: number = 16): number {
   } else if (value instanceof HashMap) {
     return mapHashCode(value, recursionDepth - 1);
   } else {
-    const valueStr = toString(value);
+    const valueStr = toStr(value);
     return stringHashCode(valueStr);
   }
 }
@@ -496,7 +496,7 @@ function listHashCode(list: Array<any>, recursionDepth: number = 16): number {
 }
 
 function mapHashCode(map: HashMap, recursionDepth: number = 16) {
-  let result = stringHashCode(toString(map.size));
+  let result = stringHashCode(toStr(map.size));
   if (recursionDepth < 0) {
     return result;
   }

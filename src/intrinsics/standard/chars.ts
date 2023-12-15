@@ -4,7 +4,7 @@ function addCharIntrinsics(p: Processor) {
   p.addIntrinsic("code(self)", 
   function(x: any): number | null {
     if (x !== null) {
-      const s = toString(x);
+      const s = toStr(x);
       if (x === "") {
         return null
       }

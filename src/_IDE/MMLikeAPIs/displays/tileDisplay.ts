@@ -309,22 +309,22 @@ class TileDisplay extends Display  {
     });
 
     vm.addMapIntrinsic(dsp, "cell(self,x,y)",
-    function(dsp: HashMap, x: any, y: any) {
+    function(_: HashMap, x: any, y: any) {
       return outerThis.cell(x, y);
     });
 
     vm.addMapIntrinsic(dsp, "setCell(self,x,y,index)",
-    function(dsp: HashMap, x: any, y: any, index: any) {
+    function(_: HashMap, x: any, y: any, index: any) {
       outerThis.setCell(x, y, index);
     });
 
     vm.addMapIntrinsic(dsp, 'setCellTint(self,x=0,y=0,tint="#FFFFFF")',
-    function(dsp: HashMap, x: any, y: any, color: any) {
+    function(_: HashMap, x: any, y: any, color: any) {
       outerThis.setCellTint(x, y, color);
     });
 
     vm.addMapIntrinsic(dsp, 'cellTint(self,x,y)',
-    function(dsp: HashMap, x: any, y: any) {
+    function(_: HashMap, x: any, y: any) {
       return outerThis.cellTint(x, y);
     });
 

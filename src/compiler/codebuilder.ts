@@ -15,8 +15,6 @@ class CodeBuilder {
   srcMapIpStart: number;
   srcMap: SourceMap;
 
-  private readonly labelPrefix = "@@addr_";
-
   constructor() {
     this.prg = new Code();
     this.ip = 0;

@@ -77,7 +77,7 @@ function addCollectionIntrinsics(p: Processor) {
     if (self instanceof Array) {
       self.splice(index, 0, value);
     } else if (typeof self === "string") {
-      const valueStr = toString(value);
+      const valueStr = toStr(value);
       const result = [self.slice(0, index), valueStr, self.slice(index)].join('');
       return result;
     } else {
@@ -109,7 +109,7 @@ function addCollectionIntrinsics(p: Processor) {
       if (k == null) {
         throw new RuntimeError("argument to 'remove' must not be null");
       }
-      const s = toString(k);
+      const s = toStr(k);
       const foundPos = s.indexOf(k);
       if (foundPos < 0) {
         return self;
@@ -161,12 +161,12 @@ function addCollectionIntrinsics(p: Processor) {
       }
       return self;
     } else if (typeof self === "string") {
-      let str = toString(self);
-      let oldstr = oldVal === null ? "" : toString(oldVal);
+      let str = toStr(self);
+      let oldstr = oldVal === null ? "" : toStr(oldVal);
       if (isNullOrEmpty(oldstr)) {
         throw new RuntimeError("replace: oldval argument is empty");
       }
-      let newstr = newVal == null ? "" : toString(newVal);
+      let newstr = newVal == null ? "" : toStr(newVal);
       let idx = 0;
       while (true) {
         idx = str.indexOf(oldstr, idx);
@@ -193,8 +193,8 @@ function addCollectionIntrinsics(p: Processor) {
 
   p.addIntrinsic("split(self,delimiter=\" \",maxCount=-1)",
   function(self: any, delimiter: any, maxCount: any,): Array<string> {
-    self = toString(self);
-    delimiter = toString(delimiter);
+    self = toStr(self);
+    delimiter = toStr(delimiter);
     maxCount = toIntegerValue(maxCount);
 
     let result: string[] = [];
@@ -263,7 +263,7 @@ function addCollectionIntrinsics(p: Processor) {
 
   p.addIntrinsic("join(self,delimiter=\" \")",
   function(self: any, delimiter: any): string {
-    const delim = toString(delimiter);
+    const delim = toStr(delimiter);
     if (!(self instanceof Array)) {
       return self;
     } else {
@@ -272,7 +272,7 @@ function addCollectionIntrinsics(p: Processor) {
         if (value === null) {
           list.push("");
         } else {
-          list.push(toString(value));
+          list.push(toStr(value));
         }
       }
       const result = list.join(delim);
@@ -417,8 +417,8 @@ function addCollectionIntrinsics(p: Processor) {
       }
       // Do string-comparison if any argument is a string
       if (typeof a === "string" || typeof b === "string") {
-        const aStr = toString(a);
-        const bStr = toString(b);
+        const aStr = toStr(a);
+        const bStr = toStr(b);
         return compareSameType(aStr, bStr);
       }
       // Do numeric comparison if both arguments are numbers

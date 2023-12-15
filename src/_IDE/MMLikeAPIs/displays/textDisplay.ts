@@ -73,7 +73,6 @@ class TextDisplay extends Display {
   }
 
   print(str: string, delimiter: string) {
-    const [colNr, rowNr] = this.getCursorPosition();
     for (let ch of Array.from(str)) {
       this.putChar(ch);
     }

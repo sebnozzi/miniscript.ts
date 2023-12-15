@@ -7,7 +7,7 @@ type DebuggerCallbacks = {
 class Interpreter {
 
   public onStarted = () => {};
-  public onCompiled = (code: Code) => {};
+  public onCompiled = (_: Code) => {};
   public onFinished = () => {};
 
   protected vm: Processor;

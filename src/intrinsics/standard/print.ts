@@ -9,7 +9,7 @@ function addPrintIntrinsic(p: Processor) {
     if (delimiter === null) {
       delimiter = "\n";
     }
-    delimiter = toString(delimiter);
+    delimiter = toStr(delimiter);
 
     let text = formatValue(value) + delimiter;
     const delimiterIdxAndLength = (s: string): [number,number] => {
@@ -96,11 +96,11 @@ function formatValue(value: any, quoteStrings: boolean = false, depth: number = 
   return text;
 }
 
-function formatNumber(value: Number): string {
+function formatNumber(value: number): string {
   const isFloat = !Number.isInteger(value) && Number.isFinite(value);
   let text: string = "";
   if (isFloat) {
-    if (value> 1E10 || value < -1E10 || (value < 1E-6 && value > -1E-6)) {
+    if (value > 1E10 || value < -1E10 || (value < 1E-6 && value > -1E-6)) {
       // Format very large or small numbers in exponential form
       text = value.toExponential(6);
       // Pad exponential with leading zero if only one digit

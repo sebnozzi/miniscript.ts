@@ -22,7 +22,6 @@ function setupIde() {
     e.setValue(sampleCode, -1);
   }
 
-  const runBtn = document.getElementById("runBtn") as HTMLButtonElement;
   const stepIntoBtn = document.getElementById("stepIntoBtn") as HTMLButtonElement;
   const stepOutBtn = document.getElementById("stepOutBtn") as HTMLButtonElement;
   const stopBtn = document.getElementById("stopBtn") as HTMLButtonElement;

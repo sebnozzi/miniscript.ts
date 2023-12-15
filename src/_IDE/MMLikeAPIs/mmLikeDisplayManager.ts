@@ -263,7 +263,6 @@ class MMLikeDisplayManager {
 
   // Called on each update cycle
   update() {
-    const vm = this.vm;
     for (let slot of this.slots) {
       slot.updateDisplay();
     }

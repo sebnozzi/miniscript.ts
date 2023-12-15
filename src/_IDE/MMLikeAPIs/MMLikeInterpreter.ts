@@ -66,7 +66,7 @@ class MMLikeInterpreter extends Interpreter {
       this.vm.setSourceName("main code");
       // Let Pixi drive the execution of the program
       // by running some cycles each time.
-      this.pixiApp.ticker.add((delta: number) => {
+      this.pixiApp.ticker.add((_: number) => {
         if(this.vm.isRunning()) {
           this.vm.runCyclesOnce();
         }

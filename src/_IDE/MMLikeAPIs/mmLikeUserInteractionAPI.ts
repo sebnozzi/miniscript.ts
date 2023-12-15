@@ -7,8 +7,6 @@ class MMLikeUserInteractionAPI {
 
   addUserInteractionAPI() {
     const vm = this.vm;
-    const mouseMap = new HashMap();
-    const outerThis = this;
 
     vm.addIntrinsic('input(prompt="")', 
     function(message: string | undefined): Promise<string | null> {

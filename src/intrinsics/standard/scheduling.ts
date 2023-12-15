@@ -12,7 +12,7 @@ function addSchedulingIntrinsics(p: Processor) {
   function(seconds: number): Promise<any> {
     seconds = toNumberValue(seconds);
     const milliseconds = seconds * 1000;
-    return new Promise<any>((resolve, reject) => {
+    return new Promise<any>((resolve) => {
       // Resolve promise after amount of seconds
       setTimeout(() => {
         resolve(null);

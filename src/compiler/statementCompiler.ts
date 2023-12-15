@@ -94,7 +94,6 @@ class StatementCompiler {
   }
 
   private compileStatement(s: Statement, context: CompilerContext) {
-    const b = this.builder;
     if (s instanceof ExpressionStatement) {
       this.compileExpressionStatement(s);
     } else if (s instanceof AssignmentStatement) {
@@ -102,7 +101,7 @@ class StatementCompiler {
     } else if (s instanceof MathAssignmentStatement) {
       this.compileMathAssignmentStatement(s);
     } else if (s instanceof ReturnStatement) {
-      this.compileReturnStatement(s, context);
+      this.compileReturnStatement(s);
     } else if (s instanceof IfStatement) {
       this.compileIfStatement(s, context);  
     } else if (s instanceof WhileStatement) {
@@ -182,7 +181,7 @@ class StatementCompiler {
     this.builder.endMapEntry(s.location());
   }
 
-  private compileReturnStatement(s: ReturnStatement, context: CompilerContext) {
+  private compileReturnStatement(s: ReturnStatement) {
     this.builder.startMapEntry();
     if (s.optValue) {
       this.compileExpression(s.optValue)
@@ -215,7 +214,6 @@ class StatementCompiler {
       let elseIfLabel = this.builder.newLabel();
       this.builder.startMapEntry();
       this.compileExpression(elseIf.condition)
-      const elseIfIpEnd = this.builder.ip;
       this.builder.push_unresolved(BC.POP_JUMP_FALSE, elseIfLabel)
       this.builder.endMapEntry(elseIf.condition.location());
 

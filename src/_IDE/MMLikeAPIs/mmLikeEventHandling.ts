@@ -272,12 +272,12 @@ class EventHandler {
     this.mouseButtonsDown[e.button] = false;
   }
 
-  private handleMouseEnter(e: MouseEvent) {
+  private handleMouseEnter(_: MouseEvent) {
     // Reset the mouse button flags
     this.mouseButtonsDown = [];
   }
 
-  private handleMouseLeave(e: MouseEvent) {
+  private handleMouseLeave(_: MouseEvent) {
     // Reset the mouse button flags
     this.mouseButtonsDown = [];
   }

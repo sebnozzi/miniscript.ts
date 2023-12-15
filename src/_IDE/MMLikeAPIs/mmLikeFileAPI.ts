@@ -114,7 +114,7 @@ class MMLikeFileAPI {
         const soundMap = this.soundApi.toSoundMap(sound);
         resolve(soundMap);
       });
-      sound.addEventListener("error", (event) => {
+      sound.addEventListener("error", (_) => {
         resolve(null);
       });
     });

@@ -28,7 +28,7 @@ class SolidColorDisplay extends Display {
     return DisplayMode.solidColor;
   }
 
-  addDisplayAPI(dsp: HashMap): void {
+  addDisplayAPI(_: HashMap): void {
     // Nothing
   }
 

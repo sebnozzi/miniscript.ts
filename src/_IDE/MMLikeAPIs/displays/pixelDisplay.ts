@@ -49,7 +49,7 @@ class PixelDisplay extends Display {
     gfxMap.set("color", "#FFFFFFFF");
 
     vm.addMapIntrinsic(gfxMap, 'clear(color="#00000000", width=960, height=640)', 
-    function(color:any, width: any, height: any) {
+    function(color:any, _1: any, _2: any) {
       outerThis.clear(color);
     });
 
@@ -421,10 +421,7 @@ class PixelDisplay extends Display {
       return [];
     }
 
-    const polygonHeight = maxY - minY;
-    // Readjust y-values now that we know the polygon's height
     for (let p of points) {
-      // p.y = this.toTop(p.y, polygonHeight);
       p.y = Display.toTop(p.y, 0);
     }
 

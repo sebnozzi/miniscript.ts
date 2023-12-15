@@ -175,10 +175,6 @@ class Tokenizer {
     return ch == ' ' || ch == '\t'
   }
 
-  private isDigitChar(ch: string): boolean {
-    return ch[0] >= '0' && ch[0] <= '9';
-  }
-
   private isIdentifierStartChar(ch: string): boolean {
     return (ch >= 'a' && ch <= 'z') ||
       (ch >= 'A' && ch <= 'Z') ||
