@@ -168,7 +168,9 @@ export class Processor {
   }
 
   runtimeError(msg: string): RuntimeError {
-    return new RuntimeError(`${msg} [line ${this.getCurrentSrcLineNr()} (${this.sourceName})]`);
+    const errorMsg = `${msg} [line ${this.getCurrentSrcLineNr()}]`;
+    console.error("On file: ", this.sourceName, "Error: ", errorMsg);
+    return new RuntimeError(errorMsg);
   }
 
   setSourceName(sourceName: string) {

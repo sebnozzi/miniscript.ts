@@ -1,26 +1,36 @@
-async function fetchAndParseTestSuite(testSuiteFileName) {
-  let options = {
-    method: 'GET',
-    credentials: "include",    
-    headers: {}
-  };
-  return fetch(testSuiteFileName, options)
-    .then(response => {
-      return response.text();
-    })
-    .then(contents => {
-      return parseTestSuite(contents);
-    });
+import { readFile } from "node:fs";
+
+type SuiteTest = {
+  lineNr: number,
+  headers: string[],
+  code: string[],
+  output: string[]
 }
 
-function parseTestSuite(testSuiteContents) {
+export function fetchAndParseTestSuite(testSuiteFileName: string): Promise<SuiteTest[]> {
+  
+  const promise = new Promise<SuiteTest[]>((resolve) => {
+    readFile(testSuiteFileName, "utf-8", (err, contents) => {
+      if (err) {
+        throw err;
+      } else {
+        const tests = parseTestSuite(contents);
+        resolve(tests);
+      }
+    })
+  });
+
+  return promise;
+}
+
+function parseTestSuite(testSuiteContents: string): SuiteTest[] {
   const lines = testSuiteContents.split("\n");
 
-  const tests = [];
+  const tests: SuiteTest[] = [];
   let lineNr = 1;
   let mode = "header";
 
-  let test = {
+  let test: SuiteTest = {
     lineNr: lineNr,
     headers: [],
     code: [],

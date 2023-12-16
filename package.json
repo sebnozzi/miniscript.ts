@@ -18,7 +18,7 @@
   },
   "scripts": {
     "build": "rimraf dist && tsc && vite build && dts-bundle-generator --config ./dts-bundle-generator.config.ts",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "vitest"
   },
   "devDependencies": {
     "@types/css-font-loading-module": "^0.0.12",
