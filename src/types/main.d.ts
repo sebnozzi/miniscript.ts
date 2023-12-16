@@ -1,4 +1,4 @@
 /* eslint-disable no-var */
+/// <reference types="ace" />
 
-declare var ace: any;
-declare var editor: any;
+// declare var editor: AceAjax.Editor;

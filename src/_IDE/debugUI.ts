@@ -1,3 +1,4 @@
+import { getEditor } from "..";
 import { Debugger } from "../debugger/debugger";
 import { DebuggerCallbacks } from "../interpreter/interpreter";
 import { Code } from "../vm/code";
@@ -10,7 +11,7 @@ export class DebugUI {
   private stepOutBtn: HTMLButtonElement;
   private runBtn: HTMLButtonElement;
   private stopBtn: HTMLButtonElement;
-  private editor: any;
+  private editor: AceAjax.Editor;
   private _d: Debugger | null = null;
 
   constructor() {
@@ -20,7 +21,7 @@ export class DebugUI {
     this.stepOutBtn = document.getElementById("stepOutBtn") as HTMLButtonElement;
     this.stopBtn = document.getElementById("stopBtn") as HTMLButtonElement;
 
-    this.editor = globalThis.editor;
+    this.editor = getEditor();
   }
 
   setup() {
@@ -115,7 +116,7 @@ export class DebugUI {
         const Range = globalThis.ace.require("ace/range").Range;
         const srcLoc = sme.srcLoc;
         const srow = srcLoc.start.row - 1;
-        outerThis.editor.session.addMarker(new Range(srow, 0, srow, 500), "blue", "text");
+        outerThis.editor.session.addMarker(new Range(srow, 0, srow, 500), "blue", "text", true);
       }
 
       if (d.canStepIn()) {

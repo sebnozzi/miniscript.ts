@@ -15,7 +15,7 @@
     "noUnusedParameters": true,
     "noImplicitReturns": true,
     "forceConsistentCasingInFileNames": true,
-    "types": ["vite/client"]
+    "types": ["vite/client", "node", "ace", "pixi.js"]
   },
   "include": ["src"],
   "exclude": ["**/*.test.ts", "node_modules", "test/**", ".history/**"]

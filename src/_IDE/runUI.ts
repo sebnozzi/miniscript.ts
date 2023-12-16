@@ -1,3 +1,4 @@
+import { getEditor } from "..";
 import { Interpreter } from "../interpreter/interpreter";
 import { Code } from "../vm/code";
 import { buildInterpreter, disableButton, enableButton, storeProgram } from "./ide";
@@ -48,7 +49,7 @@ export class RunUI {
       console.log("Compiled code:", code);
     }
   
-    const e = globalThis.editor;
+    const e = getEditor();
     const srcCode = e.getValue();
     interp.runSrcCode(srcCode);
 

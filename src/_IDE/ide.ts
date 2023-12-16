@@ -1,10 +1,13 @@
+/// <reference types="ace" />
+
+import { getEditor } from "..";
 import { Interpreter } from "../interpreter/interpreter";
 import { DebugUI } from "./debugUI";
 import { MMLikeInterpreter } from "./MMLikeAPIs/MMLikeInterpreter";
 import { RunUI } from "./runUI";
 
 export function setupIde() {
-  const e = globalThis.editor;
+  const e: AceAjax.Editor = getEditor();
   const savedPrg = loadProgram();
   // Restore previous code
   if (savedPrg) {
@@ -52,7 +55,7 @@ export function buildInterpreter(): Interpreter {
 }
 
 export function storeProgram() {
-  const e = globalThis.editor;
+  const e = getEditor();
   const srcCode = e.getValue();
   const storage = window.localStorage;
   storage.setItem("code", srcCode);
