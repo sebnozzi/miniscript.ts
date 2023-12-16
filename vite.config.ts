@@ -32,15 +32,7 @@ module.exports = defineConfig({
       formats,
       fileName: (format) => fileName[format],
     },
-    sourcemap: "inline",
-    rollupOptions: {
-      external: ['pixi.js'],
-      output: {
-        globals: {
-          "pixi.js": 'PIXI'
-        }
-     }
-    }
+    sourcemap: true,
   },
   test: {
 

@@ -22,9 +22,5 @@
     "typescript": "^5.3.3",
     "vite": "^5.0.10",
     "vitest": "^1.0.4"
-  },
-  "dependencies": {
-    "@types/ace": "^0.0.52",
-    "pixi.js": "^7.3.2"
   }
 }
