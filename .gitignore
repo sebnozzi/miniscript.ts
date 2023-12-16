@@ -1,6 +1,7 @@
 *.tsbuildinfo
 
-build
+build/
+dist/
 _local
 static/ms
 Caddyfile
