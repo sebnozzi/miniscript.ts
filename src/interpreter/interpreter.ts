@@ -47,6 +47,22 @@ export class Interpreter {
     }
   }
 
+  // Return a promise that is resolved only when the module code
+  // is done running.
+  runSrcAsModule(moduleName: string, srcCode: string): Promise<null> {
+    const invocationCode = this.compileModuleInvocation(moduleName, srcCode);
+    const subVM = this.vm.createSubProcessVM();
+    subVM.setCode(invocationCode);
+    subVM.setSourceName(`module ${moduleName}`);
+    const promise = new Promise<null>((resolve) => {
+      subVM.onFinished = () => {
+        resolve(null);
+      };
+      subVM.runUntilDone();
+    });
+    return promise; 
+  }
+
   stopExecution() {
     this.vm.stopRunning();
   }
@@ -119,5 +135,13 @@ export class Interpreter {
     d.start();
     return d;
   } 
+
+  private compileModuleInvocation(moduleName: string, srcCode: string): Code {
+    const p = new Parser(srcCode);
+    const parsedStatements = p.parse();
+    const compiler = new Compiler(parsedStatements);
+    const code = compiler.compileModuleInvocation(moduleName);
+    return code;
+  }
 
 }

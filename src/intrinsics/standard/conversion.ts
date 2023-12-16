@@ -1,5 +1,5 @@
 import { Processor } from "../../vm/processor";
-import { formatValue } from "./print";
+import { formatValue } from "../../vm/runtime";
 
 export function addConversionIntrinsics(p: Processor) {
 
