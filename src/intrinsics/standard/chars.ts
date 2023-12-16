@@ -1,5 +1,7 @@
+import { Processor } from "../../vm/processor";
+import { toStr } from "../../vm/runtime";
 
-function addCharIntrinsics(p: Processor) {
+export function addCharIntrinsics(p: Processor) {
   
   p.addIntrinsic("code(self)", 
   function(x: any): number | null {

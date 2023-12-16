@@ -1,5 +1,6 @@
+import { Token } from "./tokenizerModel";
 
-class ParserError extends Error {
+export class ParserError extends Error {
   constructor(
     message: string, 
     public readonly position: Pos) {
@@ -9,7 +10,7 @@ class ParserError extends Error {
 }
 
 // Location in the source-code.
-class SrcLocation {
+export class SrcLocation {
 
   public readonly start: Pos;
   public readonly end: Pos;
@@ -50,7 +51,7 @@ class SrcLocation {
 
 }
 
-class Pos {
+export class Pos {
 
   idx: number;
   col: number;

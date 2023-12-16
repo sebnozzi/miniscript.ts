@@ -1,5 +1,9 @@
+import { BoundFunction } from "../../vm/funcdef";
+import { HashMap } from "../../vm/hashmap";
+import { Processor } from "../../vm/processor";
+import { toStr, round } from "../../vm/runtime";
 
-function addPrintIntrinsic(p: Processor) {
+export function addPrintIntrinsic(p: Processor) {
 
   // Accumulate text-parts here until a newline is processed
   let stdoutBuffer: string[] = [];
@@ -50,7 +54,7 @@ function addPrintIntrinsic(p: Processor) {
 
 }
 
-function formatValue(value: any, quoteStrings: boolean = false, depth: number = 16): string {
+export function formatValue(value: any, quoteStrings: boolean = false, depth: number = 16): string {
   let text = "";
   if (typeof value === "number") {
     text = formatNumber(value);

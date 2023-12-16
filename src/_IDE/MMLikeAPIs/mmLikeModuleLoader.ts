@@ -1,5 +1,11 @@
+import { Compiler } from "../../compiler/compiler";
+import { Parser } from "../../parser/parser";
+import { Code } from "../../vm/code";
+import { Processor } from "../../vm/processor";
+import { RuntimeError } from "../../vm/runtime";
+import { MMLikeFileAPI } from "./mmLikeFileAPI";
 
-class MMLikeModuleLoader {
+export class MMLikeModuleLoader {
 
   constructor(private vm: Processor, private fileAPI: MMLikeFileAPI) {
 

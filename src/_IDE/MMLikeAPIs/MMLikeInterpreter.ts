@@ -1,6 +1,17 @@
-/// <reference path="../../interpreter/interpreter.ts"/>
+import * as PIXI from "pixi.js";
+import { Interpreter } from "../../interpreter/interpreter";
+import { TxtCallback } from "../../vm/processor";
+import { createBoundsType } from "./bounds";
+import { addConsoleLogging } from "./debugging";
+import { MMLikeDisplayManager } from "./mmLikeDisplayManager";
+import { EventHandler } from "./mmLikeEventHandling";
+import { MMLikeFileAPI } from "./mmLikeFileAPI";
+import { MMLikeModuleLoader } from "./mmLikeModuleLoader";
+import { SoundManager } from "./MMLikeSound";
+import { MMLikeUserInteractionAPI } from "./mmLikeUserInteractionAPI";
+import { addMMLikeSchedulingIntrinsics } from "./scheduling";
 
-class MMLikeInterpreter extends Interpreter {
+export class MMLikeInterpreter extends Interpreter {
 
   private eventHandler: EventHandler;
   private soundMgr: SoundManager;

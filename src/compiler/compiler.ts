@@ -1,5 +1,12 @@
+import { Statement, ReturnStatement } from "../parser/parserModel";
+import { BC } from "../vm/bytecodes";
+import { Code } from "../vm/code";
+import { FuncDef } from "../vm/funcdef";
+import { CodeBuilder } from "./codebuilder";
+import { ExpressionCompiler } from "./expressionCompiler";
+import { CompilerContext, FunctionBodyContext, StatementCompiler } from "./statementCompiler";
 
-class Compiler {
+export class Compiler {
   
   private readonly builder: CodeBuilder;
   private readonly statementCompiler: StatementCompiler;

@@ -1,12 +1,13 @@
+import { SrcLocation } from "../parser/commonModel";
 
-type SourceMapEntry = {
+export type SourceMapEntry = {
   ipStart: number;
   ipEnd: number;
   srcLoc: SrcLocation;
   isCall: boolean;
 }
 
-class SourceMap {
+export class SourceMap {
 
   entries: SourceMapEntry[];
 

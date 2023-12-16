@@ -1,4 +1,10 @@
-abstract class Display {
+import { HashMap } from "../../../vm/hashmap";
+import { Processor } from "../../../vm/processor";
+import { MMLikeDisplayManager } from "../mmLikeDisplayManager";
+import * as PIXI from "pixi.js";
+import { DisplayMode } from "./modes";
+
+export abstract class Display {
 
   protected attachedSlotNr: number | null;
   protected pixiContainer: any;

@@ -1,7 +1,9 @@
-/// <reference path="../vm/processor.ts"/>
-/// <reference path="../intrinsics/intrinsics.ts"/>
+import { Interpreter } from "../interpreter/interpreter";
+import { DebugUI } from "./debugUI";
+import { MMLikeInterpreter } from "./MMLikeAPIs/MMLikeInterpreter";
+import { RunUI } from "./runUI";
 
-function setupIde() {
+export function setupIde() {
   const e = globalThis.editor;
   const savedPrg = loadProgram();
   // Restore previous code
@@ -43,44 +45,43 @@ function setupIde() {
 
 }
 
-function buildInterpreter(): Interpreter {
+export function buildInterpreter(): Interpreter {
   const txtCallback = (txt: string) => { console.log(txt); };
   const interp = new MMLikeInterpreter(txtCallback, txtCallback);
   return interp;
 }
 
-
-function storeProgram() {
+export function storeProgram() {
   const e = globalThis.editor;
   const srcCode = e.getValue();
   const storage = window.localStorage;
   storage.setItem("code", srcCode);
 }
 
-function loadProgram() {
+export function loadProgram() {
   const storage = window.localStorage;
   const code = storage.getItem("code");
   return code;
 }
 
-function clr() {
+export function clr() {
   const storage = window.localStorage;
   storage.clear();
 }
 
-function enableButton(button: HTMLButtonElement) {
+export function enableButton(button: HTMLButtonElement) {
   button.removeAttribute("disabled");
 }
 
-function setButtonLabel(button: HTMLButtonElement, label: string) {
+export function setButtonLabel(button: HTMLButtonElement, label: string) {
   button.textContent = label;
 }
 
-function disableButton(button: HTMLButtonElement) {
+export function disableButton(button: HTMLButtonElement) {
   button.setAttribute("disabled", "true");
 }
 
-function removeMarkers(aceEditor: any) {
+export function removeMarkers(aceEditor: any) {
   for(let id of Object.keys(aceEditor.session.getMarkers())) {
     aceEditor.session.removeMarker(id);
   }

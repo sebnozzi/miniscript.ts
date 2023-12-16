@@ -1,5 +1,9 @@
+import { HashMap } from "../../../vm/hashmap";
+import { MMLikeDisplayManager } from "../mmLikeDisplayManager";
+import { Display } from "./display";
+import { DisplayMode } from "./modes";
 
-class OffDisplay extends Display {
+export class OffDisplay extends Display {
 
   constructor(dspMgr: MMLikeDisplayManager) {
     super(dspMgr);

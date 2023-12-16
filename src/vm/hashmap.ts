@@ -1,9 +1,11 @@
-type HashMapEntry = {
+import { hashCode, equals } from "./runtime";
+
+export type HashMapEntry = {
   key: any,
   value: any
 };
 
-class HashMap {
+export class HashMap {
 
   private _size: number = 0;
   private buckets: Map<any, Array<HashMapEntry>>;

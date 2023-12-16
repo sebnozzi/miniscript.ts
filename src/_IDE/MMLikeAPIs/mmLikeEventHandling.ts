@@ -1,3 +1,5 @@
+import { HashMap } from "../../vm/hashmap";
+import { Processor } from "../../vm/processor";
 
 type KeyInfo = {
   // as printed
@@ -48,7 +50,7 @@ class KeyInfoSet {
   }
 }
 
-class EventHandler {
+export class EventHandler {
   
   keysPressed = new KeyInfoSet();
   keysBuffer = new Array<string>();

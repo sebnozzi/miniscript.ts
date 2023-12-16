@@ -1,8 +1,7 @@
-/// <reference path="./bytecodes.ts"/>
-/// <reference path="./context.ts"/>
-/// <reference path="./code.ts"/>
+import { Code } from "./code";
+import { Context } from "./context";
 
-class Frame {
+export class Frame {
   public readonly ip: number;
   public readonly code: Code;
   public readonly context: Context;

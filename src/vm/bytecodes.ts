@@ -1,5 +1,5 @@
 
-enum BC {
+export enum BC {
   // Push primitive value to stack
   PUSH,
 
@@ -95,7 +95,7 @@ enum BC {
   CONTINUE_FOR_LOOP,
 };
 
-function hasCallPotential(op: BC): boolean {
+export function hasCallPotential(op: BC): boolean {
   return (op === BC.CALL 
     || op === BC.PROPERTY_CALL
     || op === BC.DOT_ACCESS

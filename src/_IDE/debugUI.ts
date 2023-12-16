@@ -1,4 +1,9 @@
-class DebugUI {
+import { Debugger } from "../debugger/debugger";
+import { DebuggerCallbacks } from "../interpreter/interpreter";
+import { Code } from "../vm/code";
+import { buildInterpreter, disableButton, enableButton, removeMarkers, setButtonLabel } from "./ide";
+
+export class DebugUI {
 
   private stepOverBtn: HTMLButtonElement;
   private stepIntoBtn: HTMLButtonElement;

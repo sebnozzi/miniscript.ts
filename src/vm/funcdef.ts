@@ -1,4 +1,7 @@
-class FuncDefArg {
+import { Code } from "./code";
+import { Context } from "./context";
+
+export class FuncDefArg {
 
   readonly name: string;
   readonly defaultValue: any | undefined;
@@ -10,7 +13,7 @@ class FuncDefArg {
 
 }
 
-class FuncDef {
+export class FuncDef {
 
   readonly arguments: FuncDefArg[];
 
@@ -52,7 +55,7 @@ class FuncDef {
 // A function definition which is bound to a context at runtime.
 // As such it's ready to run and variables should be able to be 
 // resolved even in parent contexts.
-class BoundFunction {
+export class BoundFunction {
 
   public readonly funcDef: FuncDef;
   public readonly context: Context;

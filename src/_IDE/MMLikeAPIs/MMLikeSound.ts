@@ -1,5 +1,8 @@
+import { HashMap } from "../../vm/hashmap";
+import { Processor } from "../../vm/processor";
+import { isaEquals } from "../../vm/runtime";
 
-class SoundManager {
+export class SoundManager {
 
   private soundMap = new HashMap();
 

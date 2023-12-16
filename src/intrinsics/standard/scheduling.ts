@@ -1,5 +1,7 @@
+import { Processor } from "../../vm/processor";
+import { toNumberValue } from "../../vm/runtime";
 
-function addSchedulingIntrinsics(p: Processor) {
+export function addSchedulingIntrinsics(p: Processor) {
 
   p.addIntrinsic("time", 
   function(): number {

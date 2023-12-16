@@ -1,6 +1,9 @@
-/// <reference path="./runtime.ts"/>
+import { ForLoop } from "./forloop";
+import { HashMap } from "./hashmap";
+import { Processor } from "./processor";
+import { RuntimeError } from "./runtime";
 
-class Context {
+export class Context {
 
   private readonly locals: HashMap;
   private readonly parent: Context | null;

@@ -1,5 +1,12 @@
+import { Expression, Literal, IdentifierExpr, SelfExpr, SuperExpr, BinaryExpr, UnaryExpr, ChainedComparisonExpr, LogicExpr, GroupingExpr, ListExpr, MapExpr, IndexedAccessExpr, DotAccessExpr, ListSlicingExpr, FunctionCallExpr, FunctionRefExpr, FunctionBodyExpr } from "../parser/parserModel";
+import { TokenType } from "../parser/tokenTypes";
+import { BC } from "../vm/bytecodes";
+import { FuncDef, FuncDefArg } from "../vm/funcdef";
+import { CodeBuilder } from "./codebuilder";
+import { Compiler } from "./compiler";
+import { NotImplemented, CompileTimeError } from "./compilerModel";
 
-class ExpressionCompilerContext {
+export class ExpressionCompilerContext {
   constructor(public readonly isFuncRef: boolean = false, public readonly isStatement: boolean = false) {
   }
   enterFunctionReference(): ECContext {
@@ -12,9 +19,9 @@ class ExpressionCompilerContext {
   }
 }
 
-type ECContext = ExpressionCompilerContext;
+export type ECContext = ExpressionCompilerContext;
 
-class ExpressionCompiler {
+export class ExpressionCompiler {
 
   constructor(private builder: CodeBuilder) { }
 

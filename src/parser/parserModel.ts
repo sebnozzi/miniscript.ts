@@ -1,7 +1,11 @@
 // TODO: move the whole toJson thing outside of these models.
 // It is only for debugging, they should be external.
 
-interface Expression {
+import { SrcLocation } from "./commonModel";
+import { Token, Identifier } from "./tokenizerModel";
+import { TokenType } from "./tokenTypes";
+
+export interface Expression {
   location(): SrcLocation;
   toJson(): object;
   description(): string;
@@ -10,7 +14,7 @@ interface Expression {
 type OptExpression = Expression | undefined
 type DefaultArgValue = Literal | undefined;
 
-interface Statement {
+export interface Statement {
   description(): string;
   toJson(): object
 }
@@ -39,7 +43,7 @@ function tokensToJsonArray(tokens: Token[]): any[] {
 // == Statements
 
 // An expression found at the level of a statement
-class ExpressionStatement implements Statement {
+export class ExpressionStatement implements Statement {
   constructor(public expression: Expression) {}
 
   location() {
@@ -59,7 +63,7 @@ class ExpressionStatement implements Statement {
   }
 }
 
-class ConditionedStatements {
+export class ConditionedStatements {
   constructor(public condition: Expression, public statements: Statement[]) {}
   
   location() {
@@ -77,7 +81,7 @@ class ConditionedStatements {
 }
 
 
-class IfStatement implements Statement {
+export class IfStatement implements Statement {
   constructor(public ifBranch: ConditionedStatements,
     public elseIfs: ConditionedStatements[],
     public elseBranch: Statement[]) {}
@@ -97,7 +101,7 @@ class IfStatement implements Statement {
   }
 }
 
-class WhileStatement implements Statement {
+export class WhileStatement implements Statement {
   constructor(public condition: Expression, public headerLocation: SrcLocation, public statements: Statement[]) { }
   description(): string {
     return "While Statement";
@@ -112,7 +116,7 @@ class WhileStatement implements Statement {
   }
 }
 
-class ForStatement implements Statement {
+export class ForStatement implements Statement {
   constructor(public loopVar: Identifier, public rangeExpr: Expression, public headerLocation: SrcLocation, public statements: Statement[]) {}
   description(): string {
     return "For Statement";
@@ -128,7 +132,7 @@ class ForStatement implements Statement {
   }
 }
 
-class AssignmentStatement implements Statement {
+export class AssignmentStatement implements Statement {
   constructor(public target: Expression, public value: Expression) {}
   
   description(): string {
@@ -149,7 +153,7 @@ class AssignmentStatement implements Statement {
   }
 }
 
-class MathAssignmentStatement implements Statement {
+export class MathAssignmentStatement implements Statement {
   constructor(public target: Expression, public opToken: TokenType, public value: Expression) {}
   
   description(): string {
@@ -171,7 +175,7 @@ class MathAssignmentStatement implements Statement {
   }
 }
 
-class FunctionCallStatement implements Statement {
+export class FunctionCallStatement implements Statement {
   constructor(public callTarget: Expression, public args: Expression[]) {}
   description(): string {
     return "Function Call Statement";
@@ -194,7 +198,7 @@ class FunctionCallStatement implements Statement {
   }
 }
 
-class ReturnStatement implements Statement {
+export class ReturnStatement implements Statement {
   constructor(public optValue: OptExpression, private fullLocation: SrcLocation) {}
   location() {
     return this.fullLocation;
@@ -211,7 +215,7 @@ class ReturnStatement implements Statement {
   }
 }
 
-class BreakStatement implements Statement {
+export class BreakStatement implements Statement {
   constructor(private fullLocation: SrcLocation) {}
   location() {
     return this.fullLocation;
@@ -225,7 +229,8 @@ class BreakStatement implements Statement {
     }
   }
 }
-class ContinueStatement implements Statement {
+
+export class ContinueStatement implements Statement {
   constructor(private fullLocation: SrcLocation) {}
   location() {
     return this.fullLocation;
@@ -242,7 +247,7 @@ class ContinueStatement implements Statement {
 
 // == Expressions
 
-class BinaryExpr implements Expression {
+export class BinaryExpr implements Expression {
   constructor(public left: Expression, public operator: Token, public right: Expression) {}
   
   location() {
@@ -264,7 +269,7 @@ class BinaryExpr implements Expression {
   }
 }
 
-class ChainedComparisonExpr {
+export class ChainedComparisonExpr {
   constructor(public operands: Expression[], public operators: Token[]) {
     if (operands.length < 3) {
       throw new Error("Amount of operands must be at least 3");
@@ -305,7 +310,7 @@ class ChainedComparisonExpr {
   }
 }
 
-class LogicExpr implements Expression {
+export class LogicExpr implements Expression {
   constructor(public left: Expression, public operator: Token, public right: Expression) {}
   
   location(): SrcLocation {
@@ -327,7 +332,7 @@ class LogicExpr implements Expression {
   }
 }
 
-class UnaryExpr implements Expression {
+export class UnaryExpr implements Expression {
   constructor(public operator: Token, public expr: Expression) {}
 
   location(): SrcLocation {
@@ -348,7 +353,7 @@ class UnaryExpr implements Expression {
   }
 }
 
-class Literal implements Expression {
+export class Literal implements Expression {
   constructor(public value: any, private fullLocation: SrcLocation) {}
   
   location(): SrcLocation {
@@ -368,7 +373,7 @@ class Literal implements Expression {
   }
 }
 
-class GroupingExpr implements Expression {
+export class GroupingExpr implements Expression {
   constructor(public expr: Expression, private fullLocation: SrcLocation) {}
   
   location(): SrcLocation {
@@ -388,7 +393,7 @@ class GroupingExpr implements Expression {
   }
 }
 
-class IdentifierExpr implements Expression {
+export class IdentifierExpr implements Expression {
   constructor(public identifier: Identifier) {}
   
   location(): SrcLocation {
@@ -408,7 +413,7 @@ class IdentifierExpr implements Expression {
   }
 }
 
-class FunctionCallExpr implements Expression {
+export class FunctionCallExpr implements Expression {
   
   constructor(public callTarget: Expression, public args: Expression[], private fullLocation: SrcLocation) {}
 
@@ -430,7 +435,7 @@ class FunctionCallExpr implements Expression {
   }
 }
 
-class ListExpr implements Expression {
+export class ListExpr implements Expression {
   
   constructor(public elements: Expression[], private fullLocation: SrcLocation) {}
 
@@ -451,7 +456,7 @@ class ListExpr implements Expression {
   }
 }
 
-class MapExpr implements Expression {
+export class MapExpr implements Expression {
   
   constructor(public elements: Map<Expression, Expression>, private fullLocation: SrcLocation) {}
 
@@ -476,7 +481,7 @@ class MapExpr implements Expression {
   }
 }
 
-class IndexedAccessExpr implements Expression {
+export class IndexedAccessExpr implements Expression {
   constructor(public accessTarget: Expression, public indexExpr: Expression, private fullLocation: SrcLocation) {}
   
   location(): SrcLocation {
@@ -497,7 +502,7 @@ class IndexedAccessExpr implements Expression {
   }
 }
 
-class ListSlicingExpr implements Expression {
+export class ListSlicingExpr implements Expression {
   constructor(public listTarget: Expression, public start: OptExpression, public stop: OptExpression, private fullLocation: SrcLocation) {}
   
   location(): SrcLocation {
@@ -517,7 +522,7 @@ class ListSlicingExpr implements Expression {
   }
 }
 
-class DotAccessExpr implements Expression {
+export class DotAccessExpr implements Expression {
   constructor(public accessTarget: Expression, public property: Identifier) {}
   
   location(): SrcLocation {
@@ -538,7 +543,7 @@ class DotAccessExpr implements Expression {
   }
 }
 
-class Argument {
+export class Argument {
   constructor(public name: string, public defaultValue: DefaultArgValue, private fullLocation: SrcLocation) {}
   
   location(): SrcLocation {
@@ -555,7 +560,7 @@ class Argument {
   }
 }
 
-class FunctionBodyExpr implements Expression {
+export class FunctionBodyExpr implements Expression {
   
   constructor(public args: Argument[], public statements: Statement[], private fullLocation: SrcLocation) {}
 
@@ -577,7 +582,7 @@ class FunctionBodyExpr implements Expression {
   }
 }
 
-class FunctionRefExpr implements Expression {
+export class FunctionRefExpr implements Expression {
   constructor(public refTarget: Expression, private fullLocation: SrcLocation)  {}
   
   location(): SrcLocation {
@@ -595,7 +600,7 @@ class FunctionRefExpr implements Expression {
   }
 }
 
-class SelfExpr implements Expression {
+export class SelfExpr implements Expression {
   constructor(private fullLocation: SrcLocation) {}
   location(): SrcLocation {
     return this.fullLocation;
@@ -610,7 +615,7 @@ class SelfExpr implements Expression {
   }
 }
 
-class SuperExpr implements Expression {
+export class SuperExpr implements Expression {
   constructor(private fullLocation: SrcLocation) {}
   location(): SrcLocation {
     return this.fullLocation;

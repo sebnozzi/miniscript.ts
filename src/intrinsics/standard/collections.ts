@@ -1,5 +1,8 @@
+import { HashMap } from "../../vm/hashmap";
+import { Processor } from "../../vm/processor";
+import { toNumberValue, checkNumber, RuntimeError, toIntegerValue, checkRange, toStr, equals, isNullOrEmpty, slice, toBooleanNr } from "../../vm/runtime";
 
-function addCollectionIntrinsics(p: Processor) {
+export function addCollectionIntrinsics(p: Processor) {
 
   p.addIntrinsic("range(start,stop,step=null)", 
   function(start: any, stop: any, step: number) {

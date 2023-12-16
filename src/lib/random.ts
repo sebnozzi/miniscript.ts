@@ -1,5 +1,5 @@
 // "Alea" random number generator
-function newRandomGenerator(seed: number|string|undefined = undefined) {
+export function newRandomGenerator(seed: number|string|undefined = undefined) {
   if(seed === undefined) {
     seed = +new Date() + Math.random();
   }

@@ -1,10 +1,18 @@
+import { MMLikeDisplayManager } from "../mmLikeDisplayManager";
+import { Display } from "./display";
+import { DisplayMode } from "./modes";
+import * as PIXI from "pixi.js";
+import { toIntegerValue } from "../../../vm/runtime";
+import { DisplayObject } from "pixi.js";
+import { formatValue } from "../../../intrinsics/standard/print";
+
 type TxtDspCell = {
   char: string,
   fgColor: string,
   bgColor: string,
 }
 
-class TextDisplay extends Display {
+export class TextDisplay extends Display {
 
   private rowCells: TxtDspCell[][];
 
@@ -60,8 +68,8 @@ class TextDisplay extends Display {
         charBg.name = "bg";
         charText.name = "txt";
 
-        charContainer.addChild(charBg);
-        charContainer.addChild(charText);
+        charContainer.addChild(charBg as DisplayObject);
+        charContainer.addChild(charText as DisplayObject);
 
         parentContainer.addChild(charContainer);
         charContainer.x = colNr * charWidth;

@@ -1,4 +1,8 @@
-abstract class Stepper {
+import { Processor } from "../vm/processor";
+import { SourceMapEntry } from "../vm/sourcemap";
+import { Debugger } from "./debugger";
+
+export abstract class Stepper {
 
   initialCallStackDepth: number;
   initialEntry: SourceMapEntry | null;
@@ -28,7 +32,7 @@ abstract class Stepper {
   }
 }
 
-class StepOverStepper extends Stepper {
+export class StepOverStepper extends Stepper {
 
   initialCallStackDepth: number;
   initialEntry: SourceMapEntry | null;
@@ -89,7 +93,7 @@ class StepOverStepper extends Stepper {
 
 }
 
-class StepIntoStepper extends Stepper {
+export class StepIntoStepper extends Stepper {
 
   initialCount: number;
 
@@ -137,7 +141,7 @@ class StepIntoStepper extends Stepper {
 
 }
 
-class StepOutStepper extends Stepper {
+export class StepOutStepper extends Stepper {
 
   initialCount: number;
 

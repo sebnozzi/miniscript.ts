@@ -1,6 +1,20 @@
+import { BoundFunction } from "../vm/funcdef";
+import { HashMap } from "../vm/hashmap";
+import { Processor } from "../vm/processor";
+import { addBitOperationIntrinsics } from "./standard/bitOperations";
+import { addCharIntrinsics } from "./standard/chars";
+import { addCollectionIntrinsics } from "./standard/collections";
+import { addConversionIntrinsics } from "./standard/conversion";
+import { addCoreTypesIntrinsics } from "./standard/coreTypes";
+import { addIdentityIntrinsics } from "./standard/identity";
+import { addMathIntrinsics } from "./standard/math";
+import { addPrintIntrinsic } from "./standard/print";
+import { addRandomnessIntrinsics } from "./standard/randomness";
+import { addSchedulingIntrinsics } from "./standard/scheduling";
+import { addStringIntrinsics } from "./standard/string";
 
 
-function addStandardIntrinsics(p: Processor) {
+export function addStandardIntrinsics(p: Processor) {
   addPrintIntrinsic(p);
   
   addCoreTypesIntrinsics(p);

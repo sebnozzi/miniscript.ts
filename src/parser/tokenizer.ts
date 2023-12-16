@@ -1,3 +1,6 @@
+import { Pos, SrcLocation, ParserError } from "./commonModel";
+import { Token, SimpleToken, Identifier, StringLiteral, IntLiteral, FloatLiteral, EofToken } from "./tokenizerModel";
+import { TokenType } from "./tokenTypes";
 
 // Used internally by the tokenizer
 class NumberLiteral {
@@ -11,7 +14,7 @@ class NumberLiteral {
   }
 }
 
-class Tokenizer {
+export class Tokenizer {
 
   private readonly input: string;
   private readonly source: string | undefined;

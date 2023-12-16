@@ -1,11 +1,13 @@
+import { SrcLocation } from "./commonModel"
+import { TokenType } from "./tokenTypes"
 
-interface Token {
+export interface Token {
   tokenType: TokenType
   location: SrcLocation
   afterSpace: boolean
 }
 
-class SimpleToken implements Token {
+export class SimpleToken implements Token {
 
   tokenType: TokenType
   location: SrcLocation
@@ -22,7 +24,7 @@ class SimpleToken implements Token {
   }
 }
 
-class LiteralToken<T> implements Token {
+export class LiteralToken<T> implements Token {
   value: T
   tokenType: TokenType
   location: SrcLocation
@@ -46,25 +48,25 @@ class LiteralToken<T> implements Token {
   }
 }
 
-class StringLiteral extends LiteralToken<string> {
+export class StringLiteral extends LiteralToken<string> {
   constructor(value: string, location: SrcLocation, afterSpace: boolean) {
     super(TokenType.STRING_LITERAL, value, location, afterSpace);
   }
 }
 
-class IntLiteral extends LiteralToken<number> {
+export class IntLiteral extends LiteralToken<number> {
   constructor(value: number, location: SrcLocation, afterSpace: boolean) {
     super(TokenType.INT_LITERAL, value, location, afterSpace);
   }
 }
 
-class FloatLiteral extends LiteralToken<number> {
+export class FloatLiteral extends LiteralToken<number> {
   constructor(value: number, location: SrcLocation, afterSpace: boolean) {
     super(TokenType.FLOAT_LITERAL, value, location, afterSpace);
   }
 }
 
-class Identifier implements Token {
+export class Identifier implements Token {
   value: string
   tokenType: TokenType
   location: SrcLocation
@@ -82,7 +84,7 @@ class Identifier implements Token {
   }
 }
 
-class EofToken implements Token {
+export class EofToken implements Token {
   tokenType: TokenType
   location: SrcLocation
   afterSpace: boolean

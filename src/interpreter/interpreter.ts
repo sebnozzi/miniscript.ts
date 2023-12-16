@@ -1,10 +1,17 @@
+import { Compiler } from "../compiler/compiler";
+import { Debugger } from "../debugger/debugger";
+import { addStandardIntrinsics } from "../intrinsics/intrinsics";
+import { Parser } from "../parser/parser";
+import { Statement } from "../parser/parserModel";
+import { Code } from "../vm/code";
+import { Processor, TxtCallback } from "../vm/processor";
 
-type DebuggerCallbacks = {
+export type DebuggerCallbacks = {
   onSrcChange: (d: Debugger) => void, 
   onFinished: (d: Debugger) => void
 }
 
-class Interpreter {
+export class Interpreter {
 
   public onStarted = () => {};
   public onCompiled = (_: Code) => {};

@@ -1,5 +1,8 @@
+import { HashMap } from "../../vm/hashmap";
+import { Processor } from "../../vm/processor";
+import { toIntegerValue, getRandomInt } from "../../vm/runtime";
 
-function addRandomnessIntrinsics(p: Processor) {
+export function addRandomnessIntrinsics(p: Processor) {
 
   p.addIntrinsic("rnd(seed)", 
   function(seed: any): number {

@@ -1,4 +1,4 @@
-enum TokenType {
+export enum TokenType {
 
   NEWLINE,
   SEMICOLON,
@@ -81,7 +81,7 @@ enum TokenType {
   EOF,
 }
 
-function toOfficialImplTokenName(tokenType: TokenType): string {
+export function toOfficialImplTokenName(tokenType: TokenType): string {
   switch(tokenType) {
     case TokenType.COMMA:
       return "Comma"

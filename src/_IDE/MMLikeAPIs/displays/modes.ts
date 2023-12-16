@@ -1,5 +1,5 @@
 
-enum DisplayMode {
+export enum DisplayMode {
   off = 0,
   solidColor = 1,
   text = 2,
@@ -8,7 +8,7 @@ enum DisplayMode {
   sprite = 5
 };
 
-const displayModeNamesAndValues = [
+export const displayModeNamesAndValues = [
   {name: "off", value: DisplayMode.off},
   {name: "solidColor", value: DisplayMode.solidColor},
   {name: "pixel", value: DisplayMode.pixel},

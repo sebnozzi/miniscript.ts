@@ -1,3 +1,13 @@
+import * as PIXI from "pixi.js";
+import { ISpritesheetData } from "pixi.js";
+import { HashMap } from "../../../vm/hashmap";
+import { Processor } from "../../../vm/processor";
+import { toTwoNumbers, equals, toIntegerValue, toNumberValue } from "../../../vm/runtime";
+import { getNativeTexture } from "../image";
+import { MMLikeDisplayManager } from "../mmLikeDisplayManager";
+import { Display } from "./display";
+import { DisplayMode } from "./modes";
+
 class TileDisplayConfig {
   
   static fromMap(vm: Processor, dsp: HashMap): TileDisplayConfig {
@@ -61,7 +71,7 @@ class TileDisplayVisuals {
 
 }
 
-class TileDisplay extends Display  {
+export class TileDisplay extends Display  {
 
   private config: TileDisplayConfig;
   private visuals: TileDisplayVisuals;
@@ -172,7 +182,7 @@ class TileDisplay extends Display  {
         "meta": {
           "size": {"w": sheetTexture.width, "h": sheetTexture.height},
         },
-      };
+      } as ISpritesheetData;
 
       const sheet = new PIXI.Spritesheet(sheetTexture, spritesheetData);
       return sheet.parse();

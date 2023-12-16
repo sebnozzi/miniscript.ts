@@ -1,3 +1,16 @@
+import { HashMap } from "../../vm/hashmap";
+import { Processor } from "../../vm/processor";
+import { Display } from "./displays/display";
+import { DisplayMode, displayModeNamesAndValues } from "./displays/modes";
+import { OffDisplay } from "./displays/offdisplay";
+import { PixelDisplay } from "./displays/pixelDisplay";
+import { SolidColorDisplay } from "./displays/solidColorDisplay";
+import { SpriteDisplay } from "./displays/spriteDisplay";
+import { TextDisplay } from "./displays/textDisplay";
+import * as PIXI from "pixi.js";
+import { TileDisplay } from "./displays/tileDisplay";
+import { toIntegerValue } from "../../vm/runtime";
+
 
 class DisplaySlot {
 
@@ -139,7 +152,7 @@ class DisplaySlot {
 
 }
 
-class MMLikeDisplayManager {
+export class MMLikeDisplayManager {
 
   private slots: Array<DisplaySlot>;
   private pixiApp: any;

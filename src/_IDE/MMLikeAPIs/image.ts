@@ -1,5 +1,9 @@
+import * as PIXI from "pixi.js";
+import { HashMap } from "../../vm/hashmap";
+import { Processor } from "../../vm/processor";
+import { Display } from "./displays/display";
 
-function toImageMap(vm: Processor, htmlImg: HTMLImageElement): HashMap {
+export function toImageMap(vm: Processor, htmlImg: HTMLImageElement): HashMap {
   const nativeTexture = PIXI.Texture.from(htmlImg);
   const map = toImageMapFromTexture(vm, nativeTexture);
   return map;
@@ -93,7 +97,7 @@ function canvasAndCtxWithImage(img: HTMLImageElement): [HTMLCanvasElement, Canva
   return [canvas, ctx];
 }
 
-function setPixel(ctx: CanvasRenderingContext2D, x: number, y: number, color: string) {
+export function setPixel(ctx: CanvasRenderingContext2D, x: number, y: number, color: string) {
   
   if (Display.isTransparentColor(color)) {
     ctx.save();
@@ -115,7 +119,7 @@ function getBaseImageFromMap(vm: Processor, map: HashMap): any | null {
   return img;
 }
 
-function getNativeTexture(vm: Processor, map: HashMap): any | null {
+export function getNativeTexture(vm: Processor, map: HashMap): any | null {
   const nativeTexture = vm.mapAccessOpt(map, "_handle");
   if (nativeTexture instanceof PIXI.Texture) {
     return nativeTexture;
@@ -124,10 +128,11 @@ function getNativeTexture(vm: Processor, map: HashMap): any | null {
   }
 }
 
-function getBaseImage(nativeTexture: any): HTMLImageElement | HTMLCanvasElement | null {
+export function getBaseImage(nativeTexture: any): HTMLImageElement | HTMLCanvasElement | null {
   if (nativeTexture instanceof PIXI.Texture) {
     const baseTexture = nativeTexture.castToBaseTexture();
-    const nativeImg = baseTexture.resource.source;
+    const resource = baseTexture.resource as any;
+    const nativeImg = resource.source;
     return nativeImg;
   } else {
     return null;

@@ -1,5 +1,5 @@
 
-function parseSignature(functionSignature: string): [string, string[], any[]] {
+export function parseSignature(functionSignature: string): [string, string[], any[]] {
   let fnName: string = functionSignature;
   let argNames: string[] = [];
   let defaultValues: any[] = [];

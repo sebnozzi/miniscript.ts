@@ -1,4 +1,6 @@
-class ForLoop {
+import { HashMap } from "./hashmap";
+
+export class ForLoop {
   public readonly startAddr: number;
   public readonly endAddr: number;
   public readonly localVarName: string;

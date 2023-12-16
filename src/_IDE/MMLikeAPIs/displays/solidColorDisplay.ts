@@ -1,6 +1,10 @@
+import * as PIXI from "pixi.js";
+import { HashMap } from "../../../vm/hashmap";
+import { MMLikeDisplayManager } from "../mmLikeDisplayManager";
+import { Display } from "./display";
+import { DisplayMode } from "./modes";
 
-
-class SolidColorDisplay extends Display {
+export class SolidColorDisplay extends Display {
 
   private color: string | null;
   private solidSurface: any = null;

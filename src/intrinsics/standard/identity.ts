@@ -1,5 +1,9 @@
+import { BoundFunction } from "../../vm/funcdef";
+import { HashMap } from "../../vm/hashmap";
+import { Processor } from "../../vm/processor";
+import { hashCode, equals } from "../../vm/runtime";
 
-function addIdentityIntrinsics(p: Processor) {
+export function addIdentityIntrinsics(p: Processor) {
 
   p.addIntrinsic("hash(obj)", 
   function(obj: any): number {

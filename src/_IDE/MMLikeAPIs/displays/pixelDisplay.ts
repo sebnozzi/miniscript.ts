@@ -1,9 +1,16 @@
+import * as PIXI from "pixi.js";
+import { HashMap } from "../../../vm/hashmap";
+import { toNumberValue } from "../../../vm/runtime";
+import { getNativeTexture, getBaseImage, toImageMap, setPixel } from "../image";
+import { MMLikeDisplayManager } from "../mmLikeDisplayManager";
+import { Display } from "./display";
+import { DisplayMode } from "./modes";
 
 // Backed up by an HTMLCanvas, on each update it sets its contents 
 // to a Pixi Sprite which displays the contents in its hierarchy.
 // This is needed because Pixi's Graphics does not support everything
 // we need, in particular rendering images.
-class PixelDisplay extends Display {
+export class PixelDisplay extends Display {
 
   canvas: HTMLCanvasElement;
   ctx: CanvasRenderingContext2D;

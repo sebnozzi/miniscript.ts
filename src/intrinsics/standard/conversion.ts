@@ -1,5 +1,7 @@
+import { Processor } from "../../vm/processor";
+import { formatValue } from "./print";
 
-function addConversionIntrinsics(p: Processor) {
+export function addConversionIntrinsics(p: Processor) {
 
   p.addIntrinsic("str(self)", 
   function(value: any): string {

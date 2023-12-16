@@ -1,8 +1,14 @@
 
 // Not to be confused with a runtime-context. This refers to where in the 
 // CODE (statically speaking) we are placed. Depending on that, certain 
+
+import { Statement, ExpressionStatement, AssignmentStatement, MathAssignmentStatement, ReturnStatement, IfStatement, WhileStatement, ForStatement, BreakStatement, ContinueStatement, FunctionCallStatement, Expression, IdentifierExpr, IndexedAccessExpr, DotAccessExpr } from "../parser/parserModel";
+import { BC } from "../vm/bytecodes";
+import { AddrLabel, CodeBuilder } from "./codebuilder";
+import { ExpressionCompiler, ExpressionCompilerContext } from "./expressionCompiler";
+
 // things are allowed or not.
-class CompilerContext {
+export class CompilerContext {
 
   parent: CompilerContext | undefined = undefined;
 
@@ -74,7 +80,7 @@ class ForLoopContext extends CompilerContext {
   }
 }
 
-class FunctionBodyContext extends CompilerContext {
+export class FunctionBodyContext extends CompilerContext {
   constructor() {
     super();
   }
@@ -83,7 +89,7 @@ class FunctionBodyContext extends CompilerContext {
   }
 }
 
-class StatementCompiler {
+export class StatementCompiler {
 
   constructor(private builder: CodeBuilder, private expressionCompiler: ExpressionCompiler) { }
 

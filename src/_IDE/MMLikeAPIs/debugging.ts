@@ -1,4 +1,6 @@
-function addConsoleLogging(vm: Processor) {
+import { Processor } from "../../vm/processor";
+
+export function addConsoleLogging(vm: Processor) {
 
   vm.addIntrinsic("consoleLog(arg)",
   function(arg: any) {

@@ -1,5 +1,7 @@
+import { Processor } from "../../vm/processor";
+import { toIntegerValue } from "../../vm/runtime";
 
-function addBitOperationIntrinsics(p: Processor) {
+export function addBitOperationIntrinsics(p: Processor) {
 
   p.addIntrinsic("bitAnd(i=0,j=0)", 
   function(i: any, j: any): number {

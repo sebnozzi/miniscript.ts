@@ -1,5 +1,8 @@
+import { Processor } from "../vm/processor";
+import { SourceMapEntry } from "../vm/sourcemap";
+import { StepIntoStepper, StepOutStepper, StepOverStepper, Stepper } from "./steppers";
 
-class Debugger {
+export class Debugger {
 
   private nextStepperId: number = 1;
   private steppers: Map<number, Stepper>;
@@ -62,7 +65,7 @@ class Debugger {
     return stepper;
   }
 
-  newStepOutStepper(): StepIntoStepper {
+  newStepOutStepper(): StepOutStepper {
     const stepper = new StepOutStepper(this.nextStepperId, this, this.vm);
     this.steppers.set(this.nextStepperId, stepper);
     this.nextStepperId++;

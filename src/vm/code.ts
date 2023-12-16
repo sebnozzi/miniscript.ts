@@ -1,6 +1,7 @@
-/// <reference path="./bytecodes.ts"/>
+import { BC } from "./bytecodes";
+import { SourceMap } from "./sourcemap";
 
-class Code {
+export class Code {
 
   opCodes: BC[];
   // For debugging

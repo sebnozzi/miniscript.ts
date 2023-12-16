@@ -1,10 +1,14 @@
+import { SrcLocation } from "../parser/commonModel";
+import { BC, hasCallPotential } from "../vm/bytecodes";
+import { Code } from "../vm/code";
+import { SourceMap } from "../vm/sourcemap";
 
-class AddrLabel {
+export class AddrLabel {
   constructor(public readonly idx: number) {
   }
 }
 
-class CodeBuilder {
+export class CodeBuilder {
 
   prg: Code;
   ip: number;

@@ -1,5 +1,5 @@
 
-class NotImplemented extends Error {
+export class NotImplemented extends Error {
   constructor(message: string) {
     super(message);
   }
@@ -9,7 +9,7 @@ class NotImplemented extends Error {
 // Either a runtime-error should be thrown
 // or the parser revised to catch errors
 // earlier.
-class CompileTimeError extends Error {
+export class CompileTimeError extends Error {
   constructor(message: string) {
     super(message);
   }

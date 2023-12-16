@@ -1,5 +1,7 @@
+import { Processor } from "../../vm/processor";
+import { round } from "../../vm/runtime";
 
-function addMathIntrinsics(p: Processor) {
+export function addMathIntrinsics(p: Processor) {
 
   p.addIntrinsic("abs(x)", 
   function(x: any): number {

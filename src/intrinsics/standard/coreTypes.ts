@@ -1,5 +1,7 @@
+import { HashMap } from "../../vm/hashmap";
+import { Processor } from "../../vm/processor";
 
-function addCoreTypesIntrinsics(p: Processor) {
+export function addCoreTypesIntrinsics(p: Processor) {
 
   p.addIntrinsic("string", 
   function(): HashMap {

@@ -1,4 +1,8 @@
-function createBoundsType(vm: Processor): HashMap {
+import { HashMap } from "../../vm/hashmap";
+import { Processor } from "../../vm/processor";
+import { toNumberValue } from "../../vm/runtime";
+
+export function createBoundsType(vm: Processor): HashMap {
   const bounds = new HashMap();
 
   bounds.set("x", 0);
@@ -37,7 +41,7 @@ function createBoundsType(vm: Processor): HashMap {
   return bounds;
 }
 
-class Point {
+export class Point {
 
   constructor(readonly x: number, readonly y: number) {
 
@@ -67,7 +71,7 @@ class Point {
   }
 }
 
-class Bounds {
+export class Bounds {
   
   readonly left: number;
   readonly bottom: number;

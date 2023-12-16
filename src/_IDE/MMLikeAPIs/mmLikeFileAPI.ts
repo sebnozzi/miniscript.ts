@@ -1,5 +1,9 @@
+import { HashMap } from "../../vm/hashmap";
+import { Processor } from "../../vm/processor";
+import { toImageMap } from "./image";
+import { SoundManager } from "./MMLikeSound";
 
-class MMLikeFileAPI {
+export class MMLikeFileAPI {
 
   private remotePath: string = "";
 

@@ -1,5 +1,13 @@
+import * as PIXI from "pixi.js";
+import { HashMap } from "../../../vm/hashmap";
+import { toNumberValue } from "../../../vm/runtime";
+import { Bounds, Point } from "../bounds";
+import { getNativeTexture } from "../image";
+import { MMLikeDisplayManager } from "../mmLikeDisplayManager";
+import { Display } from "./display";
+import { DisplayMode } from "./modes";
 
-class SpriteDisplay extends Display {
+export class SpriteDisplay extends Display {
   
   private spriteType: HashMap;
 

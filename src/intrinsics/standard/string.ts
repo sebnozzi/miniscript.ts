@@ -1,5 +1,6 @@
+import { Processor } from "../../vm/processor";
 
-function addStringIntrinsics(p: Processor) {
+export function addStringIntrinsics(p: Processor) {
 
   p.addIntrinsic("upper(self)", 
   function(value: any): string | any {

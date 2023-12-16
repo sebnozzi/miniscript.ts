@@ -1,5 +1,6 @@
+import { Processor } from "../../vm/processor";
 
-class MMLikeUserInteractionAPI {
+export class MMLikeUserInteractionAPI {
 
   constructor(private vm: Processor) {
 

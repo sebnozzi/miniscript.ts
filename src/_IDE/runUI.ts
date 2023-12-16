@@ -1,5 +1,8 @@
+import { Interpreter } from "../interpreter/interpreter";
+import { Code } from "../vm/code";
+import { buildInterpreter, disableButton, enableButton, storeProgram } from "./ide";
 
-class RunUI {
+export class RunUI {
   
   interp: Interpreter | null = null;
   stopBtn: HTMLButtonElement;

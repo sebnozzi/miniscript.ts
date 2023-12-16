@@ -1,5 +1,6 @@
+import { Processor } from "../../vm/processor";
 
-function addMMLikeSchedulingIntrinsics(vm: Processor) {
+export function addMMLikeSchedulingIntrinsics(vm: Processor) {
 
   vm.addIntrinsic("run",
   function() {

@@ -1,6 +1,10 @@
-/// <reference path="./code.ts"/>
+import { formatValue } from "../intrinsics/standard/print";
+import { TokenType } from "../parser/tokenTypes";
+import { BoundFunction } from "./funcdef";
+import { HashMap } from "./hashmap";
+import { Processor } from "./processor";
 
-class RuntimeError extends Error {
+export class RuntimeError extends Error {
   constructor(message: string) {
     super(`Runtime Error: ${message}`);
   }
@@ -14,11 +18,11 @@ type Concatenable = {
   concat(a: any): any;
 }
 
-function notEquals(a: any, b: any): number {
+export function notEquals(a: any, b: any): number {
   return equals(a, b) == 1 ? 0 : 1; 
 }
 
-function equals(a: any, b: any, recursionDepth: number = 16): number {
+export function equals(a: any, b: any, recursionDepth: number = 16): number {
   if (recursionDepth < 0) {
     return 1;
   }
@@ -61,7 +65,7 @@ function equals(a: any, b: any, recursionDepth: number = 16): number {
   }
 }
 
-function isaEquals(vm: Processor, value: any, type: any): number {
+export function isaEquals(vm: Processor, value: any, type: any): number {
   if (value === null) {
     return type === null ? 1 : 0;
   } else if (type === null) {
@@ -98,7 +102,7 @@ function isaEquals(vm: Processor, value: any, type: any): number {
   }
 }
 
-function greaterEquals(a: any, b: any): number | null {
+export function greaterEquals(a: any, b: any): number | null {
   if (typeof a === "number" && typeof b === "number") {
     return a >= b ? 1 : 0;
   } else if (typeof a === "string" && typeof b === "string") {
@@ -108,7 +112,7 @@ function greaterEquals(a: any, b: any): number | null {
   }
 }
 
-function greaterThan(a: any, b: any): number | null {
+export function greaterThan(a: any, b: any): number | null {
   if (typeof a === "number" && typeof b === "number") {
     return a > b ? 1 : 0;
   } else if (typeof a === "string" && typeof b === "string") {
@@ -118,7 +122,7 @@ function greaterThan(a: any, b: any): number | null {
   }
 }
 
-function lessEquals(a: any, b: any): number | null {
+export function lessEquals(a: any, b: any): number | null {
   if (typeof a === "number" && typeof b === "number") {
     return a <= b ? 1 : 0;
   } else if (typeof a === "string" && typeof b === "string") {
@@ -128,7 +132,7 @@ function lessEquals(a: any, b: any): number | null {
   }
 }
 
-function lessThan(a: any, b: any): number | null {
+export function lessThan(a: any, b: any): number | null {
   if (typeof a === "number" && typeof b === "number") {
     return a < b ? 1 : 0;
   } else if (typeof a === "string" && typeof b === "string") {
@@ -138,7 +142,7 @@ function lessThan(a: any, b: any): number | null {
   }
 }
 
-function chainedComparison(values: any[], operators: string[]): number {
+export function chainedComparison(values: any[], operators: string[]): number {
   const pairCount = operators.length;
   // Evaluate in pairs
   for (let i = 0; i < pairCount; i++) {
@@ -168,7 +172,7 @@ function chainedComparison(values: any[], operators: string[]): number {
   return 1;
 }
 
-function add(a: any, b: any): any {
+export function add(a: any, b: any): any {
   if (typeof a === "number" && typeof b === "number") {
     // Perform arithmetic addition
     return a + b
@@ -204,7 +208,7 @@ function add(a: any, b: any): any {
   }
 }
 
-function subtract(a: any, b: any): any {
+export function subtract(a: any, b: any): any {
   if (typeof a === "number" && typeof b === "number") {
     return a - b;
   } else if (typeof a === "string" && typeof b === "string") {
@@ -226,7 +230,7 @@ function subtract(a: any, b: any): any {
   }
 }
 
-function divide(a: any, b: any): number | null {
+export function divide(a: any, b: any): number | null {
   if (typeof a === "number" && typeof b === "number") {
     return a / b
   } else if (a === null) {
@@ -239,7 +243,7 @@ function divide(a: any, b: any): number | null {
   }
 }
 
-function multiply(a: any, b: any): any {
+export function multiply(a: any, b: any): any {
   if (typeof a === "number" && typeof b === "number") {
     return a * b;
   } else if (a instanceof Array || typeof a === "string") {
@@ -273,7 +277,7 @@ function multiply(a: any, b: any): any {
   }
 }
 
-function power(a: any, b: any): number | null {
+export function power(a: any, b: any): number | null {
   if (typeof a === "number" && typeof b === "number") {
     return Math.pow(a, b);
   } else if (a === null) {
@@ -286,7 +290,7 @@ function power(a: any, b: any): number | null {
   }
 }
 
-function modulus(a: any, b: any): number | null {
+export function modulus(a: any, b: any): number | null {
   if (typeof a === "number" && typeof b === "number") {
     return a % b;
   } else if (a === null) {
@@ -299,7 +303,7 @@ function modulus(a: any, b: any): number | null {
   }
 }
 
-function logic_and(a: any, b: any): number {
+export function logic_and(a: any, b: any): number {
   a = toBooleanNr(a);
   b = toBooleanNr(b);
   if (typeof a === "number" && typeof b === "number") {
@@ -310,7 +314,7 @@ function logic_and(a: any, b: any): number {
   }
 }
 
-function logic_or(a: any, b: any): number {
+export function logic_or(a: any, b: any): number {
   a = toBooleanNr(a);
   b = toBooleanNr(b);
   if (typeof a === "number" && typeof b === "number") {
@@ -321,13 +325,13 @@ function logic_or(a: any, b: any): number {
   }
 }
 
-function absClamp01(value: number): number {
+export function absClamp01(value: number): number {
   if (value < 0) value = -value;
   if (value > 1) return 1;
   return value;
 }
 
-function slice(vm: Processor, sliceTarget: any, startIdx: number, endIdx: number): any {
+export function slice(vm: Processor, sliceTarget: any, startIdx: number, endIdx: number): any {
   // Check list-target
   if (!(sliceTarget instanceof Array || typeof sliceTarget === "string")) {
     throw new RuntimeError(`Slice target must be List or String [line ${vm.getCurrentSrcLineNr()}]`);
@@ -353,7 +357,7 @@ function slice(vm: Processor, sliceTarget: any, startIdx: number, endIdx: number
 }
 
 // Here it's important that the index is valid and within the access-target
-function computeAccessIndex(vm: Processor, accessTarget: IndexedCollection, index: number): number {
+export function computeAccessIndex(vm: Processor, accessTarget: IndexedCollection, index: number): number {
   const intIdx = toIntegerValue(index);
   // Compute effective index
   const effectiveIndex = (intIdx < 0) ? intIdx + accessTarget.length : intIdx;
@@ -365,7 +369,7 @@ function computeAccessIndex(vm: Processor, accessTarget: IndexedCollection, inde
 }
 
 // Here we can be flexible, adjust values and allow index to be == collection.length
-function computeSliceIndex(accessTarget: IndexedCollection, index: number): number {
+export function computeSliceIndex(accessTarget: IndexedCollection, index: number): number {
   // Compute effective index
   const effectiveIndex = (index < 0) ? index + accessTarget.length : index;
   // Adjust values
@@ -378,7 +382,7 @@ function computeSliceIndex(accessTarget: IndexedCollection, index: number): numb
   return effectiveIndex;
 }
 
-function computeMathAssignValue(currentValue: any, opTokenType: TokenType, operand: any): any {
+export function computeMathAssignValue(currentValue: any, opTokenType: TokenType, operand: any): any {
   switch(opTokenType) {
     case TokenType.PLUS_ASSIGN:
       return add(currentValue, operand);
@@ -397,7 +401,7 @@ function computeMathAssignValue(currentValue: any, opTokenType: TokenType, opera
   }
 }
 
-function toBooleanNr(value: any): number {
+export function toBooleanNr(value: any): number {
   if (value === null) {
     return 0;
   } else if (typeof value == "number" ) {
@@ -413,7 +417,7 @@ function toBooleanNr(value: any): number {
   }
 }
 
-function toStr(a: any): string {
+export function toStr(a: any): string {
   if (typeof a === "number") {
     return "" + a;
   } else if (typeof a === "string") {
@@ -424,7 +428,7 @@ function toStr(a: any): string {
 }
 
 // Not the same as trying to convert to number (e.g. `val("3")`)
-function toNumberValue(value: any): number {
+export function toNumberValue(value: any): number {
   if (typeof value === "number" ) {
     return value;
   } else {
@@ -432,7 +436,7 @@ function toNumberValue(value: any): number {
   }
 }
 
-function toIntegerValue(value: any): number {
+export function toIntegerValue(value: any): number {
   if (typeof value == "number" ) {
     return Math.trunc(value);
   } else {
@@ -440,7 +444,7 @@ function toIntegerValue(value: any): number {
   }
 }
 
-function toTwoNumbers(value: any): [number, number] {
+export function toTwoNumbers(value: any): [number, number] {
   let a: number;
   let b: number;
   if (value instanceof Array) {
@@ -454,7 +458,7 @@ function toTwoNumbers(value: any): [number, number] {
   return [a, b];
 }
 
-function round(n: any, decimalPlaces: any): number | undefined {
+export function round(n: any, decimalPlaces: any): number | undefined {
   if (typeof n === "number" && typeof decimalPlaces === "number") {
     if (decimalPlaces >= 0) {
       const places = Math.pow(10, decimalPlaces);      
@@ -468,7 +472,7 @@ function round(n: any, decimalPlaces: any): number | undefined {
   }
 }
 
-function hashCode(value: any, recursionDepth: number = 16): number {
+export function hashCode(value: any, recursionDepth: number = 16): number {
   if (value === null) {
     return -1;
   } else if (value instanceof Array) {
@@ -481,7 +485,7 @@ function hashCode(value: any, recursionDepth: number = 16): number {
   }
 }
 
-function listHashCode(list: Array<any>, recursionDepth: number = 16): number {
+export function listHashCode(list: Array<any>, recursionDepth: number = 16): number {
   let result = hashCode(list.length);
   if (recursionDepth < 1) {
     return result;
@@ -495,7 +499,7 @@ function listHashCode(list: Array<any>, recursionDepth: number = 16): number {
   return result;
 }
 
-function mapHashCode(map: HashMap, recursionDepth: number = 16) {
+export function mapHashCode(map: HashMap, recursionDepth: number = 16) {
   let result = stringHashCode(toStr(map.size));
   if (recursionDepth < 0) {
     return result;
@@ -509,7 +513,7 @@ function mapHashCode(map: HashMap, recursionDepth: number = 16) {
   return result;
 }
 
-function stringHashCode(str: string): number {
+export function stringHashCode(str: string): number {
   let hash = 0;
   for (let i = 0, len = str.length; i < len; i++) {
       let chr = str.charCodeAt(i);
@@ -519,17 +523,17 @@ function stringHashCode(str: string): number {
   return hash;
 }
 
-function getRandomInt(vm: Processor, max: number): number { 
+export function getRandomInt(vm: Processor, max: number): number { 
   return Math.floor(vm.random() * max);
 }
 
-function checkRange(i: number, min: number, max: number, desc: string = "index") {
+export function checkRange(i: number, min: number, max: number, desc: string = "index") {
   if (i < min || i > max) {
     throw new RuntimeError(`Index Error: ${desc} (${i}) out of range (${min} to ${max})`);
   }
 }
 
-function checkNumber(arg: any, errorMsg: string, vm: Processor|null = null) {
+export function checkNumber(arg: any, errorMsg: string, vm: Processor|null = null) {
   if (Number.isFinite(arg)) {
     return;
   } else if (vm instanceof Processor) {
@@ -539,7 +543,7 @@ function checkNumber(arg: any, errorMsg: string, vm: Processor|null = null) {
   }
 }
 
-function checkInt(arg: any, errorMsg: string, vm: Processor|null = null) {
+export function checkInt(arg: any, errorMsg: string, vm: Processor|null = null) {
   if (Number.isInteger(arg)) {
     return;
   } else if (vm instanceof Processor) {
@@ -549,7 +553,7 @@ function checkInt(arg: any, errorMsg: string, vm: Processor|null = null) {
   }
 }
 
-function isNullOrEmpty(str: string): boolean {
+export function isNullOrEmpty(str: string): boolean {
   if (str === null) {
     return true;
   } else if (typeof str === "string") {

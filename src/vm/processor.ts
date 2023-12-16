@@ -1,12 +1,21 @@
-/// <reference path="./frame.ts"/>
-/// <reference path="./code.ts"/>
-/// <reference path="./runtime.ts"/>
+import { newRandomGenerator } from "../lib/random";
+import { Stack } from "../lib/stack";
+import { TokenType } from "../parser/tokenTypes";
+import { BC, hasCallPotential } from "./bytecodes";
+import { Code } from "./code";
+import { Context } from "./context";
+import { ForLoop } from "./forloop";
+import { Frame } from "./frame";
+import { FuncDefArg, FuncDef, BoundFunction } from "./funcdef";
+import { HashMap } from "./hashmap";
+import { RuntimeError, computeAccessIndex, computeMathAssignValue, slice, chainedComparison, equals, isaEquals, greaterEquals, greaterThan, lessEquals, lessThan, toBooleanNr, add, subtract, multiply, divide, power, modulus, logic_and, logic_or } from "./runtime";
+import { parseSignature } from "./signatureParser";
 
-type TxtCallback = (txt: string) => any;
+export type TxtCallback = (txt: string) => any;
 
 const MAX_ISA_RECURSION_DEPTH = 16;
 
-class Processor {
+export class Processor {
 
   // The instruction pointer. Points to the position in code.
   ip: number;
