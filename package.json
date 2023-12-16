@@ -2,7 +2,17 @@
   "name": "miniscript-ts",
   "version": "0.1.0",
   "description": "MiniScript implementation in TypeScript",
-  "main": "index.js",
+  "author": "Sebastian Nozzi",
+  "license": "MIT",
+  "main": "./dist/miniscript-ts.cjs",
+  "module": "./dist/miniscript-ts.mjs",
+  "exports": {
+    ".": {
+      "require": "./dist/miniscript-ts.cjs",
+      "import": "./dist/miniscript-ts.mjs"
+    }
+  },
+  "types": "./dist/miniscript-ts.d.ts",
   "directories": {
     "test": "tests"
   },
@@ -10,8 +20,6 @@
     "build": "rimraf dist && tsc && vite build && dts-bundle-generator --config ./dts-bundle-generator.config.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "Sebastian Nozzi",
-  "license": "MIT",
   "devDependencies": {
     "@types/css-font-loading-module": "^0.0.12",
     "@types/jsdom": "^21.1.6",
