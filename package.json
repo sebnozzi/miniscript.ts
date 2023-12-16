@@ -1,5 +1,5 @@
 {
-  "name": "miniscript.ts",
+  "name": "miniscript-ts",
   "version": "0.1.0",
   "description": "MiniScript implementation in TypeScript",
   "main": "index.js",

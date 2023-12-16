@@ -41,7 +41,7 @@ function runCode(srcCode, scriptUrl) {
 
 function buildInterpreter(scriptUrl) {
   const txtCallback = (txt) => { console.log(txt); };
-  const MMLikeInterpreter = miniscript.ts.MMLikeInterpreter;
+  const MMLikeInterpreter = miniscriptTs.MMLikeInterpreter;
   const interp = new MMLikeInterpreter(txtCallback, txtCallback);
   interp.setScriptUrl(scriptUrl);
   return interp;
