@@ -4,6 +4,7 @@ import { addStandardIntrinsics } from "../intrinsics/intrinsics";
 import { Parser } from "../parser/parser";
 import { Statement } from "../parser/parserModel";
 import { Code } from "../vm/code";
+import { Context } from "../vm/context";
 import { Processor, TxtCallback } from "../vm/processor";
 
 export type DebuggerCallbacks = {
@@ -46,6 +47,10 @@ export class Interpreter {
     if (code) {
       this.runCompiledCode(code);
     }
+  }
+
+  get globalContext(): Context {
+    return this.vm.globalContext;
   }
 
   debugSrcCode(srcCode: string, callbacks: DebuggerCallbacks): Debugger | null {
