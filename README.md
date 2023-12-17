@@ -3,9 +3,16 @@
 
 A MiniScript implementation written in TypeScript.
 
-Works in the browser or on Node.js.
+At the moment this project is not published either in a CDN for browser consumption nor as an NPM package to be used in Node.js. You will have to build locally. See section below.
 
-At the moment this project is not published either in a CDN for browser consumption nor as an NPM package to be used in Node.js. You will have to build locally.
+## Features
+
+* Runs both on the browser and Node.js
+* Fully passes the "TestSuite.txt" from the official C# implementation
+* Performance similar to Mini Micro on the desktop
+* Extensible via custom intrinsic functions
+* Easy integration with JavaScript, as it uses native JS data-types (except for "map")
+* Usable in TypeScript projects (type definitions provided)
 
 ## Building
 
@@ -44,6 +51,20 @@ You will also need a local file-server if you want to open the examples on the b
 Consult the [examples/nodejs](examples/browser/) folder.
 
 Note that you will need to build locally for the examples to work.
+
+## Testing
+
+The test suites can be run from the command line with:
+
+```
+npm run test
+```
+
+Alternatively you can open a browser-based UI with:
+
+```
+npm run test-ui
+```
 
 ## Acknowledgements
 
