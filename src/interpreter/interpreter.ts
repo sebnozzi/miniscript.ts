@@ -5,6 +5,7 @@ import { Parser } from "../parser/parser";
 import { Statement } from "../parser/parserModel";
 import { Code } from "../vm/code";
 import { Context } from "../vm/context";
+import { HashMap } from "../vm/hashmap";
 import { Processor, TxtCallback } from "../vm/processor";
 
 export type DebuggerCallbacks = {
@@ -51,6 +52,14 @@ export class Interpreter {
 
   get globalContext(): Context {
     return this.vm.globalContext;
+  }
+
+  addIntrinsic(signature: string, implFn: Function): void {
+    this.vm.addIntrinsic(signature, implFn);
+  }
+
+  addMapIntrinsic(map: HashMap, signature: string, implFn: Function): void {
+    this.vm.addMapIntrinsic(map, signature, implFn);
   }
 
   debugSrcCode(srcCode: string, callbacks: DebuggerCallbacks): Debugger | null {
