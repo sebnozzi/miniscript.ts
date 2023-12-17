@@ -9,8 +9,7 @@ export function runSuite(suiteFileName: string, description: string) {
     const tests = await fetchAndParseTestSuite(suiteFileName);
 
     for (let test of tests) {
-      const header = test.headers[1];
-      const testName = header + ' (line ' + test.lineNr + ')';
+      const testName = test.testName + ' (line ' + test.lineNr + ')';
 
       it(testName, async () => {
 

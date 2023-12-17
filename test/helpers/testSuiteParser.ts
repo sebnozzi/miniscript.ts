@@ -3,6 +3,7 @@ import { readFile } from "node:fs";
 type SuiteTest = {
   lineNr: number,
   headers: string[],
+  testName: string,
   code: string[],
   output: string[]
 }
@@ -33,6 +34,7 @@ function parseTestSuite(testSuiteContents: string): SuiteTest[] {
   let test: SuiteTest = {
     lineNr: lineNr,
     headers: [],
+    testName: "",
     code: [],
     output: []
   };
@@ -40,11 +42,13 @@ function parseTestSuite(testSuiteContents: string): SuiteTest[] {
   for (let line of lines) {
     if (line.startsWith("====")) {
       if (mode === "output") {
+        test.testName = parseTestName(test);
         tests.push(test);
         mode = "header";
         test = {
           lineNr: lineNr,
           headers: [],
+          testName: "",
           code: [],
           output: []
         };
@@ -65,6 +69,15 @@ function parseTestSuite(testSuiteContents: string): SuiteTest[] {
     }
     lineNr++;
   }
+  test.testName = parseTestName(test);
   tests.push(test);
   return tests;
+}
+
+function parseTestName(test: SuiteTest): string {
+  // headers[0] is the one with only ========== ...
+  const firstHeader = test.headers[1];
+  // Remove "=" signs at the beginning
+  const testName = firstHeader.replace(/^=+\s*/,"");
+  return testName;
 }
