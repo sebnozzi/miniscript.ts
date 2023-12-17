@@ -1,5 +1,6 @@
 /// <reference types="vitest" />
 import path from "path";
+import { fileURLToPath } from 'node:url';
 import { defineConfig } from "vite";
 
 const fileName = {
@@ -20,6 +21,11 @@ export default defineConfig({
       fileName: (format) => fileName[format],
     },
     sourcemap: true,
+    rollupOptions: {
+      external: [
+        fileURLToPath(new URL('examples', import.meta.url))
+      ]
+    }
   },
   test: {
 
