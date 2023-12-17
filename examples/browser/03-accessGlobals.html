@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<link rel="shortcut icon" href="#">
+<head>
+  <meta charset="UTF-8">
+  <title>MiniScript.TS - Accessing global context</title>
+  <script type="text/javascript" src="../../dist/miniscript-ts.js"></script>
+</head>
+<body>
+  <div>
+    This example shows how to access the global context from JavaScript.
+  </div>
+  <div>
+    Open the developer console to see results!
+  </div>
+  <script type="text/javascript">
+    const interp = new MiniScriptTs.Interpreter();
+    let code = `
+      s = "Hello " * 3`;
+    interp.runSrcCode(code);
+    // Access the globalContext property
+    const context = interp.globalContext;
+    // Ask for a value by key. Result might be _undefined_.
+    const value = context.getOpt("s");
+    if (value !== undefined) {
+      console.log("We got from the global context that 's' is:", value);
+    }
+  </script>
+</body>
+</html>

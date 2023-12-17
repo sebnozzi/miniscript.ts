@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<link rel="shortcut icon" href="#">
+<head>
+  <meta charset="UTF-8">
+  <title>MiniScript.TS - Simple Evaluation</title>
+  <script type="text/javascript" src="../../dist/miniscript-ts.js"></script>
+</head>
+<body>
+  <div>
+    This example shows simple evaluation of code.
+  </div>
+  <div>
+    Open the developer console to see results!
+  </div>
+  <script type="text/javascript">
+    const interp = new MiniScriptTs.Interpreter();
+    let code = `print "Hello " * 3
+                for i in range(1,10); print i; end for`;
+    interp.runSrcCode(code);
+  </script>
+</body>
+</html>

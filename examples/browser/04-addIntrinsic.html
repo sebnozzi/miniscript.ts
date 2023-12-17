@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<link rel="shortcut icon" href="#">
+<head>
+  <meta charset="UTF-8">
+  <title>MiniScript.TS - Adding intrinsics</title>
+  <script type="text/javascript" src="../../dist/miniscript-ts.js"></script>
+</head>
+<body>
+  <div>
+    This example shows how to add an intrinsic function.
+  </div>
+  <div>
+    Open the developer console to see results!
+  </div>
+  <script type="text/javascript">
+    const interp = new MiniScriptTs.Interpreter();
+    // Use a MiniScript function signature. Default values are supported.
+    // Then provide a JavaScript anonymous function. 
+    interp.addIntrinsic("mySum(a=0,b=0)", (a, b) => {
+      return a + b;
+    });
+    // Let's call the intrinsic
+    let code = `
+      print mySum(8,4)
+      print mySum(2)`;
+    interp.runSrcCode(code);
+  </script>
+</body>
+</html>

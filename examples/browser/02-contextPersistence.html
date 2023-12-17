@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<link rel="shortcut icon" href="#">
+<head>
+  <meta charset="UTF-8">
+  <title>MiniScript.TS - Global context persistence</title>
+  <script type="text/javascript" src="../../dist/miniscript-ts.js"></script>
+</head>
+<body>
+  <div>
+    This example shows that you can evaluate code many times and the same
+    global context remains. If you want to start fresh create a new interpreter.
+  </div>
+  <div>
+    Open the developer console to see results!
+  </div>
+  <script type="text/javascript">
+    const interp = new MiniScriptTs.Interpreter();
+    let code = `print "Defining function ..."
+    sumTwo = function(a,b)
+      return a + b
+    end function`;
+    interp.runSrcCode(code);
+    // Now let's _use_ the function
+    code = `print sumTwo(3,2)`;
+    // Run new code, but in the same context
+    interp.runSrcCode(code);
+  </script>
+</body>
+</html>
