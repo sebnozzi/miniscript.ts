@@ -51,3 +51,27 @@ export class ForLoop {
   }
 
 }
+
+// Used to store currently-running for-loops in the current
+// context.
+export class ForLoopContext {
+
+  private readonly forLoops: {[id: number]: ForLoop};
+
+  constructor() {
+    this.forLoops = {};
+  }
+
+  registerForLoop(forLoopNr: number, forLoop: ForLoop) {
+    this.forLoops[forLoopNr] = forLoop;
+  }
+
+  getForLoop(forLoopNr: number): ForLoop {
+    return this.forLoops[forLoopNr];
+  }
+  
+  deleteForLoop(forLoopNr: number) {
+    delete this.forLoops[forLoopNr];
+  }
+
+}

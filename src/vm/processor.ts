@@ -4,7 +4,7 @@ import { TokenType } from "../parser/tokenTypes";
 import { BC, hasCallPotential } from "./bytecodes";
 import { Code } from "./code";
 import { Context } from "./context";
-import { ForLoop } from "./forloop";
+import { ForLoop, ForLoopContext } from "./forloop";
 import { Frame } from "./frame";
 import { FuncDefArg, FuncDef, BoundFunction } from "./funcdef";
 import { HashMap } from "./hashmap";
@@ -25,6 +25,8 @@ export class Processor {
   code: Code;
   // The current context.
   context: Context;
+  // The current for-loop context.
+  forLoopContext: ForLoopContext;
   // The global context.
   globalContext: Context;
   // Intrinsics stored here
@@ -75,6 +77,7 @@ export class Processor {
     this.numberCoreType = new HashMap();
     this.funcRefCoreType = new HashMap();
     this.context = this.globalContext;
+    this.forLoopContext = new ForLoopContext();
     this.savedFrames = new Stack<Frame>();
     this.opStack = new Stack();
     this.cycleCount = 0;
@@ -795,17 +798,17 @@ export class Processor {
           const localVarName = this.opStack.pop();
           // Create for-loop in current context
           const forLoop = new ForLoop(startAddr, endAddr, localVarName, values);
-          this.context.registerForLoop(forLoopNr, forLoop);
+          this.forLoopContext.registerForLoop(forLoopNr, forLoop);
           // Advance IP
           this.ip += 1;
           break;
         }
         case BC.ITERATE_FOR_LOOP: {
           const forLoopNr = this.code.arg1[this.ip];
-          const forLoop = this.context.getForLoop(forLoopNr);
+          const forLoop = this.forLoopContext.getForLoop(forLoopNr);
           if (forLoop.isOver()) {
             this.ip = forLoop.endAddr;
-            this.context.deleteForLoop(forLoopNr);
+            this.forLoopContext.deleteForLoop(forLoopNr);
           } else {
             const value = forLoop.iterate();
             // Assign to local variable
@@ -816,14 +819,14 @@ export class Processor {
         }
         case BC.BREAK_FOR_LOOP: {
           const forLoopNr = this.code.arg1[this.ip];
-          const forLoop = this.context.getForLoop(forLoopNr);
-          this.context.deleteForLoop(forLoopNr);
+          const forLoop = this.forLoopContext.getForLoop(forLoopNr);
+          this.forLoopContext.deleteForLoop(forLoopNr);
           this.ip = forLoop.endAddr;
           break;
         }
         case BC.CONTINUE_FOR_LOOP: {
           const forLoopNr = this.code.arg1[this.ip];
-          const forLoop = this.context.getForLoop(forLoopNr);
+          const forLoop = this.forLoopContext.getForLoop(forLoopNr);
           this.ip = forLoop.startAddr;
           break;
         }
@@ -917,7 +920,7 @@ export class Processor {
   }
 
   pushFrame() {
-    const frame = new Frame(this.code, this.ip, this.context);
+    const frame = new Frame(this.code, this.ip, this.context, this.forLoopContext);
     this.savedFrames.push(frame);
     // Remove at some point?
     if (this.savedFrames.count() > this.maxCallStackDepth) {
@@ -929,6 +932,7 @@ export class Processor {
     const frame = this.savedFrames.pop();
     this.ip = frame.ip;
     this.context = frame.context;
+    this.forLoopContext = frame.forLoopContext;
     this.code = frame.code;
   }
 

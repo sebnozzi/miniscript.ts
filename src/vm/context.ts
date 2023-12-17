@@ -1,4 +1,3 @@
-import { ForLoop } from "./forloop";
 import { HashMap } from "./hashmap";
 import { Processor } from "./processor";
 import { RuntimeError } from "./runtime";
@@ -7,13 +6,11 @@ export class Context {
 
   private readonly locals: HashMap;
   private readonly parent: Context | null;
-  private readonly forLoops: {[id: number]: ForLoop};
   private readonly vm: Processor;
 
   constructor(vm: Processor, parent: Context | null = null) {
     this.locals = new HashMap();
     this.parent = parent;
-    this.forLoops = {};
     this.vm = vm;
   }
 
@@ -41,16 +38,6 @@ export class Context {
     } else {
       return this.vm.resolveIntrinsic(identifier);
     }
-  }
-
-  registerForLoop(forLoopNr: number, forLoop: ForLoop) {
-    this.forLoops[forLoopNr] = forLoop;
-  }
-  getForLoop(forLoopNr: number): ForLoop {
-    return this.forLoops[forLoopNr];
-  }
-  deleteForLoop(forLoopNr: number) {
-    delete this.forLoops[forLoopNr];
   }
 
   // Normally the parent context inside a function.
