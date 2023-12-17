@@ -17,11 +17,22 @@ export class Interpreter {
   public onCompiled = (_: Code) => {};
   public onFinished = () => {};
 
+  private stderrCallback: TxtCallback;
+
   protected vm: Processor;
 
   constructor(
-    stdoutCallback: TxtCallback, 
-    private stderrCallback: TxtCallback) {
+    stdoutCallback: TxtCallback | null, 
+    stderrCallback: TxtCallback | null) {
+      if (!stdoutCallback) {
+        stdoutCallback = (line: string) => {
+          console.log(line);
+        }
+      }
+      if (!stderrCallback) {
+        stderrCallback = stdoutCallback;
+      }
+      this.stderrCallback = stderrCallback;
       this.vm = new Processor(stdoutCallback, stderrCallback);
       const interpThis = this;
       this.vm.onFinished = function() {
