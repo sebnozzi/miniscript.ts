@@ -1,5 +1,5 @@
 import { BoundFunction } from "../vm/funcdef";
-import { HashMap } from "../vm/hashmap";
+import { MSMap } from "../vm/msmap";
 import { Processor } from "../vm/processor";
 import { addBitOperationIntrinsics } from "./standard/bitOperations";
 import { addCharIntrinsics } from "./standard/chars";
@@ -53,7 +53,7 @@ function addBaseTypesIntrinsics(p: Processor) {
     }
   };
 
-  const importIntrinsics = (targetList: HashMap, intrinsicNames: string[]) => {
+  const importIntrinsics = (targetList: MSMap, intrinsicNames: string[]) => {
     for (let fnName of intrinsicNames) {
       const boundFn = getFn(fnName);
       const argNames = boundFn.funcDef.argNames;

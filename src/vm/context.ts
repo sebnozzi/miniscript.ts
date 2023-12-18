@@ -1,24 +1,23 @@
-import { HashMap } from "./hashmap";
+import { MSMap } from "./msmap";
 import { Processor } from "./processor";
-import { RuntimeError } from "./runtime";
 
 export class Context {
 
-  private readonly locals: HashMap;
+  private readonly locals: MSMap;
   private readonly parent: Context | null;
   private readonly vm: Processor;
 
   constructor(vm: Processor, parent: Context | null = null) {
-    this.locals = new HashMap();
+    this.locals = new MSMap(vm);
     this.parent = parent;
     this.vm = vm;
   }
 
   setLocal(identifier: string, value: any) {
     if (identifier === "globals") {
-      throw new RuntimeError(`can't assign to globals [line ${this.vm.getCurrentSrcLineNr()}]`);
+      throw this.vm.runtimeError(`Can't assign to globals`);
     } else if (identifier === "locals") {
-      throw new RuntimeError(`can't assign to locals [line ${this.vm.getCurrentSrcLineNr()}]`);
+      throw this.vm.runtimeError(`Can't assign to locals`);
     }
     this.locals.set(identifier, value);
   }
@@ -42,7 +41,7 @@ export class Context {
 
   // Normally the parent context inside a function.
   // At the global scope outer == globals.
-  private getOuterLocals(): HashMap {
+  private getOuterLocals(): MSMap {
     let outerContext;
     if (this.parent) {
       outerContext = this.parent;

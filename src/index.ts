@@ -1,6 +1,6 @@
-import { HashMap } from "./vm/hashmap";
 
 export { Interpreter } from "./interpreter/interpreter";
+export { MSMap, MSMapFactory } from "./vm/msmap";
 
 export { Processor } from "./vm/processor";
 
@@ -16,11 +16,3 @@ export {
   toIntegerValue,
   formatValue,
 } from "./vm/runtime";
-
-export function newMap(parentMap: HashMap | null = null): HashMap {
-  const newMap = new HashMap();
-  if (parentMap instanceof HashMap) {
-    newMap.set("__isa", parentMap);
-  }
-  return newMap;
-}

@@ -1,15 +1,15 @@
-import { HashMap } from "./hashmap";
+import { MSMap, MSMapFactory } from "./msmap";
 
 export class ForLoop {
   public readonly startAddr: number;
   public readonly endAddr: number;
   public readonly localVarName: string;
   public readonly values: any;
-  public readonly mapObj: HashMap | null;
+  public readonly mapObj: MSMap | null;
   private valueIdx: number;
   private valueCount: number;
 
-  constructor(startAddr: number, endAddr: number, localVarName: string, values: any) {
+  constructor(private mapFactory: MSMapFactory, startAddr: number, endAddr: number, localVarName: string, values: any) {
     this.startAddr = startAddr;
     this.endAddr = endAddr;
     this.localVarName = localVarName;
@@ -17,7 +17,7 @@ export class ForLoop {
     if (values instanceof Array) {
       this.values = values;
       this.mapObj = null;
-    } else if (values instanceof HashMap) {
+    } else if (values instanceof MSMap) {
       this.values = Array.from(values.keys());
       this.mapObj = values;
     } else if (typeof values === "string") {
@@ -40,7 +40,7 @@ export class ForLoop {
     if (this.mapObj) {
       const currentKey = this.values[this.valueIdx];
       const currentMapValue = this.mapObj.get(currentKey);
-      currentValue = new HashMap();
+      currentValue = this.mapFactory.newMap();
       currentValue.set("key", currentKey);
       currentValue.set("value", currentMapValue);
     } else {

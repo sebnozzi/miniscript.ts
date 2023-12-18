@@ -1,6 +1,6 @@
 import { TokenType } from "../parser/tokenTypes";
 import { BoundFunction } from "./funcdef";
-import { HashMap } from "./hashmap";
+import { MSMap, MSMapFactory } from "./msmap";
 import { Processor } from "./processor";
 
 export class RuntimeError extends Error {
@@ -41,7 +41,7 @@ export function equals(a: any, b: any, recursionDepth: number = 16): number {
       }
       return 1;
     }
-  } else if (a instanceof HashMap && b instanceof HashMap) {
+  } else if (a instanceof MSMap && b instanceof MSMap) {
     if (a.size() !== b.size()) {
       return 0;
     } else {
@@ -75,21 +75,21 @@ export function isaEquals(vm: Processor, value: any, type: any): number {
     return type === vm.stringCoreType ? 1 : 0;
   } else if (value instanceof Array) {
     return type === vm.listCoreType ? 1 : 0;
-  } else if (value instanceof HashMap) {
+  } else if (value instanceof MSMap) {
     if (type === vm.mapCoreType) {
       return 1;
     } else {
       // Walk up the "isa" chain until a match is found
       let p = null;
-			p = value.get("__isa");
+			p = value.getOpt("__isa");
 			while (p != null) {
 				if (p === type) {
           return 1;
         }
-				if (!(p instanceof HashMap)) {
+				if (!(p instanceof MSMap)) {
           return 0;
         } else {
-          p = p.get("__isa");
+          p = p.getOpt("__isa");
         }
 			}
 			return 0;
@@ -171,7 +171,7 @@ export function chainedComparison(values: any[], operators: string[]): number {
   return 1;
 }
 
-export function add(a: any, b: any): any {
+export function add(mapFactory: MSMapFactory, a: any, b: any): any {
   if (typeof a === "number" && typeof b === "number") {
     // Perform arithmetic addition
     return a + b
@@ -184,9 +184,9 @@ export function add(a: any, b: any): any {
     } else {
       throw new RuntimeError(`Got ${b} instead of another List`);
     }
-  } else if (a instanceof HashMap) {
-    if (b instanceof HashMap) {
-      const combined = new HashMap();
+  } else if (a instanceof MSMap) {
+    if (b instanceof MSMap) {
+      const combined = mapFactory.newMap();
       for (let e of a.entries()) {
         combined.set(e.key,e.value);
       }
@@ -381,10 +381,10 @@ export function computeSliceIndex(accessTarget: IndexedCollection, index: number
   return effectiveIndex;
 }
 
-export function computeMathAssignValue(currentValue: any, opTokenType: TokenType, operand: any): any {
+export function computeMathAssignValue(mapFactory: MSMapFactory, currentValue: any, opTokenType: TokenType, operand: any): any {
   switch(opTokenType) {
     case TokenType.PLUS_ASSIGN:
-      return add(currentValue, operand);
+      return add(mapFactory, currentValue, operand);
     case TokenType.MINUS_ASSIGN:
       return subtract(currentValue, operand);
     case TokenType.DIV_ASSIGN:
@@ -409,7 +409,7 @@ export function toBooleanNr(value: any): number {
     return value.length;
   } else if (typeof value === "string") {
     return value.length > 0 ? 1 : 0;
-  } else if (value instanceof HashMap) {
+  } else if (value instanceof MSMap) {
     return value.size() > 0 ? 1 : 0;
   } else {
     throw new RuntimeError("Type not supported: " + value);
@@ -476,7 +476,7 @@ export function hashCode(value: any, recursionDepth: number = 16): number {
     return -1;
   } else if (value instanceof Array) {
     return listHashCode(value, recursionDepth - 1);
-  } else if (value instanceof HashMap) {
+  } else if (value instanceof MSMap) {
     return mapHashCode(value, recursionDepth - 1);
   } else {
     const valueStr = toStr(value);
@@ -498,7 +498,7 @@ export function listHashCode(list: Array<any>, recursionDepth: number = 16): num
   return result;
 }
 
-export function mapHashCode(map: HashMap, recursionDepth: number = 16) {
+export function mapHashCode(map: MSMap, recursionDepth: number = 16) {
   let result = stringHashCode(toStr(map.size));
   if (recursionDepth < 0) {
     return result;
@@ -576,7 +576,7 @@ export function formatValue(value: any, quoteStrings: boolean = false, depth: nu
       formattedValues.push(formatValue(e, true, depth - 12));
     }
     text = "[" + formattedValues.join(", ") + "]";
-  } else if (value instanceof HashMap) {
+  } else if (value instanceof MSMap) {
     if (depth < 0 ) {
       return "{ a Map }";
     }

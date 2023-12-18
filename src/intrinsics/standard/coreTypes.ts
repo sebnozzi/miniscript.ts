@@ -1,30 +1,30 @@
-import { HashMap } from "../../vm/hashmap";
+import { MSMap } from "../../vm/msmap";
 import { Processor } from "../../vm/processor";
 
 export function addCoreTypesIntrinsics(p: Processor) {
 
   p.addIntrinsic("string", 
-  function(): HashMap {
+  function(): MSMap {
     return p.stringCoreType;
   });
 
   p.addIntrinsic("list", 
-  function(): HashMap {
+  function(): MSMap {
     return p.listCoreType;
   });
 
   p.addIntrinsic("map", 
-  function(): HashMap {
+  function(): MSMap {
     return p.mapCoreType;
   });
 
   p.addIntrinsic("number", 
-  function(): HashMap {
+  function(): MSMap {
     return p.numberCoreType;
   });
 
   p.addIntrinsic("funcRef", 
-  function(): HashMap {
+  function(): MSMap {
     return p.funcRefCoreType;
   });
 

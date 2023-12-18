@@ -5,7 +5,7 @@ import { Parser } from "../parser/parser";
 import { Statement } from "../parser/parserModel";
 import { Code } from "../vm/code";
 import { Context } from "../vm/context";
-import { HashMap } from "../vm/hashmap";
+import { MSMap } from "../vm/msmap";
 import { Processor, TxtCallback } from "../vm/processor";
 
 export type DebuggerCallbacks = {
@@ -24,8 +24,8 @@ export class Interpreter {
   protected vm: Processor;
 
   constructor(
-    stdoutCallback: TxtCallback | null, 
-    stderrCallback: TxtCallback | null) {
+    stdoutCallback: TxtCallback | null = null, 
+    stderrCallback: TxtCallback | null = null) {
       if (!stdoutCallback) {
         stdoutCallback = (line: string) => {
           console.log(line);
@@ -50,6 +50,10 @@ export class Interpreter {
     }
   }
 
+  newMap(): MSMap {
+    return this.vm.newMap();
+  }
+
   get globalContext(): Context {
     return this.vm.globalContext;
   }
@@ -58,7 +62,7 @@ export class Interpreter {
     this.vm.addIntrinsic(signature, implFn);
   }
 
-  addMapIntrinsic(map: HashMap, signature: string, implFn: Function): void {
+  addMapIntrinsic(map: MSMap, signature: string, implFn: Function): void {
     this.vm.addMapIntrinsic(map, signature, implFn);
   }
 

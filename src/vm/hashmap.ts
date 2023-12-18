@@ -1,6 +1,6 @@
 import { hashCode, equals } from "./runtime";
 
-export type HashMapEntry = {
+export type MapEntry = {
   key: any,
   value: any
 };
@@ -8,44 +8,17 @@ export type HashMapEntry = {
 export class HashMap {
 
   private _size: number = 0;
-  private buckets: Map<any, Array<HashMapEntry>>;
-  private valueSetOverriders: null | Map<any, Array<Function>>;
+  private buckets: Map<any, Array<MapEntry>>;
 
   constructor() {
-    this.buckets = new Map<any, Array<HashMapEntry>>();
-    this.valueSetOverriders = null;
+    this.buckets = new Map<any, Array<MapEntry>>();
   }
 
   size(): number {
     return this._size;
   }
 
-  // Makes it possible to execute an action before attempting
-  // to set a new value and even change the value to be set.
-  overrideSettingValue(key: any, callback: (newValue: any) => any) {
-    if (this.valueSetOverriders === null) {
-      this.valueSetOverriders = new Map();
-    }
-    let overriders = this.valueSetOverriders.get(key);
-    if (overriders === undefined) {
-      overriders = new Array();
-    }
-    overriders.push(callback);
-    this.valueSetOverriders.set(key, overriders);
-  }
-
-  set(key: any, value: any) {
-    // Process value-set overriders
-    // Keep the latest returned value
-    if (this.valueSetOverriders !== null) {
-      const overrideFunctions = this.valueSetOverriders.get(key);
-      if (overrideFunctions instanceof Array) {
-        for (let overrideFunction of overrideFunctions) {
-          value = overrideFunction(value);
-        }
-      }
-    }
-    
+  set(key: any, value: any) {    
     if (value === undefined) {
       this.delete(key);
       return;
@@ -55,7 +28,7 @@ export class HashMap {
     const _hashCode = hashCode(key);
     let bucket = this.buckets.get(_hashCode);
     if (!bucket) {
-      bucket = new Array<HashMapEntry>();
+      bucket = new Array<MapEntry>();
       this.buckets.set(_hashCode, bucket);
     }
 
@@ -150,8 +123,8 @@ export class HashMap {
 
   // TODO: implement returning an iterator to avoid
   // unnecessary traversing
-  entries(): Array<HashMapEntry> {
-    const entries = new Array<HashMapEntry>();
+    entries(): Array<MapEntry> {
+    const entries = new Array<MapEntry>();
     for (let bucket of this.buckets.values()) {
       for (let i = 0; i < bucket.length; ++i) {
         entries.push(bucket[i]);

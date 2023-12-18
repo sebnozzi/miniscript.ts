@@ -1,5 +1,5 @@
 import { BoundFunction } from "../../vm/funcdef";
-import { HashMap } from "../../vm/hashmap";
+import { MSMap } from "../../vm/msmap";
 import { Processor } from "../../vm/processor";
 import { hashCode, equals } from "../../vm/runtime";
 
@@ -25,8 +25,8 @@ export function addIdentityIntrinsics(p: Processor) {
       result = (typeof b === "string" && a === b);
     } else if (a instanceof Array) {
       result = (b instanceof Array && a === b);
-    } else if (a instanceof HashMap) {
-      result = (b instanceof HashMap && a === b );
+    } else if (a instanceof MSMap) {
+      result = (b instanceof MSMap && a === b );
     } else if (a instanceof BoundFunction) {
       result = (b instanceof BoundFunction && a === b);
     } else {

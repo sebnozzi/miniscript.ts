@@ -6,8 +6,8 @@ const interp = new Interpreter();
 // define in turn an intrinsic function that returns such value.
 
 // First we need the map / object.
-// The module exposes a `newMap` function for that!
-const myType = newMap();
+// The interpreter provides a `newMap` function for that!
+const myType = interp.newMap();
 
 // Then we create the intrinsic function to get ahold of it.
 interp.addIntrinsic("MyType", () => {

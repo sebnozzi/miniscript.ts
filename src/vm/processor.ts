@@ -7,13 +7,13 @@ import { Context } from "./context";
 import { ForLoop, ForLoopContext } from "./forloop";
 import { Frame } from "./frame";
 import { FuncDefArg, FuncDef, BoundFunction } from "./funcdef";
-import { HashMap } from "./hashmap";
+import { MSMap } from "./msmap";
 import { RuntimeError, computeAccessIndex, computeMathAssignValue, slice, chainedComparison, equals, isaEquals, greaterEquals, greaterThan, lessEquals, lessThan, toBooleanNr, add, subtract, multiply, divide, power, modulus, logic_and, logic_or } from "./runtime";
 import { parseSignature } from "./signatureParser";
 
 export type TxtCallback = (txt: string) => any;
 
-const MAX_ISA_RECURSION_DEPTH = 16;
+export const MAX_ISA_RECURSION_DEPTH = 16;
 
 export class Processor {
 
@@ -32,11 +32,11 @@ export class Processor {
   // Intrinsics stored here
   intrinsicsMap: Map<string, BoundFunction>;
   // Core-types
-  listCoreType: HashMap;
-  mapCoreType: HashMap;
-  stringCoreType: HashMap;
-  numberCoreType: HashMap;
-  funcRefCoreType: HashMap;
+  listCoreType: MSMap;
+  mapCoreType: MSMap;
+  stringCoreType: MSMap;
+  numberCoreType: MSMap;
+  funcRefCoreType: MSMap;
   // Stack of frames (waiting to be returned to; not the current one).
   savedFrames: Stack<Frame>;
   // Counter used to return control back to host.
@@ -71,11 +71,11 @@ export class Processor {
     this.ip = 0;
     this.globalContext = new Context(this);
     this.intrinsicsMap = new Map();
-    this.listCoreType = new HashMap();
-    this.mapCoreType = new HashMap();
-    this.stringCoreType = new HashMap();
-    this.numberCoreType = new HashMap();
-    this.funcRefCoreType = new HashMap();
+    this.listCoreType = new MSMap(this);
+    this.mapCoreType = new MSMap(this);
+    this.stringCoreType = new MSMap(this);
+    this.numberCoreType = new MSMap(this);
+    this.funcRefCoreType = new MSMap(this);
     this.context = this.globalContext;
     this.forLoopContext = new ForLoopContext();
     this.savedFrames = new Stack<Frame>();
@@ -127,19 +127,23 @@ export class Processor {
     return subVM;
   }
 
+  newMap(): MSMap {
+    return new MSMap(this);
+  }
+
   addIntrinsic(signature: string, impl: Function) {
     const [fnName, argNames, defaultValues] = parseSignature(signature);
     const intrinsicFn = this.makeIntrinsicFn(impl, argNames, defaultValues);
     this.intrinsicsMap.set(fnName, intrinsicFn);
   }
 
-  addMapIntrinsic(target: HashMap, signature: string, impl: Function) {
+  addMapIntrinsic(target: MSMap, signature: string, impl: Function) {
     const [fnName, argNames, defaultValues] = parseSignature(signature);
     const intrinsicFn = this.makeIntrinsicFn(impl, argNames, defaultValues);
     target.set(fnName, intrinsicFn);
   }
 
-  attachExistingIntrinsic(target: HashMap, name: string, boundFunc: BoundFunction) {
+  attachExistingIntrinsic(target: MSMap, name: string, boundFunc: BoundFunction) {
     target.set(name, boundFunc);
   }
 
@@ -254,14 +258,14 @@ export class Processor {
           // Pop call target
           const callTarget = this.opStack.pop();
 
-          let srcMap: HashMap | null = null;
+          let srcMap: MSMap | null = null;
           let resolvedMethod: any;
-          if (callTarget instanceof HashMap) {
-            [resolvedMethod, srcMap] = this.mapAccessWithSource(callTarget, methodName);
+          if (callTarget instanceof MSMap) {
+            [resolvedMethod, srcMap] = callTarget.getWithSource(methodName);
           } else {
             // Lookup in base type
             const baseTypeMap = this.selectCoreTypeMap(callTarget);
-            resolvedMethod = this.coreTypeMapAccess(baseTypeMap, methodName);
+            resolvedMethod = baseTypeMap.get(methodName);
           }
           this.performCall(resolvedMethod, params, callTarget, srcMap);
           break;
@@ -295,7 +299,7 @@ export class Processor {
 
           const isString = typeof assignTarget === "string";
           const isList = assignTarget instanceof Array;
-          const isMap = assignTarget instanceof HashMap;
+          const isMap = assignTarget instanceof MSMap;
 
           if (isList) {
             const effectiveIndex = computeAccessIndex(this, assignTarget, index);
@@ -316,7 +320,7 @@ export class Processor {
           const assignTarget = this.opStack.pop();
           const valueToAssign = this.opStack.pop();
 
-          if (!(assignTarget instanceof HashMap)) {
+          if (!(assignTarget instanceof MSMap)) {
             throw this.runtimeError(`Assignment target must be a Map`);
           }
 
@@ -331,7 +335,7 @@ export class Processor {
           // Get existing value
           const existingValue = this.context.getOpt(varName);
           if (existingValue !== undefined) {
-            const finalValue = computeMathAssignValue(existingValue, opTokenType, operand);
+            const finalValue = computeMathAssignValue(this, existingValue, opTokenType, operand);
             this.context.setLocal(varName, finalValue);
           } else {
             throw this.runtimeError(`Undefined Local Identifier: '${varName}' is unknown in this context`);
@@ -350,16 +354,16 @@ export class Processor {
 
           const isString = typeof assignTarget === "string";
           const isList = assignTarget instanceof Array;
-          const isMap = assignTarget instanceof HashMap;
+          const isMap = assignTarget instanceof MSMap;
 
           if (isList) {
             const effectiveIndex = computeAccessIndex(this, assignTarget, index);
             const currentValue = assignTarget[effectiveIndex];
-            const finalValue = computeMathAssignValue(currentValue, opTokenType, operand);
+            const finalValue = computeMathAssignValue(this, currentValue, opTokenType, operand);
             assignTarget[effectiveIndex] = finalValue;
           } else if(isMap) {
-            const currentValue = this.mapAccess(assignTarget, index);
-            const finalValue = computeMathAssignValue(currentValue, opTokenType, operand);
+            const currentValue = assignTarget.get(index);
+            const finalValue = computeMathAssignValue(this, currentValue, opTokenType, operand);
             assignTarget.set(index, finalValue);
           } else if(isString) {
             throw this.runtimeError("Cannot assign to String (immutable)");
@@ -376,12 +380,12 @@ export class Processor {
           const operand = this.opStack.pop();
           const assignTarget = this.opStack.pop();
 
-          if (!(assignTarget instanceof HashMap)) {
+          if (!(assignTarget instanceof MSMap)) {
             throw this.runtimeError(`Assignment target must be a Map`);
           }
 
-          const currentValue = this.mapAccess(assignTarget, propertyName);
-          const finalValue = computeMathAssignValue(currentValue, opTokenType, operand);
+          const currentValue = assignTarget.get(propertyName);
+          const finalValue = computeMathAssignValue(this, currentValue, opTokenType, operand);
           assignTarget.set(propertyName, finalValue);
 
           this.ip += 1;
@@ -406,24 +410,24 @@ export class Processor {
 
           const isString = typeof accessTarget === "string";
           const isList = accessTarget instanceof Array;
-          const isMap = accessTarget instanceof HashMap;
+          const isMap = accessTarget instanceof MSMap;
 
           let value: any;
-          let srcMap: HashMap | null = null;
+          let srcMap: MSMap | null = null;
 
           if (isList || isString) {
             if (typeof index === "number") {
               const effectiveIndex = computeAccessIndex(this, accessTarget, index);
               value = accessTarget[effectiveIndex];
             } else if (isList) {
-              [value, srcMap] = this.mapAccessWithSource(this.listCoreType, index);
+              [value, srcMap] = this.listCoreType.getWithSource(index);
             } else if (isString) {
-              [value, srcMap] = this.mapAccessWithSource(this.stringCoreType, index);
+              [value, srcMap] = this.stringCoreType.getWithSource(index);
             } else {
               throw new Error("Uncovered case");
             }
           } else if(isMap) {
-            [value, srcMap] = this.mapAccessWithSource(accessTarget, index);
+            [value, srcMap] = accessTarget.getWithSource(index);
           } else if (typeof index === "number") {
             throw this.runtimeError(`Null Reference Exception: can't index into null`);
           } else {
@@ -439,15 +443,15 @@ export class Processor {
           const accessTarget = this.opStack.pop();
 
           let value: any;
-          let srcMap: HashMap;
-          if (accessTarget instanceof HashMap) {
-            [value, srcMap] = this.mapAccessWithSource(accessTarget, propertyName);
+          let srcMap: MSMap;
+          if (accessTarget instanceof MSMap) {
+            [value, srcMap] = accessTarget.getWithSource(propertyName);
           } else if (accessTarget === null) {
             throw this.runtimeError(`Type Error (while attempting to look up ${propertyName})`);
           } else {
             // Lookup in base type - redefine access-target
             srcMap = this.selectCoreTypeMap(accessTarget);
-            value = this.coreTypeMapAccess(srcMap, propertyName);
+            value = srcMap.get(propertyName);
           }
           this.callOrPushValue(value, isFuncRef, accessTarget, srcMap);
           break;         
@@ -466,11 +470,11 @@ export class Processor {
           }
 
           let value: any;
-          let srcMap: HashMap | null = null;
-          if (superMap instanceof HashMap) {
+          let srcMap: MSMap | null = null;
+          if (superMap instanceof MSMap) {
             // Use the "superMap" only to lookup the value
             // But later call it with the "selfMap"
-            [value, srcMap] = this.mapAccessWithSource(superMap, propertyName);
+            [value, srcMap] = superMap.getWithSource(propertyName);
             if (value === undefined) {
               throw this.runtimeError(`Type Error (while attempting to look up ${propertyName})`);
             }
@@ -502,11 +506,11 @@ export class Processor {
           const methodName = this.opStack.pop();
 
           let resolvedMethod: any;
-          let srcMap: HashMap | null = null;
-          if (superMap instanceof HashMap) {
+          let srcMap: MSMap | null = null;
+          if (superMap instanceof MSMap) {
             // Use the "superMap" only to lookup the value
             // But later call it with the "selfMap"
-            [resolvedMethod, srcMap] = this.mapAccessWithSource(superMap, methodName);
+            [resolvedMethod, srcMap] = superMap.getWithSource(methodName);
             if (resolvedMethod === undefined) {
               throw this.runtimeError(`Type Error (while attempting to look up ${methodName})`);
             }
@@ -563,7 +567,7 @@ export class Processor {
         case BC.BUILD_MAP: {
           const elementCount: any = this.code.arg1[this.ip];
           const elements: any[] = this.opStack.popN(elementCount * 2);
-          const newMap = new HashMap();
+          const newMap = this.newMap();
           // Iterate over elements and process key/value
           // Advance by 2, processing in pairs
           for (let i = 0; i < elements.length; i += 2) {
@@ -577,10 +581,10 @@ export class Processor {
         }
         case BC.NEW_MAP: {
           const parentMap = this.opStack.pop();
-          if (!(parentMap instanceof HashMap)) {
+          if (!(parentMap instanceof MSMap)) {
             throw this.runtimeError(`Operator "new" can only be used with Maps`);
           }
-          const newMap = new HashMap();
+          const newMap = this.newMap();
           newMap.set("__isa", parentMap);
           this.opStack.push(newMap);                
           this.ip += 1;
@@ -683,7 +687,7 @@ export class Processor {
         case BC.ADD_VALUES: {
           const valueInStack_2 = this.opStack.pop()
           const valueInStack_1 = this.opStack.pop()
-          const result = add(valueInStack_1, valueInStack_2)
+          const result = add(this, valueInStack_1, valueInStack_2)
           this.opStack.push(result)
           this.ip += 1;
           break;
@@ -797,7 +801,7 @@ export class Processor {
           const values = this.opStack.pop();
           const localVarName = this.opStack.pop();
           // Create for-loop in current context
-          const forLoop = new ForLoop(startAddr, endAddr, localVarName, values);
+          const forLoop = new ForLoop(this, startAddr, endAddr, localVarName, values);
           this.forLoopContext.registerForLoop(forLoopNr, forLoop);
           // Advance IP
           this.ip += 1;
@@ -945,12 +949,12 @@ export class Processor {
     }
   }
 
-  private selectCoreTypeMap(accessTarget: any): HashMap {
+  private selectCoreTypeMap(accessTarget: any): MSMap {
     if (accessTarget instanceof Array) {
       return this.listCoreType;
     } else if (typeof accessTarget === "string") {
       return this.stringCoreType;
-    } else if (accessTarget instanceof HashMap) {
+    } else if (accessTarget instanceof MSMap) {
       return this.mapCoreType;
     } else if (typeof accessTarget === "number") {
       return this.numberCoreType;
@@ -959,61 +963,12 @@ export class Processor {
     }
   }
 
-  private coreTypeMapAccess(mapObj: HashMap, key: any): any {
-    if (mapObj.has(key)) {
-      return mapObj.get(key);
-    } else {
-      throw this.runtimeError(`Key Not Found: '${key}' not found in map`);
-    }
-  }
-
-  mapAccess(mapObj: HashMap, key: any): any {
-    const result = this.mapAccessOpt(mapObj, key);
-    if (result === undefined) {
-      throw this.runtimeError(`Key Not Found: '${key}' not found in map`);
-    } else {
-      return result;
-    }
-  }
-
-  mapAccessWithSource(mapObj: HashMap, key: any, depth: number = 0): [any, HashMap] {
-    if (depth > MAX_ISA_RECURSION_DEPTH) {
-      throw this.runtimeError(`__isa depth exceeded (perhaps a reference loop?)`);
-    }
-    if (mapObj.has(key)) {
-      return [mapObj.get(key), mapObj];
-    } else if (mapObj.has("__isa")) {
-      const parentMap = mapObj.get("__isa");
-      return this.mapAccessWithSource(parentMap, key, depth + 1); 
-    } else if (mapObj === this.mapCoreType) {
-      throw this.runtimeError(`Key Not Found: '${key}' not found in map`);
-    } else {
-      return this.mapAccessWithSource(this.mapCoreType, key, depth + 1); 
-    }
-  }
-
-  mapAccessOpt(mapObj: HashMap, key: any, depth: number = 0): any | undefined {
-    if (depth > MAX_ISA_RECURSION_DEPTH) {
-      throw this.runtimeError(`__isa depth exceeded (perhaps a reference loop?)`);
-    }
-    if (mapObj.has(key)) {
-      return mapObj.get(key);
-    } else if (mapObj.has("__isa")) {
-      const parentMap = mapObj.get("__isa");
-      return this.mapAccessOpt(parentMap, key, depth + 1); 
-    } else if (mapObj === this.mapCoreType) {
-      return undefined;
-    } else {
-      return this.mapAccessOpt(this.mapCoreType, key, depth + 1); 
-    }
-  }
-
   resolveIntrinsic(identifier: string): BoundFunction|undefined {
     const optIntrinsicFn = this.intrinsicsMap.get(identifier);
     return optIntrinsicFn;
   }
 
-  private callOrPushValue(value: any, isFuncRef: boolean, accessSrc: any | undefined = undefined, srcMap: HashMap | null = null) {
+  private callOrPushValue(value: any, isFuncRef: boolean, accessSrc: any | undefined = undefined, srcMap: MSMap | null = null) {
     // If it's a function and we are not dealing with a function
     // reference, the function should be called.
     // The resulting value will be put in the stack instead.
@@ -1026,7 +981,7 @@ export class Processor {
     }
   }
 
-  private performCall(maybeFunction: any, paramValues: any[], dotCallTarget: any | undefined = undefined, srcMap: HashMap | null = null) {
+  private performCall(maybeFunction: any, paramValues: any[], dotCallTarget: any | undefined = undefined, srcMap: MSMap | null = null) {
     
     const paramCount = paramValues.length;
 
@@ -1125,8 +1080,8 @@ export class Processor {
         if(srcMap !== null) {
           // The "source map" is where the bound-function was found.
           // Any calls to "super" refer to the isa-map above this one.
-          const isaMap = srcMap.get("__isa");
-          if (isaMap !== undefined) {
+          if (srcMap.hasParent()) {
+            const isaMap = srcMap.parentMap();
             this.context.setLocal("super", isaMap);
           }
         }

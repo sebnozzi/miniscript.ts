@@ -1,4 +1,4 @@
-import { HashMap } from "../../vm/hashmap";
+import { MSMap } from "../../vm/msmap";
 import { Processor } from "../../vm/processor";
 import { toIntegerValue, getRandomInt } from "../../vm/runtime";
 
@@ -23,7 +23,7 @@ export function addRandomnessIntrinsics(p: Processor) {
         self[rndIdx] = self[idx];
         self[idx] = tempValue;
       }
-    } else if (self instanceof HashMap) {
+    } else if (self instanceof MSMap) {
       const keys = Array.from(self.keys());
       for (let keyIdx = keys.length - 1; keyIdx >= 1; keyIdx--) {
         const rndIdx = getRandomInt(p, keyIdx+1);

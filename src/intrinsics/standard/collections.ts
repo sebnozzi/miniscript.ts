@@ -1,4 +1,4 @@
-import { HashMap } from "../../vm/hashmap";
+import { MSMap } from "../../vm/msmap";
 import { Processor } from "../../vm/processor";
 import { toNumberValue, checkNumber, RuntimeError, toIntegerValue, checkRange, toStr, equals, isNullOrEmpty, slice, toBooleanNr } from "../../vm/runtime";
 
@@ -40,7 +40,7 @@ export function addCollectionIntrinsics(p: Processor) {
   function(self: any): number | null {
     if (self instanceof Array || typeof self === "string") {
       return self.length;
-    } else if (self instanceof HashMap) {
+    } else if (self instanceof MSMap) {
       return self.size();
     } else {
       return null;
@@ -52,7 +52,7 @@ export function addCollectionIntrinsics(p: Processor) {
     let list: any[];
     if (self instanceof Array) {
       list = self as Array<any>;
-    } else if (self instanceof HashMap) {
+    } else if (self instanceof MSMap) {
       list = Array.from( self.values() );
     } else {
       return 0;
@@ -90,7 +90,7 @@ export function addCollectionIntrinsics(p: Processor) {
 
   p.addIntrinsic("remove(self,k)", 
   function(self: any, k: any): any {
-    if (self instanceof HashMap) {
+    if (self instanceof MSMap) {
       if (self.has(k)) {
         self.delete(k);
         return 1;
@@ -136,7 +136,7 @@ export function addCollectionIntrinsics(p: Processor) {
       }
     }
     let count = 0;
-    if (self instanceof HashMap) {
+    if (self instanceof MSMap) {
       const keysToChange = [];
       for (let key of self.keys()) {
         const value = self.get(key);
@@ -246,7 +246,7 @@ export function addCollectionIntrinsics(p: Processor) {
       }
       const idx = self.indexOf(value, afterIdx + 1);
       return idx >= 0 ? idx : null;
-    } else if (self instanceof HashMap) {
+    } else if (self instanceof MSMap) {
       let startSearch = after == null ? true : false;
       for(let key of self.keys()) {
         if (startSearch) {
@@ -285,7 +285,7 @@ export function addCollectionIntrinsics(p: Processor) {
 
   p.addIntrinsic("hasIndex(self,index)", 
   function(self: any, index: any): number | null {
-    if (self instanceof HashMap) {
+    if (self instanceof MSMap) {
       return self.has(index) ? 1 : 0;
     } else if (self instanceof Array || typeof self === "string") {
       if (typeof index === "number" && self.length > 0) {
@@ -307,7 +307,7 @@ export function addCollectionIntrinsics(p: Processor) {
       const result = self.pop();
       // Return the removed element
       return result;
-    } else if (self instanceof HashMap) {
+    } else if (self instanceof MSMap) {
       if (self.size() < 1) {
         return null;
       }
@@ -333,7 +333,7 @@ export function addCollectionIntrinsics(p: Processor) {
       self.splice(0,1);
       // Return the removed element
       return result;
-    } else if (self instanceof HashMap) {
+    } else if (self instanceof MSMap) {
       if (self.size() < 1) {
         return null;
       }
@@ -353,7 +353,7 @@ export function addCollectionIntrinsics(p: Processor) {
     if (self instanceof Array) {
       self.push(value);
       return self;
-    } else if (self instanceof HashMap) {
+    } else if (self instanceof MSMap) {
       self.set(value, 1);
       return self;
     } else {
@@ -363,7 +363,7 @@ export function addCollectionIntrinsics(p: Processor) {
 
   p.addIntrinsic("indexes(self)", 
   function(self: any): any[] | null {
-    if (self instanceof HashMap) {
+    if (self instanceof MSMap) {
       const keys = Array.from( self.keys() );
       return keys;
     } else if (self instanceof Array || typeof self === "string") {
@@ -379,7 +379,7 @@ export function addCollectionIntrinsics(p: Processor) {
 
   p.addIntrinsic("values(self)", 
   function(self: any): any {
-    if (self instanceof HashMap) {
+    if (self instanceof MSMap) {
       const values = Array.from( self.values() );
       return values;
     } else if (typeof self === "string") {
@@ -453,8 +453,8 @@ export function addCollectionIntrinsics(p: Processor) {
       for (let i = 0; i < self.length; i++) {
         const value = self[i];
         let sortKey: any = null;
-        if (value instanceof HashMap) {
-          sortKey = p.mapAccessOpt(value, byKey) || null;
+        if (value instanceof MSMap) {
+          sortKey = value.getOpt(byKey) || null;
         } else if (value instanceof Array) {
           if (intKey > -value.length && intKey < value.length) {
             const normalizedIdx = intKey % value.length;
