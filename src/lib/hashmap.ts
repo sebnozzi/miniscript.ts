@@ -1,4 +1,4 @@
-import { hashCode, equals } from "./runtime";
+import { hashCode, equals } from "../vm/runtime";
 
 export type MapEntry = {
   key: any,

@@ -1,4 +1,4 @@
-import { HashMap, MapEntry } from "./hashmap";
+import { HashMap, MapEntry } from "../lib/hashmap";
 import { MAX_ISA_RECURSION_DEPTH, Processor } from "./processor";
 import { RuntimeError } from "./runtime";
 
