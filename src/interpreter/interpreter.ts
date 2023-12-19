@@ -17,7 +17,6 @@ export class Interpreter {
   private stderrCallback: TxtCallback;
 
   protected vm: Processor;
-  private onFinishCallbacks: Set<() => void>;
 
   constructor(
     stdoutCallback: TxtCallback | null = null, 
@@ -31,26 +30,24 @@ export class Interpreter {
         stderrCallback = stdoutCallback;
       }
       this.stderrCallback = stderrCallback;
-      this.onFinishCallbacks = new Set();
       this.vm = new Processor(stdoutCallback, stderrCallback);
-      const interpThis = this;
-      this.vm.onFinished = function() {
-        interpThis.invokeFinishCallbacks();
-      }
       addStandardIntrinsics(this.vm);
   }
 
-  async runSrcCode(srcCode: string): Promise<boolean> {
+  async runSrcCode(srcCode: string, srcName: string | null = null): Promise<boolean> {
     const code = this.compileSrcCode(srcCode);
     if (code) {
+      const runnerVm = this.vm.createSubProcessVM();
       return new Promise<boolean>((resolve) => {
         // This will be called when VM is done running.
-        const callback = () => {
-          this.removeOnFinishCallback(callback);
+        runnerVm.onFinished = () => {
           resolve(true);
         };
-        this.addOnFinishCallback(callback)
-        this.runCompiledCode(code);
+        runnerVm.setCode(code);
+        if (srcName) {
+          runnerVm.setSourceName(srcName);
+        }
+        runnerVm.run();
       });
     } else {
       return false;
@@ -91,21 +88,6 @@ export class Interpreter {
     this.vm.stopRunning();
   }
 
-  protected addOnFinishCallback(callback: () => void) {
-    this.onFinishCallbacks.add(callback);
-  }
-
-  protected removeOnFinishCallback(callback: () => void) {
-    this.onFinishCallbacks.delete(callback);
-  }
-
-  // Override in subclass if necessary
-  protected invokeFinishCallbacks() {
-    for (let callback of this.onFinishCallbacks) {
-      callback();
-    }
-  }
-
   private compileSrcCode(srcCode: string): Code | null {
     let parsedStatements: Statement[] = [];
 
@@ -124,31 +106,19 @@ export class Interpreter {
       const code = compiler.compile();
       return code;
     } else {
-      this.invokeFinishCallbacks();
       return null;
     }
-  }
-
-  private runCompiledCode(prgCode: Code) {   
-    this.vm.setCode(prgCode);
-    this.startRunning();
-  }
-
-  protected startRunning() {
-    this.vm.run();
   }
 
   private debugCompiledCode(prgCode: Code, callbacks: DebuggerCallbacks): Debugger {
 
     const d = new Debugger(this.vm);
-    const outerThis = this;
 
     d.onSrcChange = () => {
       callbacks.onSrcChange(d);
     };
     d.onFinished = () => {
       callbacks.onFinished(d);
-      outerThis.invokeFinishCallbacks();
     }
     
     this.vm.setCode(prgCode);
