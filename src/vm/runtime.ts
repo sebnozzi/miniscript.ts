@@ -4,8 +4,16 @@ import { MSMap, MSMapFactory } from "./msmap";
 import { Processor } from "./processor";
 
 export class RuntimeError extends Error {
-  constructor(message: string) {
-    super(`Runtime Error: ${message}`);
+  
+  constructor(private baseMsg: string) {
+    super(`Runtime Error: ${baseMsg}`);
+  }
+
+  setLineNr(lineNr: number | null) {
+    if (lineNr !== null) {
+      const msg = `Runtime Error: ${this.baseMsg} [line ${lineNr}]`;
+      this.message = msg;
+    }
   }
 }
 
@@ -356,13 +364,13 @@ export function slice(vm: Processor, sliceTarget: any, startIdx: number, endIdx:
 }
 
 // Here it's important that the index is valid and within the access-target
-export function computeAccessIndex(vm: Processor, accessTarget: IndexedCollection, index: number): number {
+export function computeAccessIndex(accessTarget: IndexedCollection, index: number): number {
   const intIdx = toIntegerValue(index);
   // Compute effective index
   const effectiveIndex = (intIdx < 0) ? intIdx + accessTarget.length : intIdx;
   // Check bounds
   if (effectiveIndex < 0 || effectiveIndex >= accessTarget.length) {
-    throw vm.runtimeError(`Index Error (list index ${index} out of range)`);
+    throw new RuntimeError(`Index Error (list index ${index} out of range)`);
   }
   return effectiveIndex;
 }
@@ -536,7 +544,7 @@ export function checkNumber(arg: any, errorMsg: string, vm: Processor|null = nul
   if (Number.isFinite(arg)) {
     return;
   } else if (vm instanceof Processor) {
-    throw vm.runtimeError(errorMsg);
+    throw new RuntimeError(errorMsg);
   } else {
     throw new RuntimeError(errorMsg);
   }
@@ -546,7 +554,7 @@ export function checkInt(arg: any, errorMsg: string, vm: Processor|null = null) 
   if (Number.isInteger(arg)) {
     return;
   } else if (vm instanceof Processor) {
-    throw vm.runtimeError(errorMsg);
+    throw new RuntimeError(errorMsg);
   } else {
     throw new RuntimeError(errorMsg);
   }

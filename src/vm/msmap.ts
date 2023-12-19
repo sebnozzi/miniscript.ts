@@ -19,7 +19,7 @@ export class MSMap {
   get(key: any): any {
     const result = this.getOpt(key);
     if (result === undefined) {
-      throw this.vm.runtimeError(`Key Not Found: '${key}' not found in map`);
+      throw new RuntimeError(`Key Not Found: '${key}' not found in map`);
     } else {
       return result;
     }
@@ -27,7 +27,7 @@ export class MSMap {
 
   getOpt(key: any, depth: number = 0): any | undefined {
     if (depth > MAX_ISA_RECURSION_DEPTH) {
-      throw this.vm.runtimeError(`__isa depth exceeded (perhaps a reference loop?)`);
+      throw new RuntimeError(`__isa depth exceeded (perhaps a reference loop?)`);
     }
     if (this.mapObj.has(key)) {
       return this.mapObj.get(key);
@@ -42,14 +42,14 @@ export class MSMap {
 
   getWithSource(key: any, depth: number = 0): [any, MSMap] {
     if (depth > MAX_ISA_RECURSION_DEPTH) {
-      throw this.vm.runtimeError(`__isa depth exceeded (perhaps a reference loop?)`);
+      throw new RuntimeError(`__isa depth exceeded (perhaps a reference loop?)`);
     }
     if (this.mapObj.has(key)) {
       return [this.mapObj.get(key), this];
     } else if (this.hasParent()) {
       return this.parentMap().getWithSource(key, depth + 1); 
     } else if (this === this.vm.mapCoreType) {
-      throw this.vm.runtimeError(`Key Not Found: '${key}' not found in map`);
+      throw new RuntimeError(`Key Not Found: '${key}' not found in map`);
     } else {
       return this.vm.mapCoreType.getWithSource(key, depth + 1); 
     }

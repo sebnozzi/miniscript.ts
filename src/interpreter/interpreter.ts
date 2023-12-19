@@ -3,6 +3,7 @@ import { Debugger } from "../debugger/debugger";
 import { addStandardIntrinsics } from "../intrinsics/intrinsics";
 import { Parser } from "../parser/parser";
 import { Statement } from "../parser/parserModel";
+import { RuntimeAPI } from "../runtime/runtimeApi";
 import { Code } from "../vm/code";
 import { Context } from "../vm/context";
 import { MSMap } from "../vm/msmap";
@@ -50,12 +51,12 @@ export class Interpreter {
     }
   }
 
-  newMap(): MSMap {
-    return this.vm.newMap();
-  }
-
   get globalContext(): Context {
     return this.vm.globalContext;
+  }
+
+  get runtimeAPI(): RuntimeAPI {
+    return this.vm.runtimeAPI;
   }
 
   addIntrinsic(signature: string, implFn: Function): void {

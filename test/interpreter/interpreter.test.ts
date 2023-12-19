@@ -18,18 +18,18 @@ describe("Interpreter", async () => {
     // or a singleton object. In order for this to be accessible one needs to
     // define in turn an intrinsic function that returns such value.
     
-    // First we need the map / object.
-    const myType = interp.newMap();
+    const runtime = interp.runtimeAPI;
+    const myType = runtime.newMap()
     
     // Then we create the intrinsic function to get ahold of it.
-    interp.addIntrinsic("MyType", () => {
+    runtime.addIntrinsic("MyType", () => {
       return myType;
     });
     
     // At this point you can do `new MyType` on MiniScript.
     
     // Now let's augment the type with an intrinsic map-function.
-    interp.addMapIntrinsic(myType, "someMethod", () => {
+    runtime.addMapIntrinsic(myType, "someMethod", () => {
       console.log("Method called!");
     });
     

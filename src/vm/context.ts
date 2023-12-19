@@ -1,5 +1,6 @@
 import { MSMap } from "./msmap";
 import { Processor } from "./processor";
+import { RuntimeError } from "./runtime";
 
 export class Context {
 
@@ -15,9 +16,9 @@ export class Context {
 
   setLocal(identifier: string, value: any) {
     if (identifier === "globals") {
-      throw this.vm.runtimeError(`Can't assign to globals`);
+      throw new RuntimeError(`Can't assign to globals`);
     } else if (identifier === "locals") {
-      throw this.vm.runtimeError(`Can't assign to locals`);
+      throw new RuntimeError(`Can't assign to locals`);
     }
     this.locals.set(identifier, value);
   }

@@ -1,6 +1,7 @@
 import { newRandomGenerator } from "../lib/random";
 import { Stack } from "../lib/stack";
 import { TokenType } from "../parser/tokenTypes";
+import { RuntimeAPI } from "../runtime/runtimeApi";
 import { BC, hasCallPotential } from "./bytecodes";
 import { Code } from "./code";
 import { Context } from "./context";
@@ -64,8 +65,11 @@ export class Processor {
   maxCallStackDepth: number = 2000;
   // Source name - useful for reporting errors
   sourceName: string;
+  // Runtime API
+  runtimeAPI: RuntimeAPI;
 
   constructor(public stdoutCallback: TxtCallback, public stderrCallback: TxtCallback) {
+    this.runtimeAPI = new RuntimeAPI(this);
     this.sourceName = "undefined source";
     this.code = new Code();
     this.ip = 0;
@@ -127,10 +131,6 @@ export class Processor {
     return subVM;
   }
 
-  newMap(): MSMap {
-    return new MSMap(this);
-  }
-
   addIntrinsic(signature: string, impl: Function) {
     const [fnName, argNames, defaultValues] = parseSignature(signature);
     const intrinsicFn = this.makeIntrinsicFn(impl, argNames, defaultValues);
@@ -174,12 +174,6 @@ export class Processor {
     return this.rndGenerator();
   }
 
-  runtimeError(msg: string): RuntimeError {
-    const errorMsg = `${msg} [line ${this.getCurrentSrcLineNr()}]`;
-    console.error("On file: ", this.sourceName, "Error: ", errorMsg);
-    return new RuntimeError(errorMsg);
-  }
-
   setSourceName(sourceName: string) {
     this.sourceName = sourceName;
   }
@@ -200,10 +194,7 @@ export class Processor {
       try {
         this.executeCycles();
       } catch(e: any) {
-        if (e["message"]) {
-          this.stderrCallback(e.message);
-        }
-        console.error(e);
+        this.reportError(e);
         this.stopRunning();
         return;
       }
@@ -213,6 +204,17 @@ export class Processor {
       // Call after program ends normally
       this.cleanupAfterRunning();
     }
+  }
+
+  private reportError(e: any) {
+    if (e instanceof RuntimeError) {
+      e.setLineNr(this.getCurrentSrcLineNr());
+    }
+    if (e["message"]) {
+      this.stderrCallback(e.message);
+    }
+    console.error(`On file:`, this.sourceName);
+    console.error(e);
   }
 
   executeCycles(maxCount: number | null = null) {
@@ -234,7 +236,7 @@ export class Processor {
 
           const optValue: any | undefined = this.context.getOpt(funcName);
           if (optValue === undefined) {
-            throw this.runtimeError(`Could not resolve "${funcName}"`);
+            throw new RuntimeError(`Could not resolve "${funcName}"`);
           }
           const resolvedFunc: any = optValue;
           this.performCall(resolvedFunc, params);
@@ -302,14 +304,14 @@ export class Processor {
           const isMap = assignTarget instanceof MSMap;
 
           if (isList) {
-            const effectiveIndex = computeAccessIndex(this, assignTarget, index);
+            const effectiveIndex = computeAccessIndex(assignTarget, index);
             assignTarget[effectiveIndex] = valueToAssign;
           } else if(isMap) {
             assignTarget.set(index, valueToAssign);
           } else if(isString) {
-            throw this.runtimeError("Cannot assign to String (immutable)");
+            throw new RuntimeError("Cannot assign to String (immutable)");
           } else {
-            throw this.runtimeError("Cannot set to element of this type");
+            throw new RuntimeError("Cannot set to element of this type");
           }
 
           this.ip += 1;
@@ -321,7 +323,7 @@ export class Processor {
           const valueToAssign = this.opStack.pop();
 
           if (!(assignTarget instanceof MSMap)) {
-            throw this.runtimeError(`Assignment target must be a Map`);
+            throw new RuntimeError(`Assignment target must be a Map`);
           }
 
           assignTarget.set(propertyName, valueToAssign);
@@ -335,10 +337,10 @@ export class Processor {
           // Get existing value
           const existingValue = this.context.getOpt(varName);
           if (existingValue !== undefined) {
-            const finalValue = computeMathAssignValue(this, existingValue, opTokenType, operand);
+            const finalValue = computeMathAssignValue(this.runtimeAPI, existingValue, opTokenType, operand);
             this.context.setLocal(varName, finalValue);
           } else {
-            throw this.runtimeError(`Undefined Local Identifier: '${varName}' is unknown in this context`);
+            throw new RuntimeError(`Undefined Local Identifier: '${varName}' is unknown in this context`);
           }
           this.ip += 1;
           break;
@@ -357,18 +359,18 @@ export class Processor {
           const isMap = assignTarget instanceof MSMap;
 
           if (isList) {
-            const effectiveIndex = computeAccessIndex(this, assignTarget, index);
+            const effectiveIndex = computeAccessIndex(assignTarget, index);
             const currentValue = assignTarget[effectiveIndex];
-            const finalValue = computeMathAssignValue(this, currentValue, opTokenType, operand);
+            const finalValue = computeMathAssignValue(this.runtimeAPI, currentValue, opTokenType, operand);
             assignTarget[effectiveIndex] = finalValue;
           } else if(isMap) {
             const currentValue = assignTarget.get(index);
-            const finalValue = computeMathAssignValue(this, currentValue, opTokenType, operand);
+            const finalValue = computeMathAssignValue(this.runtimeAPI, currentValue, opTokenType, operand);
             assignTarget.set(index, finalValue);
           } else if(isString) {
-            throw this.runtimeError("Cannot assign to String (immutable)");
+            throw new RuntimeError("Cannot assign to String (immutable)");
           } else {
-            throw this.runtimeError("Cannot set to element of this type");
+            throw new RuntimeError("Cannot set to element of this type");
           }
 
           this.ip += 1;
@@ -381,11 +383,11 @@ export class Processor {
           const assignTarget = this.opStack.pop();
 
           if (!(assignTarget instanceof MSMap)) {
-            throw this.runtimeError(`Assignment target must be a Map`);
+            throw new RuntimeError(`Assignment target must be a Map`);
           }
 
           const currentValue = assignTarget.get(propertyName);
-          const finalValue = computeMathAssignValue(this, currentValue, opTokenType, operand);
+          const finalValue = computeMathAssignValue(this.runtimeAPI, currentValue, opTokenType, operand);
           assignTarget.set(propertyName, finalValue);
 
           this.ip += 1;
@@ -399,7 +401,7 @@ export class Processor {
           if (optValue !== undefined) {
             this.callOrPushValue(optValue, isFuncRef);
           } else {
-            throw this.runtimeError(`Undefined Identifier: '${identifier}' is unknown in this context`);
+            throw new RuntimeError(`Undefined Identifier: '${identifier}' is unknown in this context`);
           }
           break;
         }
@@ -417,7 +419,7 @@ export class Processor {
 
           if (isList || isString) {
             if (typeof index === "number") {
-              const effectiveIndex = computeAccessIndex(this, accessTarget, index);
+              const effectiveIndex = computeAccessIndex(accessTarget, index);
               value = accessTarget[effectiveIndex];
             } else if (isList) {
               [value, srcMap] = this.listCoreType.getWithSource(index);
@@ -429,9 +431,9 @@ export class Processor {
           } else if(isMap) {
             [value, srcMap] = accessTarget.getWithSource(index);
           } else if (typeof index === "number") {
-            throw this.runtimeError(`Null Reference Exception: can't index into null`);
+            throw new RuntimeError(`Null Reference Exception: can't index into null`);
           } else {
-            throw this.runtimeError(`Type Error (while attempting to look up ${index})`);
+            throw new RuntimeError(`Type Error (while attempting to look up ${index})`);
           }
 
           this.callOrPushValue(value, isFuncRef, accessTarget, srcMap);
@@ -447,7 +449,7 @@ export class Processor {
           if (accessTarget instanceof MSMap) {
             [value, srcMap] = accessTarget.getWithSource(propertyName);
           } else if (accessTarget === null) {
-            throw this.runtimeError(`Type Error (while attempting to look up ${propertyName})`);
+            throw new RuntimeError(`Type Error (while attempting to look up ${propertyName})`);
           } else {
             // Lookup in base type - redefine access-target
             srcMap = this.selectCoreTypeMap(accessTarget);
@@ -463,10 +465,10 @@ export class Processor {
           const selfMap = this.context.getOpt("self");
 
           if (superMap === undefined) {
-            throw this.runtimeError(`Undefined Identifier: 'super' is unknown in this context`);
+            throw new RuntimeError(`Undefined Identifier: 'super' is unknown in this context`);
           }
           if (selfMap === undefined) {
-            throw this.runtimeError(`Undefined Identifier: 'self' is unknown in this context`);
+            throw new RuntimeError(`Undefined Identifier: 'self' is unknown in this context`);
           }
 
           let value: any;
@@ -476,10 +478,10 @@ export class Processor {
             // But later call it with the "selfMap"
             [value, srcMap] = superMap.getWithSource(propertyName);
             if (value === undefined) {
-              throw this.runtimeError(`Type Error (while attempting to look up ${propertyName})`);
+              throw new RuntimeError(`Type Error (while attempting to look up ${propertyName})`);
             }
           } else if (superMap === null) {
-            throw this.runtimeError(`Type Error (while attempting to look up ${propertyName})`);
+            throw new RuntimeError(`Type Error (while attempting to look up ${propertyName})`);
           }
 
           // Note that the source-map and the super-map might not be
@@ -494,10 +496,10 @@ export class Processor {
           const selfMap = this.context.getOpt("self");
 
           if (superMap === undefined) {
-            throw this.runtimeError(`Undefined Identifier: 'super' is unknown in this context`);
+            throw new RuntimeError(`Undefined Identifier: 'super' is unknown in this context`);
           }
           if (selfMap === undefined) {
-            throw this.runtimeError(`Undefined Identifier: 'self' is unknown in this context`);
+            throw new RuntimeError(`Undefined Identifier: 'self' is unknown in this context`);
           }
 
           // Pop params
@@ -512,10 +514,10 @@ export class Processor {
             // But later call it with the "selfMap"
             [resolvedMethod, srcMap] = superMap.getWithSource(methodName);
             if (resolvedMethod === undefined) {
-              throw this.runtimeError(`Type Error (while attempting to look up ${methodName})`);
+              throw new RuntimeError(`Type Error (while attempting to look up ${methodName})`);
             }
           } else if (superMap === null) {
-            throw this.runtimeError(`Type Error (while attempting to look up ${methodName})`);
+            throw new RuntimeError(`Type Error (while attempting to look up ${methodName})`);
           }
 
           this.performCall(resolvedMethod, params, selfMap, srcMap);
@@ -567,7 +569,7 @@ export class Processor {
         case BC.BUILD_MAP: {
           const elementCount: any = this.code.arg1[this.ip];
           const elements: any[] = this.opStack.popN(elementCount * 2);
-          const newMap = this.newMap();
+          const newMap = new MSMap(this);
           // Iterate over elements and process key/value
           // Advance by 2, processing in pairs
           for (let i = 0; i < elements.length; i += 2) {
@@ -582,9 +584,9 @@ export class Processor {
         case BC.NEW_MAP: {
           const parentMap = this.opStack.pop();
           if (!(parentMap instanceof MSMap)) {
-            throw this.runtimeError(`Operator "new" can only be used with Maps`);
+            throw new RuntimeError(`Operator "new" can only be used with Maps`);
           }
-          const newMap = this.newMap();
+          const newMap = new MSMap(this);
           newMap.set("__isa", parentMap);
           this.opStack.push(newMap);                
           this.ip += 1;
@@ -687,7 +689,7 @@ export class Processor {
         case BC.ADD_VALUES: {
           const valueInStack_2 = this.opStack.pop()
           const valueInStack_1 = this.opStack.pop()
-          const result = add(this, valueInStack_1, valueInStack_2)
+          const result = add(this.runtimeAPI, valueInStack_1, valueInStack_2)
           this.opStack.push(result)
           this.ip += 1;
           break;
@@ -775,7 +777,7 @@ export class Processor {
         case BC.NEGATE_NUMBER: {
           const valueInStack = this.opStack.pop();
           if (typeof valueInStack !== "number") {
-            throw this.runtimeError(`Value must be a number`);
+            throw new RuntimeError(`Value must be a number`);
           } else {
             const result = -1 * valueInStack;
             this.opStack.push(result);
@@ -801,7 +803,7 @@ export class Processor {
           const values = this.opStack.pop();
           const localVarName = this.opStack.pop();
           // Create for-loop in current context
-          const forLoop = new ForLoop(this, startAddr, endAddr, localVarName, values);
+          const forLoop = new ForLoop(this.runtimeAPI, startAddr, endAddr, localVarName, values);
           this.forLoopContext.registerForLoop(forLoopNr, forLoop);
           // Advance IP
           this.ip += 1;
@@ -843,7 +845,7 @@ export class Processor {
         default: {
           console.log("ip:", this.ip);
           console.error("Bytecode not supported: ", this.code.opCodes[this.ip]);
-          throw this.runtimeError("Bytecode not supported: " + this.code.opCodes[this.ip]);
+          throw new RuntimeError("Bytecode not supported: " + this.code.opCodes[this.ip]);
         }
       } // switch
       this.cycleCount++;
@@ -895,7 +897,7 @@ export class Processor {
     // Check that stack is balanced (empty)
     if (this.opStack.count() > 0) {
       console.info("Stack: ", this.opStack);
-      throw this.runtimeError("Stack was not empty!")
+      throw new RuntimeError("Stack was not empty!")
     }
     // Invoke callback
     this.onFinished();
@@ -928,7 +930,7 @@ export class Processor {
     this.savedFrames.push(frame);
     // Remove at some point?
     if (this.savedFrames.count() > this.maxCallStackDepth) {
-      throw this.runtimeError("Call stack too deep");
+      throw new RuntimeError("Call stack too deep");
     }
   }
 
@@ -959,7 +961,7 @@ export class Processor {
     } else if (typeof accessTarget === "number") {
       return this.numberCoreType;
     } else {
-      throw this.runtimeError(`No core-type map for value ${accessTarget}`);
+      throw new RuntimeError(`No core-type map for value ${accessTarget}`);
     }
   }
 
@@ -987,9 +989,9 @@ export class Processor {
 
     if (!(maybeFunction instanceof BoundFunction)) {
       if (paramCount > 0) {
-        throw this.runtimeError(`Too Many Arguments`);
+        throw new RuntimeError(`Too Many Arguments`);
       } else {
-        throw this.runtimeError(`Attempting to call a non-function`);
+        throw new RuntimeError(`Attempting to call a non-function`);
       }
     }
 
@@ -1012,7 +1014,7 @@ export class Processor {
 
     // If parameters missing, complete with default values
     if (paramCount > funcArgCount) {
-      throw this.runtimeError(`Too many parameters calling function.`)
+      throw new RuntimeError(`Too many parameters calling function.`)
     } else if (paramCount < funcArgCount) {
       // Push the missing default argument values
       const missingArgCount = funcArgCount - paramCount;
