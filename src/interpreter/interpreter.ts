@@ -6,6 +6,7 @@ import { Statement } from "../parser/parserModel";
 import { Runtime } from "../runtime/runtimeApi";
 import { Code } from "../vm/code";
 import { Processor, TxtCallback } from "../vm/processor";
+import { CooperativeRunner } from "./coopRunner";
 
 export type DebuggerCallbacks = {
   onSrcChange: (d: Debugger) => void, 
@@ -51,6 +52,16 @@ export class Interpreter {
       });
     } else {
       return false;
+    }
+  }
+
+  getCooperativeRunner(srcCode: string, srcName: string | null = null): CooperativeRunner | null {
+    const code = this.compileSrcCode(srcCode);
+    if (code) {
+      const runner = new CooperativeRunner(this.vm, code, srcName);
+      return runner;
+    } else {
+      return null;
     }
   }
 

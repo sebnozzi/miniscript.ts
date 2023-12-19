@@ -1,5 +1,6 @@
 import { describe, it, assert } from "vitest";
 import { Interpreter } from "../../src/interpreter/interpreter";
+import { CooperativeRunner } from "../../src/interpreter/coopRunner";
 
 describe("Interpreter", async () => {
   
@@ -20,6 +21,25 @@ describe("Interpreter", async () => {
     `
     const interpreter = new Interpreter();
     await interpreter.runSrcCode(srcCode);
+    const globals = interpreter.runtime.globals;
+    const a = globals.getOpt("a")
+    assert.equal("end", a);
+  });
+
+  it("should run code cooperatively", async () => {
+    const srcCode = `
+    a = "start"
+    yield
+    a = "end"
+    `
+    const interpreter = new Interpreter();
+    // A cooperative runner gives you the possibility to run
+    // some cycles and let browser perform other tasks, like 
+    // IO, event-handling, UI updates, etc.
+    const runner =  interpreter.getCooperativeRunner(srcCode) as CooperativeRunner;
+    while (!runner.isFinished()) {
+      runner.runSomeCycles();
+    }
     const globals = interpreter.runtime.globals;
     const a = globals.getOpt("a")
     assert.equal("end", a);
