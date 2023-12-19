@@ -10,7 +10,6 @@ export { Code } from "./vm/code";
 export {
   equals,
   notEquals,
-  isaEquals,
   toNumberValue,
   toTwoNumbers,
   toIntegerValue,

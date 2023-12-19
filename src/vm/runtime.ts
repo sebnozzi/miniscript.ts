@@ -84,24 +84,7 @@ export function isaEquals(vm: Processor, value: any, type: any): number {
   } else if (value instanceof Array) {
     return type === vm.listCoreType ? 1 : 0;
   } else if (value instanceof MSMap) {
-    if (type === vm.mapCoreType) {
-      return 1;
-    } else {
-      // Walk up the "isa" chain until a match is found
-      let p = null;
-			p = value.getOpt("__isa");
-			while (p != null) {
-				if (p === type) {
-          return 1;
-        }
-				if (!(p instanceof MSMap)) {
-          return 0;
-        } else {
-          p = p.getOpt("__isa");
-        }
-			}
-			return 0;
-    }
+    return value.isaEquals(type);
   } else if (value instanceof BoundFunction) {
     return type === vm.funcRefCoreType ? 1 : 0;
   } else {

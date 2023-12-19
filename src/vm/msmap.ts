@@ -122,6 +122,27 @@ export class MSMap {
     return this.mapObj.entries();
   }
 
+  isaEquals(type: MSMap): number {
+    if (type === this.vm.mapCoreType) {
+      return 1;
+    } else {
+      // Walk up the "isa" chain until a match is found
+      let p = null;
+			p = this.getOpt("__isa");
+			while (p != null) {
+				if (p === type) {
+          return 1;
+        }
+				if (!(p instanceof MSMap)) {
+          return 0;
+        } else {
+          p = p.getOpt("__isa");
+        }
+			}
+			return 0;
+    }
+  }
+
   toJSMap(depth:number = 16): Map<any,any> {
     return this.mapObj.toMap(depth);
   }
