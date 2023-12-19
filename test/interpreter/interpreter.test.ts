@@ -12,6 +12,19 @@ describe("Interpreter", async () => {
     assert.equal(2, a);
   });
 
+  it("should run code asynchronously to completion", async () => {
+    const srcCode = `
+    a = "start"
+    yield
+    a = "end"
+    `
+    const interpreter = new Interpreter();
+    await interpreter.runSrcCode(srcCode);
+    const globals = interpreter.runtime.globals;
+    const a = globals.getOpt("a")
+    assert.equal("end", a);
+  });
+
   it("should create a map", () => {
 
     const interp = new Interpreter();

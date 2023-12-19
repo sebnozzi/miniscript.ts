@@ -8,15 +8,14 @@ export function runCode(srcCode: string, testName: string): Promise<string[]> {
   }
   const interp = new Interpreter(txtCallback, txtCallback);
 
-  const runPromise = new Promise<string[]>((resolve) => {
+  const runPromise = new Promise<string[]>(async (resolve) => {
     const t0 = performance.now();
-    interp.onFinished = function() {
-      const t1 = performance.now();
-      console.log("Finished in", (t1 - t0), "ms: ", testName);
-      resolve(outLines);
-    }
     
-    interp.runSrcCode(srcCode);  
+    await interp.runSrcCode(srcCode);
+
+    const t1 = performance.now();
+    console.log("Finished in", (t1 - t0), "ms: ", testName);
+    resolve(outLines);
   });
 
   return runPromise;
