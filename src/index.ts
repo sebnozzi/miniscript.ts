@@ -1,6 +1,6 @@
 
 export { Interpreter } from "./interpreter/interpreter";
-export { MSMap, MSMapFactory } from "./vm/msmap";
+export { MSMap } from "./vm/msmap";
 
 export { Processor } from "./vm/processor";
 
