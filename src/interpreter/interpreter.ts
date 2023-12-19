@@ -3,10 +3,8 @@ import { Debugger } from "../debugger/debugger";
 import { addStandardIntrinsics } from "../intrinsics/intrinsics";
 import { Parser } from "../parser/parser";
 import { Statement } from "../parser/parserModel";
-import { RuntimeAPI } from "../runtime/runtimeApi";
+import { Runtime } from "../runtime/runtimeApi";
 import { Code } from "../vm/code";
-import { Context } from "../vm/context";
-import { MSMap } from "../vm/msmap";
 import { Processor, TxtCallback } from "../vm/processor";
 
 export type DebuggerCallbacks = {
@@ -51,20 +49,8 @@ export class Interpreter {
     }
   }
 
-  get globalContext(): Context {
-    return this.vm.globalContext;
-  }
-
-  get runtimeAPI(): RuntimeAPI {
-    return this.vm.runtimeAPI;
-  }
-
-  addIntrinsic(signature: string, implFn: Function): void {
-    this.vm.addIntrinsic(signature, implFn);
-  }
-
-  addMapIntrinsic(map: MSMap, signature: string, implFn: Function): void {
-    this.vm.addMapIntrinsic(map, signature, implFn);
+  get runtime(): Runtime {
+    return this.vm.runtime;
   }
 
   debugSrcCode(srcCode: string, callbacks: DebuggerCallbacks): Debugger | null {

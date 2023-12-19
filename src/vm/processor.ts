@@ -1,7 +1,7 @@
 import { newRandomGenerator } from "../lib/random";
 import { Stack } from "../lib/stack";
 import { TokenType } from "../parser/tokenTypes";
-import { RuntimeAPI } from "../runtime/runtimeApi";
+import { Runtime } from "../runtime/runtimeApi";
 import { BC, hasCallPotential } from "./bytecodes";
 import { Code } from "./code";
 import { Context } from "./context";
@@ -66,10 +66,10 @@ export class Processor {
   // Source name - useful for reporting errors
   sourceName: string;
   // Runtime API
-  runtimeAPI: RuntimeAPI;
+  runtime: Runtime;
 
   constructor(public stdoutCallback: TxtCallback, public stderrCallback: TxtCallback) {
-    this.runtimeAPI = new RuntimeAPI(this);
+    this.runtime = new Runtime(this);
     this.sourceName = "undefined source";
     this.code = new Code();
     this.ip = 0;
@@ -337,7 +337,7 @@ export class Processor {
           // Get existing value
           const existingValue = this.context.getOpt(varName);
           if (existingValue !== undefined) {
-            const finalValue = computeMathAssignValue(this.runtimeAPI, existingValue, opTokenType, operand);
+            const finalValue = computeMathAssignValue(this.runtime, existingValue, opTokenType, operand);
             this.context.setLocal(varName, finalValue);
           } else {
             throw new RuntimeError(`Undefined Local Identifier: '${varName}' is unknown in this context`);
@@ -361,11 +361,11 @@ export class Processor {
           if (isList) {
             const effectiveIndex = computeAccessIndex(assignTarget, index);
             const currentValue = assignTarget[effectiveIndex];
-            const finalValue = computeMathAssignValue(this.runtimeAPI, currentValue, opTokenType, operand);
+            const finalValue = computeMathAssignValue(this.runtime, currentValue, opTokenType, operand);
             assignTarget[effectiveIndex] = finalValue;
           } else if(isMap) {
             const currentValue = assignTarget.get(index);
-            const finalValue = computeMathAssignValue(this.runtimeAPI, currentValue, opTokenType, operand);
+            const finalValue = computeMathAssignValue(this.runtime, currentValue, opTokenType, operand);
             assignTarget.set(index, finalValue);
           } else if(isString) {
             throw new RuntimeError("Cannot assign to String (immutable)");
@@ -387,7 +387,7 @@ export class Processor {
           }
 
           const currentValue = assignTarget.get(propertyName);
-          const finalValue = computeMathAssignValue(this.runtimeAPI, currentValue, opTokenType, operand);
+          const finalValue = computeMathAssignValue(this.runtime, currentValue, opTokenType, operand);
           assignTarget.set(propertyName, finalValue);
 
           this.ip += 1;
@@ -689,7 +689,7 @@ export class Processor {
         case BC.ADD_VALUES: {
           const valueInStack_2 = this.opStack.pop()
           const valueInStack_1 = this.opStack.pop()
-          const result = add(this.runtimeAPI, valueInStack_1, valueInStack_2)
+          const result = add(this.runtime, valueInStack_1, valueInStack_2)
           this.opStack.push(result)
           this.ip += 1;
           break;
@@ -803,7 +803,7 @@ export class Processor {
           const values = this.opStack.pop();
           const localVarName = this.opStack.pop();
           // Create for-loop in current context
-          const forLoop = new ForLoop(this.runtimeAPI, startAddr, endAddr, localVarName, values);
+          const forLoop = new ForLoop(this.runtime, startAddr, endAddr, localVarName, values);
           this.forLoopContext.registerForLoop(forLoopNr, forLoop);
           // Advance IP
           this.ip += 1;

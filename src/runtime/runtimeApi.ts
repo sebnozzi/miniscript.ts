@@ -1,13 +1,18 @@
+import { Context } from "../vm/context";
 import { MSMap } from "../vm/msmap";
 import { Processor } from "../vm/processor";
 
-export class RuntimeAPI {
+export class Runtime {
 
   constructor(private vm: Processor) {
   }
 
   newMap(): MSMap {
     return new MSMap(this.vm);
+  }
+
+  get globals(): Context {
+    return this.vm.globalContext;
   }
 
   addIntrinsic(signature: string, impl: Function) {

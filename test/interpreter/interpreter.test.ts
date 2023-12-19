@@ -7,7 +7,8 @@ describe("Interpreter", async () => {
     const srcCode = "a = 1 + 1"
     const interpreter = new Interpreter();
     interpreter.runSrcCode(srcCode);
-    const a = interpreter.globalContext.getOpt("a")
+    const globals = interpreter.runtime.globals;
+    const a = globals.getOpt("a")
     assert.equal(2, a);
   });
 
@@ -18,7 +19,7 @@ describe("Interpreter", async () => {
     // or a singleton object. In order for this to be accessible one needs to
     // define in turn an intrinsic function that returns such value.
     
-    const runtime = interp.runtimeAPI;
+    const runtime = interp.runtime;
     const myType = runtime.newMap()
     
     // Then we create the intrinsic function to get ahold of it.
