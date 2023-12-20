@@ -1,3 +1,4 @@
+import { Code } from "../vm/code";
 import { Processor } from "../vm/processor";
 import { SourceMapEntry } from "../vm/sourcemap";
 import { StepIntoStepper, StepOutStepper, StepOverStepper, Stepper } from "./steppers";
@@ -21,6 +22,10 @@ export class Debugger {
 
   onSrcChange = () => {};
   onFinished = () => {};
+
+  get compiledCode(): Code {
+    return this.vm.code;
+  }
 
   // Move to first instruction
   start() {
