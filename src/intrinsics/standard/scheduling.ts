@@ -26,5 +26,17 @@ export function addSchedulingIntrinsics(p: Processor) {
   function(): any {
     p.yieldExecution();
   });
+
+  p.addIntrinsic("run",
+  function() {
+    p.restartProgram();
+    return p.abortCallValue;
+  });
+
+  p.addIntrinsic("exit",
+  function() {
+    p.stopRunning();
+    return p.abortCallValue;
+  })
   
 }
