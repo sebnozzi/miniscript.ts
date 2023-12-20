@@ -1,9 +1,8 @@
 
 export { Interpreter } from "./interpreter/interpreter";
 export { MSMap } from "./vm/msmap";
-
-export { Processor } from "./vm/processor";
-
+export { Runtime } from "./runtime/runtimeApi";
+export { RuntimeError } from "./vm/runtime";
 export { Debugger } from "./debugger/debugger";
 export { Code } from "./vm/code";
 
