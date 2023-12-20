@@ -23,6 +23,10 @@ export class CooperativeRunner {
     }
   }
 
+  stop() {
+    this.runnerVm.stopRunning();
+  }
+
   isFinished(): boolean {
     const result = this.runnerVm.isFinished();
     return result; 
