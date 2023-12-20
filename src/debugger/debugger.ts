@@ -8,9 +8,9 @@ export class Debugger {
   private steppers: Map<number, Stepper>;
 
   constructor(private vm: Processor) {
+    this.vm.setRunAfterSuspended(false);
     this.steppers = new Map();
-    vm.onPromiseResolved = () => {
-      // Do not resume execution
+    vm.onResumingExecution = () => {
       // Let the steppers continue
       const steppers = this.steppers.values();
       for (let s of steppers) {
@@ -94,7 +94,7 @@ export class Debugger {
   stepUntilSrcMapEntryFound() {
     let currentEntry = this.getCurrentSrcMapEntry();
     while (currentEntry === null && this.vm.isRunning()) {
-      this.vm.executeCycles(1);
+      this.vm.runOneCycle();
       currentEntry = this.getCurrentSrcMapEntry();
     }
   }

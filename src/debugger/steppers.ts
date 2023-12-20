@@ -52,7 +52,7 @@ export class StepOverStepper extends Stepper {
       return;
     }
 
-    this.vm.executeCycles(1);
+    this.vm.runOneCycle();
     
     // If we went "deeper" into the call stack, execute cycles until we are "back".
     // Only then compare source locations.
@@ -111,7 +111,7 @@ export class StepIntoStepper extends Stepper {
     }
 
     const nextOpIsCall = this.vm.couldResultInCall();
-    this.vm.executeCycles(1);
+    this.vm.runOneCycle();
 
     const currentCount = this.vm.savedFrames.count();
     if (currentCount > this.initialCount) {
@@ -158,7 +158,7 @@ export class StepOutStepper extends Stepper {
       return;
     }
 
-    this.vm.executeCycles(1);
+    this.vm.runOneCycle();
 
     const currentCount = this.vm.savedFrames.count();
 

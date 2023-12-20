@@ -16,6 +16,12 @@ export type TxtCallback = (txt: string) => any;
 
 export const MAX_ISA_RECURSION_DEPTH = 16;
 
+export enum RunMode {
+  STANDARD_MODE,
+  DEBUG_MODE,
+  COOP_MODE,
+}
+
 export class Processor {
 
   // The instruction pointer. Points to the position in code.
@@ -44,14 +50,10 @@ export class Processor {
   cycleCount: number;
   // Max count of cycles per "burst"
   maxCount: number = 73681;
+  // Callback when execution resumes after being suspended
+  onResumingExecution: () => void;
   // Callback when processing done
-  onFinished: Function;
-  // Callback before executing cycles
-  onBeforeCycles: Function;
-  // Callback when suspended until a Promise delivers a result
-  onSuspendedByPromise: Function;
-  // Callback when the result Promise is resolved
-  onPromiseResolved: Function;
+  onFinished: () => void;
   // Random number generator
   rndGenerator: Function;
   // Timestamp when a script starts executing. Used in `time`.
@@ -67,9 +69,14 @@ export class Processor {
   sourceName: string;
   // Runtime API
   runtime: Runtime;
+  // If true, continue running after being suspended.
+  // Otherwise do not run. This is the case when running in a 
+  // debugging session or cooperatively.
+  runAfterSuspended: boolean;
 
   constructor(public stdoutCallback: TxtCallback, public stderrCallback: TxtCallback) {
     this.runtime = new Runtime(this);
+    this.runAfterSuspended = true;
     this.sourceName = "undefined source";
     this.code = new Code();
     this.ip = 0;
@@ -85,16 +92,8 @@ export class Processor {
     this.savedFrames = new Stack<Frame>();
     this.opStack = new Stack();
     this.cycleCount = 0;
-    this.onBeforeCycles = function() {};
-    this.onFinished = function() {};
-    this.onSuspendedByPromise = function() {};
-    this.onPromiseResolved = function() {
-      // By default, continue running after a Promise is 
-      // resolved. Alternate runners would want to change
-      // this. For example a debugger.
-      this.runUntilDone();
-    };
-
+    this.onResumingExecution = () => {};
+    this.onFinished = () => {};
     this.rndGenerator = newRandomGenerator();
     this.executionStartTime = 0;
   }
@@ -107,6 +106,10 @@ export class Processor {
     this.savedFrames = new Stack<Frame>();
     this.opStack = new Stack();
     this.suspended = false;
+  }
+
+  setRunAfterSuspended(flag: boolean) {
+    this.runAfterSuspended = flag;
   }
 
   run() {
@@ -179,7 +182,7 @@ export class Processor {
   }
 
   runUntilDone() {
-    this.runCyclesOnce();
+    this.runSomeCycles();
     // If not waiting on a Promise or finished
     // running, schedule the next execution burst.
     if (this.isRunning()) {
@@ -189,7 +192,7 @@ export class Processor {
     }
   }
 
-  runCyclesOnce() {
+  runSomeCycles() {
     if (this.isRunning()) {
       try {
         this.executeCycles();
@@ -206,6 +209,10 @@ export class Processor {
     }
   }
 
+  runOneCycle() {
+    this.executeCycles(1);
+  }
+
   private reportError(e: any) {
     if (e instanceof RuntimeError) {
       e.setLineNr(this.getCurrentSrcLineNr());
@@ -217,10 +224,9 @@ export class Processor {
     console.error(e);
   }
 
-  executeCycles(maxCount: number | null = null) {
+  private executeCycles(maxCount: number | null = null) {
     maxCount = maxCount !== null ? maxCount : this.maxCount;
     this.cycleCount = 0;
-    this.onBeforeCycles();
     while(this.cycleCount < maxCount) {
       // Finish if IP > len(opcodes)
       if (this.ip >= this.code.opCodes.length) {
@@ -887,7 +893,6 @@ export class Processor {
   }
 
   forceFinish() {
-    this.onPromiseResolved = () => {};
     this.opStack.clear();
     this.cycleCount = this.maxCount;
     this.ip = this.code.opCodes.length;
@@ -908,15 +913,22 @@ export class Processor {
     this.suspended = false;
   }
 
-  suspendExecution() {
+  private suspendExecution() {
     this.cycleCount = this.maxCount;
     this.suspended = true;
-    this.onSuspendedByPromise();
   }
 
-  resumeExecution() {
+  private resumeExecution() {
+    if (!this.suspended) {
+      return;
+    }
     this.suspended = false;
-    this.onPromiseResolved();
+    // Only continue running if specified
+    if (this.runAfterSuspended) {
+      this.runUntilDone();
+    }
+    // Invoke callback
+    this.onResumingExecution();
   }
 
   couldResultInCall(): boolean {

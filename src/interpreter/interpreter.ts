@@ -6,7 +6,8 @@ import { Statement } from "../parser/parserModel";
 import { Runtime } from "../runtime/runtimeApi";
 import { Code } from "../vm/code";
 import { Processor, TxtCallback } from "../vm/processor";
-import { CooperativeRunner } from "./coopRunner";
+import { CooperativeRunner } from "./runners/coopRunner";
+import { StdRunner } from "./runners/stdRunner";
 
 export type DebuggerCallbacks = {
   onSrcChange: (d: Debugger) => void, 
@@ -38,20 +39,21 @@ export class Interpreter {
   async runSrcCode(srcCode: string, srcName: string | null = null): Promise<boolean> {
     const code = this.compileSrcCode(srcCode);
     if (code) {
-      const runnerVm = this.vm.createSubProcessVM();
-      return new Promise<boolean>((resolve) => {
-        // This will be called when VM is done running.
-        runnerVm.onFinished = () => {
-          resolve(true);
-        };
-        runnerVm.setCode(code);
-        if (srcName) {
-          runnerVm.setSourceName(srcName);
-        }
-        runnerVm.run();
-      });
+      const runner = new StdRunner(this.vm, code, srcName);
+      const result = await runner.runUntilDone();
+      return result;
     } else {
       return false;
+    }
+  }
+
+  getStandardRunner(srcCode: string, srcName: string | null = null): StdRunner | null {
+    const code = this.compileSrcCode(srcCode);
+    if (code) {
+      const runner = new StdRunner(this.vm, code, srcName);
+      return runner;
+    } else {
+      return null;
     }
   }
 
@@ -123,18 +125,19 @@ export class Interpreter {
 
   private debugCompiledCode(prgCode: Code, callbacks: DebuggerCallbacks): Debugger {
 
-    const d = new Debugger(this.vm);
+    const debuggerVm = this.vm.createSubProcessVM();
+    const dbg = new Debugger(debuggerVm);
 
-    d.onSrcChange = () => {
-      callbacks.onSrcChange(d);
+    dbg.onSrcChange = () => {
+      callbacks.onSrcChange(dbg);
     };
-    d.onFinished = () => {
-      callbacks.onFinished(d);
+    dbg.onFinished = () => {
+      callbacks.onFinished(dbg);
     }
     
-    this.vm.setCode(prgCode);
-    d.start();
-    return d;
+    debuggerVm.setCode(prgCode);
+    dbg.start();
+    return dbg;
   } 
 
   private compileModuleInvocation(moduleName: string, srcCode: string): Code {
