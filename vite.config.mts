@@ -21,6 +21,7 @@ export default defineConfig({
       fileName: (format) => fileName[format],
     },
     sourcemap: true,
+    minify: false,
     rollupOptions: {
       external: [
         fileURLToPath(new URL('examples', import.meta.url))
