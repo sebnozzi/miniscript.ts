@@ -39,7 +39,7 @@ export class ForLoop {
     let currentValue: any;
     if (this.mapObj) {
       const currentKey = this.values[this.valueIdx];
-      const currentMapValue = this.mapObj.get(currentKey);
+      const currentMapValue = this.mapObj.getOpt(currentKey);
       currentValue = this.mapFactory.newMap();
       currentValue.set("key", currentKey);
       currentValue.set("value", currentMapValue);
