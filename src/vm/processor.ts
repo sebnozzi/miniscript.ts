@@ -8,6 +8,7 @@ import { ForLoop, ForLoopContext } from "./forloop";
 import { Frame } from "./frame";
 import { FuncDefArg, FuncDef, BoundFunction } from "./funcdef";
 import { MSMap, MSMapFactory } from "./msmap";
+import { ProcessorState } from "./processorState";
 import { RuntimeError, computeAccessIndex, computeMathAssignValue, slice, chainedComparison, equals, isaEquals, greaterEquals, greaterThan, lessEquals, lessThan, toBooleanNr, add, subtract, multiply, divide, power, modulus, logic_and, logic_or } from "./runtime";
 import { parseSignature } from "./signatureParser";
 
@@ -889,6 +890,31 @@ export class Processor implements MSMapFactory {
     }
     // Invoke callback
     this.onFinished();
+  }
+
+  async runSubProcess(code: Code, moduleName: string | null) {
+    // Save current state
+    const previousState = new ProcessorState(this);
+    // Reset current state
+    ProcessorState.resetState(this);
+    // Set running code
+    this.setCode(code);
+    // Set source name
+    if (moduleName) {
+      this.setSourceName(moduleName);
+    }
+    // Build promise which will be resolved when code
+    // is done running.
+    const promise = new Promise<null>((resolve) => {
+      this.onFinished = () => {
+        // Restore previous state
+        previousState.restoreState(this);
+        // Resolve promise
+        resolve(null);
+      };
+      this.runUntilDone();
+    });
+    await promise;
   }
 
   yieldExecution() {

@@ -85,17 +85,10 @@ export class Interpreter {
 
   // Return a promise that is resolved only when the module code
   // is done running.
-  runSrcAsModule(moduleName: string, srcCode: string): Promise<null> {
+  runSrcAsModule(moduleName: string, srcCode: string): Promise<void> {
     const invocationCode = this.compileModuleInvocation(moduleName, srcCode);
     const vm = this.vm;
-    vm.setCode(invocationCode);
-    vm.setSourceName(`module ${moduleName}`);
-    const promise = new Promise<null>((resolve) => {
-      vm.onFinished = () => {
-        resolve(null);
-      };
-      vm.runUntilDone();
-    });
+    const promise = vm.runSubProcess(invocationCode, `module ${moduleName}`);
     return promise; 
   }
 
