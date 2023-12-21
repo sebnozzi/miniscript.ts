@@ -1,14 +1,13 @@
 import { newRandomGenerator } from "../lib/random";
 import { Stack } from "../lib/stack";
 import { TokenType } from "../parser/tokenTypes";
-import { Runtime } from "../runtime/runtimeApi";
 import { BC, hasCallPotential } from "./bytecodes";
 import { Code } from "./code";
 import { Context } from "./context";
 import { ForLoop, ForLoopContext } from "./forloop";
 import { Frame } from "./frame";
 import { FuncDefArg, FuncDef, BoundFunction } from "./funcdef";
-import { MSMap } from "./msmap";
+import { MSMap, MSMapFactory } from "./msmap";
 import { RuntimeError, computeAccessIndex, computeMathAssignValue, slice, chainedComparison, equals, isaEquals, greaterEquals, greaterThan, lessEquals, lessThan, toBooleanNr, add, subtract, multiply, divide, power, modulus, logic_and, logic_or } from "./runtime";
 import { parseSignature } from "./signatureParser";
 
@@ -22,7 +21,7 @@ export enum RunMode {
   COOP_MODE,
 }
 
-export class Processor {
+export class Processor implements MSMapFactory {
 
   // The instruction pointer. Points to the position in code.
   ip: number;
@@ -67,15 +66,12 @@ export class Processor {
   maxCallStackDepth: number = 2000;
   // Source name - useful for reporting errors
   sourceName: string;
-  // Runtime API
-  runtime: Runtime;
   // If true, continue running after being suspended.
   // Otherwise do not run. This is the case when running in a 
   // debugging session or cooperatively.
   runAfterSuspended: boolean;
 
   constructor(public stdoutCallback: TxtCallback, public stderrCallback: TxtCallback) {
-    this.runtime = new Runtime(this);
     this.runAfterSuspended = true;
     this.sourceName = "undefined source";
     this.code = new Code();
@@ -117,23 +113,6 @@ export class Processor {
     this.runUntilDone();
   }
 
-  createSubProcessVM(): Processor {
-    // Create sub-VM
-    const subVM = new Processor(this.stdoutCallback, this.stderrCallback);
-    // Assign aspects of the running VM
-    subVM.globalContext = this.globalContext;
-    subVM.intrinsicsMap = this.intrinsicsMap;
-    subVM.listCoreType = this.listCoreType;
-    subVM.mapCoreType = this.mapCoreType;
-    subVM.stringCoreType = this.stringCoreType;
-    subVM.numberCoreType = this.numberCoreType;
-    subVM.funcRefCoreType = this.funcRefCoreType;
-    subVM.executionStartTime = this.executionStartTime;
-    subVM.rndGenerator = this.rndGenerator;
-    // Return
-    return subVM;
-  }
-
   addIntrinsic(signature: string, impl: Function) {
     const [fnName, argNames, defaultValues] = parseSignature(signature);
     const intrinsicFn = this.makeIntrinsicFn(impl, argNames, defaultValues);
@@ -167,6 +146,10 @@ export class Processor {
     const funcDef = new FuncDef(args, impl);
     const boundFunc = new BoundFunction(funcDef, this.globalContext);
     return boundFunc;
+  }
+
+  newMap(): MSMap {
+    return new MSMap(this);
   }
 
   initRandomGenerator(seed: number | string) {
@@ -343,7 +326,7 @@ export class Processor {
           // Get existing value
           const existingValue = this.context.getOpt(varName);
           if (existingValue !== undefined) {
-            const finalValue = computeMathAssignValue(this.runtime, existingValue, opTokenType, operand);
+            const finalValue = computeMathAssignValue(this, existingValue, opTokenType, operand);
             this.context.setLocal(varName, finalValue);
           } else {
             throw new RuntimeError(`Undefined Local Identifier: '${varName}' is unknown in this context`);
@@ -367,11 +350,11 @@ export class Processor {
           if (isList) {
             const effectiveIndex = computeAccessIndex(assignTarget, index);
             const currentValue = assignTarget[effectiveIndex];
-            const finalValue = computeMathAssignValue(this.runtime, currentValue, opTokenType, operand);
+            const finalValue = computeMathAssignValue(this, currentValue, opTokenType, operand);
             assignTarget[effectiveIndex] = finalValue;
           } else if(isMap) {
             const currentValue = assignTarget.get(index);
-            const finalValue = computeMathAssignValue(this.runtime, currentValue, opTokenType, operand);
+            const finalValue = computeMathAssignValue(this, currentValue, opTokenType, operand);
             assignTarget.set(index, finalValue);
           } else if(isString) {
             throw new RuntimeError("Cannot assign to String (immutable)");
@@ -393,7 +376,7 @@ export class Processor {
           }
 
           const currentValue = assignTarget.get(propertyName);
-          const finalValue = computeMathAssignValue(this.runtime, currentValue, opTokenType, operand);
+          const finalValue = computeMathAssignValue(this, currentValue, opTokenType, operand);
           assignTarget.set(propertyName, finalValue);
 
           this.ip += 1;
@@ -695,7 +678,7 @@ export class Processor {
         case BC.ADD_VALUES: {
           const valueInStack_2 = this.opStack.pop()
           const valueInStack_1 = this.opStack.pop()
-          const result = add(this.runtime, valueInStack_1, valueInStack_2)
+          const result = add(this, valueInStack_1, valueInStack_2)
           this.opStack.push(result)
           this.ip += 1;
           break;
@@ -809,7 +792,7 @@ export class Processor {
           const values = this.opStack.pop();
           const localVarName = this.opStack.pop();
           // Create for-loop in current context
-          const forLoop = new ForLoop(this.runtime, startAddr, endAddr, localVarName, values);
+          const forLoop = new ForLoop(this, startAddr, endAddr, localVarName, values);
           this.forLoopContext.registerForLoop(forLoopNr, forLoop);
           // Advance IP
           this.ip += 1;
