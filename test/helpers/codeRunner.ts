@@ -8,24 +8,11 @@ export function runCode(srcCode: string, testName: string): Promise<string[]> {
   }
   const interp = new Interpreter(txtCallback, txtCallback);
 
+
   const runPromise = new Promise<string[]>(async (resolve) => {
     const t0 = performance.now();
     
-    const runner = interp.getCooperativeRunner(srcCode);
-    if (runner) {
-      const runCoopPromise = new Promise<void>(resolve => {
-        const loopFn = () => {
-          if(!runner.isFinished()) {
-            runner.runSomeCycles();
-            setTimeout(() => { loopFn() }, 0);
-          } else {
-            resolve();
-          }
-        }
-        loopFn();
-      });
-      await runCoopPromise;
-    }
+    await interp.runSrcCode(srcCode);
 
     const t1 = performance.now();
     console.log("Finished in", (t1 - t0), "ms: ", testName);
