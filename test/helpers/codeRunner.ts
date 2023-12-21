@@ -11,7 +11,21 @@ export function runCode(srcCode: string, testName: string): Promise<string[]> {
   const runPromise = new Promise<string[]>(async (resolve) => {
     const t0 = performance.now();
     
-    await interp.runSrcCode(srcCode);
+    const runner = interp.getCooperativeRunner(srcCode);
+    if (runner) {
+      const runCoopPromise = new Promise<void>(resolve => {
+        const loopFn = () => {
+          if(!runner.isFinished()) {
+            runner.runSomeCycles();
+            setTimeout(() => { loopFn() }, 0);
+          } else {
+            resolve();
+          }
+        }
+        loopFn();
+      });
+      await runCoopPromise;
+    }
 
     const t1 = performance.now();
     console.log("Finished in", (t1 - t0), "ms: ", testName);

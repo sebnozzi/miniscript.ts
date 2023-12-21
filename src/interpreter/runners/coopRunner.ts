@@ -3,32 +3,29 @@ import { Processor } from "../../vm/processor";
 
 export class CooperativeRunner {
 
-  private runnerVm: Processor;
-
   constructor(
-    vm: Processor,
+    private vm: Processor,
     private code: Code,
     srcName: string | null) {
-    this.runnerVm = vm.createSubProcessVM();
-    this.runnerVm.setCode(code);
+    this.vm.setCode(code);
     if (srcName) {
-      this.runnerVm.setSourceName(srcName);
+      this.vm.setSourceName(srcName);
     }
-    this.runnerVm.setRunAfterSuspended(false);
+    this.vm.setRunAfterSuspended(false);
   }
 
   runSomeCycles() {
     if (!this.isFinished()) {
-      this.runnerVm.runSomeCycles();
+      this.vm.runSomeCycles();
     }
   }
 
   stop() {
-    this.runnerVm.stopRunning();
+    this.vm.stopRunning();
   }
 
   isFinished(): boolean {
-    const result = this.runnerVm.isFinished();
+    const result = this.vm.isFinished();
     return result; 
   }
 

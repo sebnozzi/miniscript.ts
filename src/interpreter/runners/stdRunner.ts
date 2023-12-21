@@ -3,36 +3,33 @@ import { Processor } from "../../vm/processor";
 
 export class StdRunner {
 
-  private runnerVm: Processor;
-
   constructor(
-    vm: Processor,
+    private vm: Processor,
     private code: Code,
     srcName: string | null) {
-    this.runnerVm = vm.createSubProcessVM();
-    this.runnerVm.setCode(code);
+    this.vm.setCode(code);
     if (srcName) {
-      this.runnerVm.setSourceName(srcName);
+      this.vm.setSourceName(srcName);
     }
   }
 
   async runUntilDone() {
-    const runnerVm = this.runnerVm;
+    const vm = this.vm;
     return new Promise<boolean>((resolve) => {
       // This will be called when VM is done running.
-      runnerVm.onFinished = () => {
+      vm.onFinished = () => {
         resolve(true);
       };
-      runnerVm.run();
+      vm.run();
     });
   }
 
   stop() {
-    this.runnerVm.stopRunning();
+    this.vm.stopRunning();
   }
 
   isFinished(): boolean {
-    const result = this.runnerVm.isFinished();
+    const result = this.vm.isFinished();
     return result; 
   }
 

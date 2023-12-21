@@ -18,22 +18,24 @@ export class Interpreter {
 
   private stderrCallback: TxtCallback;
 
-  protected vm: Processor;
+  private vm: Processor;
+  private _runtime: Runtime;
 
   constructor(
     stdoutCallback: TxtCallback | null = null, 
     stderrCallback: TxtCallback | null = null) {
-      if (!stdoutCallback) {
-        stdoutCallback = (line: string) => {
-          console.log(line);
-        }
+    if (!stdoutCallback) {
+      stdoutCallback = (line: string) => {
+        console.log(line);
       }
-      if (!stderrCallback) {
-        stderrCallback = stdoutCallback;
-      }
-      this.stderrCallback = stderrCallback;
-      this.vm = new Processor(stdoutCallback, stderrCallback);
-      addStandardIntrinsics(this.vm);
+    }
+    if (!stderrCallback) {
+      stderrCallback = stdoutCallback;
+    }
+    this.stderrCallback = stderrCallback;
+    this.vm = new Processor(stdoutCallback, stderrCallback);
+    this._runtime = new Runtime(this.vm);
+    addStandardIntrinsics(this.vm);
   }
 
   async runSrcCode(srcCode: string, srcName: string | null = null): Promise<boolean> {
@@ -68,7 +70,7 @@ export class Interpreter {
   }
 
   get runtime(): Runtime {
-    return this.vm.runtime;
+    return this._runtime;
   }
 
   debugSrcCode(srcCode: string, callbacks: DebuggerCallbacks): Debugger | null {
@@ -85,14 +87,14 @@ export class Interpreter {
   // is done running.
   runSrcAsModule(moduleName: string, srcCode: string): Promise<null> {
     const invocationCode = this.compileModuleInvocation(moduleName, srcCode);
-    const subVM = this.vm.createSubProcessVM();
-    subVM.setCode(invocationCode);
-    subVM.setSourceName(`module ${moduleName}`);
+    const vm = this.vm;
+    vm.setCode(invocationCode);
+    vm.setSourceName(`module ${moduleName}`);
     const promise = new Promise<null>((resolve) => {
-      subVM.onFinished = () => {
+      vm.onFinished = () => {
         resolve(null);
       };
-      subVM.runUntilDone();
+      vm.runUntilDone();
     });
     return promise; 
   }
@@ -125,8 +127,8 @@ export class Interpreter {
 
   private debugCompiledCode(prgCode: Code, callbacks: DebuggerCallbacks): Debugger {
 
-    const debuggerVm = this.vm.createSubProcessVM();
-    const dbg = new Debugger(debuggerVm);
+    const vm = this.vm;
+    const dbg = new Debugger(vm);
 
     dbg.onSrcChange = () => {
       callbacks.onSrcChange(dbg);
@@ -135,7 +137,7 @@ export class Interpreter {
       callbacks.onFinished(dbg);
     }
     
-    debuggerVm.setCode(prgCode);
+    vm.setCode(prgCode);
     dbg.start();
     return dbg;
   } 
