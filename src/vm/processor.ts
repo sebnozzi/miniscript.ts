@@ -1081,6 +1081,7 @@ export class Processor implements MSMapFactory {
       // Setup next frame
       this.code = funcDef.getCode();
       this.context = new Context(this, boundFunc.context);
+      this.forLoopContext = new ForLoopContext();
       this.ip = 0;
 
       // Pop and set parameters as variables
