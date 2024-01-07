@@ -576,8 +576,7 @@ export class Processor implements MSMapFactory {
           if (!(parentMap instanceof MSMap)) {
             throw new RuntimeError(`Operator "new" can only be used with Maps`);
           }
-          const newMap = new MSMap(this);
-          newMap.set("__isa", parentMap);
+          const newMap = parentMap.newChildMap();
           this.opStack.push(newMap);                
           this.ip += 1;
           break;
