@@ -9,11 +9,11 @@ export type MSMapFactory = {
 export class MSMap {
 
   private mapObj: HashMap;
-  private valueSetOverriders: null | Map<any, Array<Function>>;
+  private valueSetOverrides: null | Map<any, Function>;
 
   constructor(private vm: Processor) {
     this.mapObj = new HashMap();
-    this.valueSetOverriders = null;
+    this.valueSetOverrides = null;
   }
 
   get(key: any): any {
@@ -59,6 +59,14 @@ export class MSMap {
     return this.mapObj.size();
   }
 
+  // Creates a sub-map / instance, having this
+  // as its isa-parent.
+  newChildMap(): MSMap {
+    const newMap = new MSMap(this.vm);
+    newMap.set("__isa", this);
+    return newMap;
+  }
+
   hasParent() {
     return this.mapObj.has("__isa")  
   }
@@ -75,26 +83,25 @@ export class MSMap {
   // Makes it possible to execute an action before attempting
   // to set a new value and even change the value to be set.
   overrideSettingValue(key: any, callback: (newValue: any) => any) {
-    if (this.valueSetOverriders === null) {
-      this.valueSetOverriders = new Map();
+    if (this.valueSetOverrides === null) {
+      this.valueSetOverrides = new Map();
     }
-    let overriders = this.valueSetOverriders.get(key);
-    if (overriders === undefined) {
-      overriders = new Array();
+    this.valueSetOverrides.set(key, callback);
+  }
+
+  removeSettingValueOverride(key: any) {
+    if (this.valueSetOverrides instanceof Map) {
+      this.valueSetOverrides.delete(key);
     }
-    overriders.push(callback);
-    this.valueSetOverriders.set(key, overriders);
   }
 
   set(key: any, value: any) {
-    // Process value-set overriders
-    // Keep the latest returned value
-    if (this.valueSetOverriders !== null) {
-      const overrideFunctions = this.valueSetOverriders.get(key);
-      if (overrideFunctions instanceof Array) {
-        for (let overrideFunction of overrideFunctions) {
-          value = overrideFunction(value);
-        }
+    // Process value-set overrider
+    // Keep returned value
+    if (this.valueSetOverrides !== null) {
+      const overrideFunction = this.valueSetOverrides.get(key);
+      if (overrideFunction instanceof Function) {
+        value = overrideFunction(value);
       }
     }
 
