@@ -33,4 +33,8 @@ export class CooperativeRunner {
     return this.code;
   }
 
+  getLastValue(): any {
+    return this.vm.lastValue;
+  }
+
 }

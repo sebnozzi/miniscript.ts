@@ -71,6 +71,9 @@ export class Processor implements MSMapFactory {
   // Otherwise do not run. This is the case when running in a 
   // debugging session or cooperatively.
   runAfterSuspended: boolean;
+  // Last pop/discard value
+  // Useful when evaluating code.
+  lastValue: any;
 
   constructor(public stdoutCallback: TxtCallback, public stderrCallback: TxtCallback) {
     this.runAfterSuspended = true;
@@ -93,6 +96,7 @@ export class Processor implements MSMapFactory {
     this.onFinished = () => {};
     this.rndGenerator = newRandomGenerator();
     this.executionStartTime = 0;
+    this.lastValue = undefined;
   }
 
   setCode(code: Code) {
@@ -103,10 +107,15 @@ export class Processor implements MSMapFactory {
     this.savedFrames = new Stack<Frame>();
     this.opStack = new Stack();
     this.suspended = false;
+    this.lastValue = undefined;
   }
 
   setRunAfterSuspended(flag: boolean) {
     this.runAfterSuspended = flag;
+  }
+
+  getLastValue(): any {
+    return this.lastValue;
   }
 
   run() {
@@ -780,7 +789,12 @@ export class Processor implements MSMapFactory {
         }
         case BC.POP: {
           // Pop and discard value
-          this.opStack.pop();
+          if (this.opStack.lastValueUndefined) {
+            this.opStack.pop();
+            this.lastValue = undefined;
+          } else {
+            this.lastValue = this.opStack.pop();
+          }
           this.ip += 1;
           break;
         }

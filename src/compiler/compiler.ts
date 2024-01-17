@@ -72,7 +72,9 @@ export class Compiler {
         this.builder.push(BC.EVAL_ID, "locals");
         this.builder.push(BC.RETURN);
       } else {
-        this.builder.push(BC.PUSH, null);
+        // Signialize that this is a "does not return anything" null 
+        // by returning undefined.
+        this.builder.push(BC.PUSH, undefined);
         this.builder.push(BC.RETURN);
       }
     }

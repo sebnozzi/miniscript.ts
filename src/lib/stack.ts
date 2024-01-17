@@ -1,9 +1,11 @@
 export class Stack<T> {
 
+  lastValueUndefined: boolean;
   elements: T[];
 
   constructor() {
     this.elements = [];
+    this.lastValueUndefined = false;
   }
 
   clear() {
@@ -15,17 +17,19 @@ export class Stack<T> {
       // This happens when a function returns no value.
       // Store null. It should be popped in the next cycle.
       this.elements.push(null as T);
+      this.lastValueUndefined = true;
     } else {
       this.elements.push(element)
+      this.lastValueUndefined = false;
     }
   }
 
   pop(): T {
-    let result = this.elements.pop()
+    let result = this.elements.pop();
     if (result === undefined) {
       throw new Error("Stack is empty")
     } else {
-      return result
+      return result;
     }
   }
 
