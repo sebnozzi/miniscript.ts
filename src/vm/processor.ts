@@ -60,6 +60,8 @@ export class Processor implements MSMapFactory {
   executionStartTime: number;
   // Flag to know when execution is suspended (e.g. waiting on a promise)
   suspended: boolean = false;
+  // Flag to know when execution is completely halted (e.g. due to error or `exit`)
+  halted: boolean = false;
   // Special value to indicate that a call should be aborted.
   // Intrinsics may return this.
   abortCallValue: Object = {};
@@ -104,6 +106,7 @@ export class Processor implements MSMapFactory {
     this.savedFrames = new Stack<Frame>();
     this.opStack = new Stack();
     this.suspended = false;
+    this.halted = false;
     this.lastValue = undefined;
   }
 
@@ -883,13 +886,14 @@ export class Processor implements MSMapFactory {
     this.cleanupAfterRunning();
   }
 
-  forceFinish() {
+  private forceFinish() {
     this.opStack.clear();
     this.cycleCount = this.maxCount;
     this.ip = this.code.opCodes.length;
+    this.halted = true;
   }
 
-  cleanupAfterRunning() {
+  private cleanupAfterRunning() {
     // Check that stack is balanced (empty)
     if (this.opStack.count() > 0) {
       console.info("Stack: ", this.opStack);
@@ -910,9 +914,10 @@ export class Processor implements MSMapFactory {
     // is done running.
     const promise = new Promise<null>((resolve) => {
       this.onFinished = () => {
-        // Restore previous state
-        // TODO: don't restore if errored
-        previousState.restoreState(this);
+        if (!this.halted) {
+          // Restore previous state if VM not halted
+          previousState.restoreState(this);
+        }
         // Resolve promise
         resolve(null);
       };
