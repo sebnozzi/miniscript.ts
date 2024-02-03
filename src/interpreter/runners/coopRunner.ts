@@ -5,12 +5,8 @@ export class CooperativeRunner {
 
   constructor(
     private vm: Processor,
-    private code: Code,
-    srcName: string | null) {
+    private code: Code) {
     this.vm.setCode(code);
-    if (srcName) {
-      this.vm.setSourceName(srcName);
-    }
     this.vm.setRunAfterSuspended(false);
   }
 

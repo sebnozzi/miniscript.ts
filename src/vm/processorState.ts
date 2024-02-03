@@ -17,10 +17,8 @@ export class ProcessorState {
   onResumingExecution: () => void;
   onFinished: () => void;
   suspended: boolean;
-  sourceName: string;
 
   constructor(vm: Processor) {
-    this.sourceName = vm.sourceName;
     this.code = vm.code;
     this.context = vm.context;
     this.ip = vm.ip;
@@ -46,7 +44,6 @@ export class ProcessorState {
   }
 
   restoreState(vm: Processor) {
-    vm.sourceName = this.sourceName;
     vm.code = this.code;
     vm.context = this.context;
     vm.ip = this.ip;

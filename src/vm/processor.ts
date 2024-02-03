@@ -65,8 +65,6 @@ export class Processor implements MSMapFactory {
   abortCallValue: Object = {};
   // Maximum depth of call stack
   maxCallStackDepth: number = 2000;
-  // Source name - useful for reporting errors
-  sourceName: string;
   // If true, continue running after being suspended.
   // Otherwise do not run. This is the case when running in a 
   // debugging session or cooperatively.
@@ -77,7 +75,6 @@ export class Processor implements MSMapFactory {
 
   constructor(public stdoutCallback: TxtCallback, public stderrCallback: TxtCallback) {
     this.runAfterSuspended = true;
-    this.sourceName = "undefined source";
     this.code = new Code();
     this.ip = 0;
     this.globalContext = new Context(this);
@@ -170,10 +167,6 @@ export class Processor implements MSMapFactory {
     return this.rndGenerator();
   }
 
-  setSourceName(sourceName: string) {
-    this.sourceName = sourceName;
-  }
-
   runUntilDone() {
     this.runSomeCycles();
     // If not waiting on a Promise or finished
@@ -208,12 +201,13 @@ export class Processor implements MSMapFactory {
 
   private reportError(e: any) {
     if (e instanceof RuntimeError) {
-      e.setLineNr(this.getCurrentSrcLineNr());
+      e.setSourceLocation(this.getCurrentSrcFileName(), this.getCurrentSrcLineNr());
+      const fileName = this.getCurrentSrcFileName();
+      e.setSourceLocation(fileName, this.getCurrentSrcLineNr());
     }
     if (e["message"]) {
       this.stderrCallback(e.message);
     }
-    console.error(`On file:`, this.sourceName);
     console.error(e);
   }
 
@@ -905,22 +899,19 @@ export class Processor implements MSMapFactory {
     this.onFinished();
   }
 
-  async runSubProcess(code: Code, moduleName: string | null) {
+  async runSubProcess(code: Code) {
     // Save current state
     const previousState = new ProcessorState(this);
     // Reset current state
     ProcessorState.resetState(this);
     // Set running code
     this.setCode(code);
-    // Set source name
-    if (moduleName) {
-      this.setSourceName(moduleName);
-    }
     // Build promise which will be resolved when code
     // is done running.
     const promise = new Promise<null>((resolve) => {
       this.onFinished = () => {
         // Restore previous state
+        // TODO: don't restore if errored
         previousState.restoreState(this);
         // Resolve promise
         resolve(null);
@@ -983,6 +974,11 @@ export class Processor implements MSMapFactory {
     } else {
       return null;
     }
+  }
+
+  getCurrentSrcFileName(): string | null {
+    const srcFile = this.code.srcMap.srcFile;
+    return srcFile;
   }
 
   private selectCoreTypeMap(accessTarget: any): MSMap {

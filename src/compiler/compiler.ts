@@ -12,8 +12,8 @@ export class Compiler {
   private readonly statementCompiler: StatementCompiler;
   private readonly expressionCompiler: ExpressionCompiler;
 
-  constructor(private statements: Statement[]) {
-    this.builder = new CodeBuilder();
+  constructor(private statements: Statement[], srcFile: string | null = null) {
+    this.builder = new CodeBuilder(srcFile);
     this.expressionCompiler = new ExpressionCompiler(this.builder);
     this.statementCompiler = new StatementCompiler(this.builder, this.expressionCompiler);
   }
@@ -34,7 +34,7 @@ export class Compiler {
     this.emitLastReturn(true);
     const moduleStatements = this.builder.build();
     // Build an anonymous function-body containing those statements
-    const moduleLoaderBuilder = new CodeBuilder();
+    const moduleLoaderBuilder = new CodeBuilder(`${moduleName} (loader)`);
     const moduleBodyFn = new FuncDef([], moduleStatements);
     // Push the function-body as a value into the stack
     moduleLoaderBuilder.push(BC.PUSH, moduleBodyFn);

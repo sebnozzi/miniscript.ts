@@ -38,10 +38,10 @@ export class Interpreter {
     addStandardIntrinsics(this.vm);
   }
 
-  async runSrcCode(srcCode: string, srcName: string | null = null): Promise<boolean> {
+  async runSrcCode(srcCode: string): Promise<boolean> {
     const code = this.compileSrcCode(srcCode);
     if (code) {
-      const runner = new StdRunner(this.vm, code, srcName);
+      const runner = new StdRunner(this.vm, code);
       const result = await runner.runUntilDone();
       return result;
     } else {
@@ -49,20 +49,20 @@ export class Interpreter {
     }
   }
 
-  getStandardRunner(srcCode: string, srcName: string | null = null): StdRunner | null {
+  getStandardRunner(srcCode: string): StdRunner | null {
     const code = this.compileSrcCode(srcCode);
     if (code) {
-      const runner = new StdRunner(this.vm, code, srcName);
+      const runner = new StdRunner(this.vm, code);
       return runner;
     } else {
       return null;
     }
   }
 
-  getCooperativeRunner(srcCode: string, srcName: string | null = null): CooperativeRunner | null {
+  getCooperativeRunner(srcCode: string): CooperativeRunner | null {
     const code = this.compileSrcCode(srcCode);
     if (code) {
-      const runner = new CooperativeRunner(this.vm, code, srcName);
+      const runner = new CooperativeRunner(this.vm, code);
       return runner;
     } else {
       return null;
@@ -88,7 +88,7 @@ export class Interpreter {
   runSrcAsModule(moduleName: string, srcCode: string): Promise<void> {
     const invocationCode = this.compileModuleInvocation(moduleName, srcCode);
     const vm = this.vm;
-    const promise = vm.runSubProcess(invocationCode, `module ${moduleName}`);
+    const promise = vm.runSubProcess(invocationCode);
     return promise; 
   }
 
@@ -138,7 +138,7 @@ export class Interpreter {
   private compileModuleInvocation(moduleName: string, srcCode: string): Code {
     const p = new Parser(srcCode);
     const parsedStatements = p.parse();
-    const compiler = new Compiler(parsedStatements);
+    const compiler = new Compiler(parsedStatements, `${moduleName}.ms`);
     const code = compiler.compileModuleInvocation(moduleName);
     return code;
   }

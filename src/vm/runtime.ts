@@ -9,12 +9,20 @@ export class RuntimeError extends Error {
     super(`Runtime Error: ${baseMsg}`);
   }
 
-  setLineNr(lineNr: number | null) {
-    if (lineNr !== null) {
-      const msg = `Runtime Error: ${this.baseMsg} [line ${lineNr}]`;
-      this.message = msg;
+  setSourceLocation(fileName: string | null, lineNr: number | null) {
+    let location: string;
+    if (fileName !== null && lineNr !== null) {
+      location = ` [${fileName} line ${lineNr}]`;
+    } else if (lineNr !== null) { 
+      location = ` [line ${lineNr}]`;
+    } else {
+      location = "";
     }
+    
+    const msg = `Runtime Error: ${this.baseMsg}${location}`;
+    this.message = msg;
   }
+  
 }
 
 type IndexedCollection = {

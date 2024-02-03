@@ -19,14 +19,14 @@ export class CodeBuilder {
   srcMapIpStart: number;
   srcMap: SourceMap;
 
-  constructor() {
+  constructor(public readonly srcFile: string | null) {
     this.prg = new Code();
     this.ip = 0;
     this.addresses = new Map();
     this.unresolved = [];
 
     this.srcMapIpStart = -1;
-    this.srcMap = new SourceMap();
+    this.srcMap = new SourceMap(srcFile);
   }
 
   push(opCode: BC, arg1: any = undefined, arg2: any = undefined) {
