@@ -98,11 +98,21 @@ export class Processor implements MSMapFactory {
     this.lastValue = undefined;
   }
 
-  setCode(code: Code) {
+  prepareForRunning(code: Code, context: Context | null = null, globalContext: Context | null = null) {
     this.code = code;
     this.ip = 0;
     this.cycleCount = 0;
-    this.context = this.globalContext;
+
+    if (globalContext !== null) {
+      this.globalContext = globalContext;
+    }
+
+    if (context === null) {
+      this.context = this.globalContext;
+    } else {
+      this.context = context;
+    }
+
     this.savedFrames = new Stack<Frame>();
     this.opStack = new Stack();
     this.suspended = false;
@@ -876,7 +886,7 @@ export class Processor implements MSMapFactory {
       // Running at the global level, take the current running code
       topMostCode = this.code;
     }
-    this.setCode(topMostCode);
+    this.prepareForRunning(topMostCode);
     this.executionStartTime = 0;
     this.ip = 0;
   }
@@ -903,27 +913,33 @@ export class Processor implements MSMapFactory {
     this.onFinished();
   }
 
-  async runSubProcess(code: Code) {
-    // Save current state
-    const previousState = new ProcessorState(this);
-    // Reset current state
-    ProcessorState.resetState(this);
-    // Set running code
-    this.setCode(code);
+  runAtCurrentPosition(code: Code): Promise<void> {
+    
     // Build promise which will be resolved when code
     // is done running.
-    const promise = new Promise<null>((resolve) => {
+    const promise = new Promise<void>((resolve) => {
+      // Save current state
+      const previousState = new ProcessorState(this);
+      const currentContext = this.context;
+      const currentGlobalContext = this.globalContext;
+      // Reset current state
+      ProcessorState.resetState(this);
+      // Set running code at the current context
+      this.prepareForRunning(code, currentContext, currentGlobalContext);
+      // Setup onFinished callback
       this.onFinished = () => {
         if (!this.halted) {
           // Restore previous state if VM not halted
           previousState.restoreState(this);
         }
         // Resolve promise
-        resolve(null);
+        resolve();
       };
+      // Start executing
       this.runUntilDone();
     });
-    await promise;
+
+    return promise;
   }
 
   yieldExecution() {

@@ -6,7 +6,7 @@ export class CooperativeRunner {
   constructor(
     private vm: Processor,
     private code: Code) {
-    this.vm.setCode(code);
+    this.vm.prepareForRunning(code);
     this.vm.setRunAfterSuspended(false);
   }
 

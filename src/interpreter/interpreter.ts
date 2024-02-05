@@ -88,7 +88,7 @@ export class Interpreter {
   runSrcAsModule(moduleName: string, srcCode: string): Promise<void> {
     const invocationCode = this.compileModuleInvocation(moduleName, srcCode);
     const vm = this.vm;
-    const promise = vm.runSubProcess(invocationCode);
+    const promise = vm.runAtCurrentPosition(invocationCode);
     return promise; 
   }
 
@@ -130,7 +130,7 @@ export class Interpreter {
       callbacks.onFinished(dbg);
     }
     
-    vm.setCode(prgCode);
+    vm.prepareForRunning(prgCode);
     dbg.start();
     return dbg;
   } 

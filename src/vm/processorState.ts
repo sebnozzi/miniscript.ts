@@ -1,6 +1,5 @@
 import { Stack } from "../lib/stack";
 import { Code } from "./code";
-import { Context } from "./context";
 import { ForLoopContext } from "./forloop";
 import { Frame } from "./frame";
 import { Processor } from "./processor";
@@ -10,7 +9,6 @@ export class ProcessorState {
   ip: number;
   opStack: Stack<any>;
   code: Code;
-  context: Context;
   forLoopContext: ForLoopContext;
   savedFrames: Stack<Frame>;
   cycleCount: number;
@@ -20,7 +18,6 @@ export class ProcessorState {
 
   constructor(vm: Processor) {
     this.code = vm.code;
-    this.context = vm.context;
     this.ip = vm.ip;
     this.suspended = vm.suspended;
     this.forLoopContext = vm.forLoopContext;
@@ -32,7 +29,6 @@ export class ProcessorState {
   }
 
   static resetState(vm: Processor) {
-    vm.context = vm.globalContext;
     vm.ip = 0;
     vm.suspended = false;
     vm.forLoopContext = new ForLoopContext();
@@ -45,7 +41,6 @@ export class ProcessorState {
 
   restoreState(vm: Processor) {
     vm.code = this.code;
-    vm.context = this.context;
     vm.ip = this.ip;
     vm.suspended = this.suspended;
     vm.forLoopContext = this.forLoopContext;
