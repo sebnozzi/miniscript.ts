@@ -1,6 +1,6 @@
 {
   "name": "miniscript-ts",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "MiniScript implementation in TypeScript",
   "author": "Sebastian Nozzi",
   "license": "MIT",
@@ -20,7 +20,8 @@
   },
   "types": "./dist/miniscript-ts.d.ts",
   "files": [
-    "dist"
+    "dist",
+    "src"
   ],
   "directories": {
     "test": "tests"
