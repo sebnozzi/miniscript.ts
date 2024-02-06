@@ -38,8 +38,8 @@ export class Interpreter {
     addStandardIntrinsics(this.vm);
   }
 
-  async runSrcCode(srcCode: string): Promise<boolean> {
-    const code = this.compileSrcCode(srcCode);
+  async runSrcCode(srcCode: string, srcName?: string): Promise<boolean> {
+    const code = this.compileSrcCode(srcCode, srcName);
     if (code) {
       const runner = new StdRunner(this.vm, code);
       const result = await runner.runUntilDone();
@@ -49,8 +49,8 @@ export class Interpreter {
     }
   }
 
-  getStandardRunner(srcCode: string): StdRunner | null {
-    const code = this.compileSrcCode(srcCode);
+  getStandardRunner(srcCode: string, srcName?: string): StdRunner | null {
+    const code = this.compileSrcCode(srcCode, srcName);
     if (code) {
       const runner = new StdRunner(this.vm, code);
       return runner;
@@ -59,8 +59,8 @@ export class Interpreter {
     }
   }
 
-  getCooperativeRunner(srcCode: string): CooperativeRunner | null {
-    const code = this.compileSrcCode(srcCode);
+  getCooperativeRunner(srcCode: string, srcName?: string): CooperativeRunner | null {
+    const code = this.compileSrcCode(srcCode, srcName);
     if (code) {
       const runner = new CooperativeRunner(this.vm, code);
       return runner;
@@ -73,8 +73,8 @@ export class Interpreter {
     return this._runtime;
   }
 
-  debugSrcCode(srcCode: string, callbacks: DebuggerCallbacks): Debugger | null {
-    const code = this.compileSrcCode(srcCode);
+  debugSrcCode(srcCode: string, callbacks: DebuggerCallbacks, srcName?: string): Debugger | null {
+    const code = this.compileSrcCode(srcCode, srcName);
     if (code) {
       const d = this.debugCompiledCode(code, callbacks);
       return d;
@@ -96,7 +96,7 @@ export class Interpreter {
     this.vm.stopRunning();
   }
 
-  private compileSrcCode(srcCode: string): Code | null {
+  private compileSrcCode(srcCode: string, srcName?: string): Code | null {
     let parsedStatements: Statement[] = [];
 
     try {
@@ -110,7 +110,7 @@ export class Interpreter {
     }
 
     if (parsedStatements.length > 0) {
-      const compiler = new Compiler(parsedStatements);
+      const compiler = new Compiler(parsedStatements, srcName);
       const code = compiler.compile();
       return code;
     } else {

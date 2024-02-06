@@ -12,7 +12,7 @@ export class Compiler {
   private readonly statementCompiler: StatementCompiler;
   private readonly expressionCompiler: ExpressionCompiler;
 
-  constructor(private statements: Statement[], srcFile: string | null = null) {
+  constructor(private statements: Statement[], srcFile?: string) {
     this.builder = new CodeBuilder(srcFile);
     this.expressionCompiler = new ExpressionCompiler(this.builder);
     this.statementCompiler = new StatementCompiler(this.builder, this.expressionCompiler);

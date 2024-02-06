@@ -988,16 +988,16 @@ export class Processor implements MSMapFactory {
     this.code = frame.code;
   }
 
-  getCurrentSrcLineNr(): number | null {
+  getCurrentSrcLineNr(): number | undefined {
     const optSrcMapEntry = this.code.srcMap.findEntry(this.ip);
     if (optSrcMapEntry !== null) {
       return optSrcMapEntry.srcLoc.start.row;
     } else {
-      return null;
+      return undefined;
     }
   }
 
-  getCurrentSrcFileName(): string | null {
+  getCurrentSrcFileName(): string | undefined {
     const srcFile = this.code.srcMap.srcFile;
     return srcFile;
   }

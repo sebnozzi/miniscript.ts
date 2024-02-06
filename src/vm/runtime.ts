@@ -9,11 +9,11 @@ export class RuntimeError extends Error {
     super(`Runtime Error: ${baseMsg}`);
   }
 
-  setSourceLocation(fileName: string | null, lineNr: number | null) {
+  setSourceLocation(fileName?: string, lineNr?: number) {
     let location: string;
-    if (fileName !== null && lineNr !== null) {
+    if (fileName !== undefined && lineNr !== undefined) {
       location = ` [${fileName} line ${lineNr}]`;
-    } else if (lineNr !== null) { 
+    } else if (lineNr !== undefined) { 
       location = ` [line ${lineNr}]`;
     } else {
       location = "";

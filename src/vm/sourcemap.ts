@@ -11,7 +11,7 @@ export class SourceMap {
 
   entries: SourceMapEntry[];
 
-  constructor(public readonly srcFile: string | null = null) {
+  constructor(public readonly srcFile?: string) {
     this.entries = [];
   }
 

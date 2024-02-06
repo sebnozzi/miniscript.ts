@@ -19,7 +19,7 @@ export class CodeBuilder {
   srcMapIpStart: number;
   srcMap: SourceMap;
 
-  constructor(public readonly srcFile: string | null) {
+  constructor(public readonly srcFile?: string) {
     this.prg = new Code();
     this.ip = 0;
     this.addresses = new Map();
