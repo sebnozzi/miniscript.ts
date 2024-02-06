@@ -3,7 +3,7 @@
 
 A MiniScript implementation written in TypeScript.
 
-At the moment this project is not published either in a CDN for browser consumption nor as an NPM package to be used in Node.js. You will have to build locally. See section below.
+At the moment this project is not published in a CDN for browser consumption. In case you want to run it on the browser you will have to build it locally. See section below.
 
 ## Features
 
@@ -14,9 +14,19 @@ At the moment this project is not published either in a CDN for browser consumpt
 * Easy integration with JavaScript, as it uses native JS data-types (except for "map")
 * Usable in TypeScript projects (type definitions provided)
 
+## Install NPM package
+
+To use in a Node.js project, you should install it as a dependency like this:
+
+```
+npm add miniscript-ts
+```
+
+Page for the NPM package is here: https://www.npmjs.com/package/miniscript-ts
+
 ## Building
 
-You need to have Node.js installed in order to build the project. Version 19 or greater is recommended.
+If you want to build locally you need to have Node.js installed in order to build the project. Version 19 or greater is recommended.
 
 Start by installing all needed packages:
 
