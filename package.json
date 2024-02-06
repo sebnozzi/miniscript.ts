@@ -1,6 +1,6 @@
 {
   "name": "miniscript-ts",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "MiniScript implementation in TypeScript",
   "author": "Sebastian Nozzi",
   "license": "MIT",
@@ -10,8 +10,8 @@
     "url": "https://github.com/sebnozzi/miniscript.ts"
   },
   "homepage": "https://github.com/sebnozzi/miniscript.ts",
-  "main": "./dist/miniscript-ts.cjs",
-  "module": "./dist/miniscript-ts.mjs",
+  "main": "./dist/miniscript-ts",
+  "module": "./dist/miniscript-ts",
   "exports": {
     ".": {
       "require": "./dist/miniscript-ts.cjs",
