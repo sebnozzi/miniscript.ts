@@ -905,7 +905,7 @@ export class Processor implements MSMapFactory {
 
   private cleanupAfterRunning() {
     // Check that stack is balanced (empty)
-    if (this.opStack.count() > 0) {
+    if (this.opStack.count() > 0 && !this.halted) {
       console.info("Stack: ", this.opStack);
       throw new RuntimeError("Stack was not empty!")
     }
@@ -931,6 +931,9 @@ export class Processor implements MSMapFactory {
         if (!this.halted) {
           // Restore previous state if VM not halted
           previousState.restoreState(this);
+        } else {
+          // At least restore the "onFinished" which we modified
+          this.onFinished = previousState.onFinished;
         }
         // Resolve promise
         resolve();
