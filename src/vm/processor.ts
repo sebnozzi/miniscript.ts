@@ -24,6 +24,10 @@ export enum RunMode {
 
 export class Processor implements MSMapFactory {
 
+  // Special value to indicate that a call should be aborted.
+  // Intrinsics may return this.
+  static abortCallValue: Object = {};
+
   // The instruction pointer. Points to the position in code.
   ip: number;
   // The operation stack. Used for calculations and passing values.
@@ -62,9 +66,6 @@ export class Processor implements MSMapFactory {
   suspended: boolean = false;
   // Flag to know when execution is completely halted (e.g. due to error or `exit`)
   halted: boolean = false;
-  // Special value to indicate that a call should be aborted.
-  // Intrinsics may return this.
-  abortCallValue: Object = {};
   // Maximum depth of call stack
   maxCallStackDepth: number = 2000;
   // If true, continue running after being suspended.
@@ -1072,7 +1073,7 @@ export class Processor implements MSMapFactory {
       const retVal = func.apply(this, paramValues);
 
       // Abort this call and return immediately
-      if (retVal === this.abortCallValue) {
+      if (retVal === Processor.abortCallValue) {
         return;
       }
 

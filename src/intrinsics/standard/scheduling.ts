@@ -30,7 +30,7 @@ export function addSchedulingIntrinsics(p: Processor) {
   p.addIntrinsic("exit",
   function() {
     p.stopRunning();
-    return p.abortCallValue;
-  })
+    return Processor.abortCallValue;
+  });
   
 }
