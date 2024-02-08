@@ -874,23 +874,6 @@ export class Processor implements MSMapFactory {
     return this.suspended;
   }
 
-  restartProgram() {
-    // The top-most code, either from the first saved frame
-    // or the current executing one.
-    let topMostCode = null;
-    while (this.savedFrames.count() > 0) {
-      let frame = this.savedFrames.pop();
-      topMostCode = frame.code;
-    }
-    if (!topMostCode) {
-      // Running at the global level, take the current running code
-      topMostCode = this.code;
-    }
-    this.prepareForRunning(topMostCode);
-    this.executionStartTime = 0;
-    this.ip = 0;
-  }
-
   stopRunning() {
     this.forceFinish();
     this.cleanupAfterRunning();
