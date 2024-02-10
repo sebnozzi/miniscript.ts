@@ -20,6 +20,12 @@ export class CooperativeRunner {
     this.vm.stopRunning();
   }
 
+  getCurrentSourceLocation(): [string?,  number?] {
+    const fileName = this.vm.getCurrentSrcFileName();
+    const lineNr = this.vm.getCurrentSrcLineNr();
+    return [fileName, lineNr];
+  }
+
   isFinished(): boolean {
     const result = this.vm.isFinished();
     return result; 

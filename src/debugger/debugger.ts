@@ -37,6 +37,12 @@ export class Debugger {
     this.vm.stopRunning();
   }
 
+  getCurrentSourceLocation(): [string?,  number?] {
+    const fileName = this.vm.getCurrentSrcFileName();
+    const lineNr = this.vm.getCurrentSrcLineNr();
+    return [fileName, lineNr];
+  }
+
   getCurrentSrcMapEntry(): SourceMapEntry | null {
     return this._srcMap().findEntry(this.vm.ip);
   }
