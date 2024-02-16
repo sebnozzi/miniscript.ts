@@ -1,6 +1,6 @@
 {
   "name": "miniscript-ts",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "description": "MiniScript implementation in TypeScript",
   "author": "Sebastian Nozzi",
   "license": "MIT",
